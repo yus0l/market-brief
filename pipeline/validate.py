@@ -75,13 +75,24 @@ def check_interests(ints, errs):
         ok.append(x)
     return ok
 
+def sub_for(d, today):
+    """칩 날짜 글자: 같은 날 "오늘", 하루 전 "어제", 그 전 "11/26", 미래 "D-n" (today.json date 기준)."""
+    import datetime as dt
+    d, t = dt.date.fromisoformat(d[:10]), dt.date.fromisoformat(today[:10]); n = (d - t).days
+    return "오늘" if n == 0 else "어제" if n == -1 else f"D-{n}" if n > 0 else f"{d.month}/{d.day}"
+
+def check_sub(e, today, errs):
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(e.get("date") or "")): errs.append(f"{e.get('id')}: 사건 날짜(date) 없음"); return False
+    if e.get("sub") != sub_for(e["date"], today): errs.append(f"{e['id']}: 날짜 글자 '{e.get('sub')}'가 date {e['date']}와 안 맞음"); return False
+    return True
+
 def validate(today, facts):
     """today(생성본)를 검사해서 통과한 것만 남긴 사본과 오류 목록을 돌려준다."""
     errs = []
     allowed = {str(v).replace(",", "") for v in facts.get("allowed_numbers", [])}
     out = dict(today)
     out["interests"] = check_interests(today.get("interests", []), errs)
-    out["events"] = [e for e in today.get("events", []) if check_event(e, allowed, today.get("date"), errs)][:3]
+    out["events"] = [e for e in today.get("events", []) if check_sub(e, today.get("date"), errs) and check_event(e, allowed, today.get("date"), errs)][:3]
     return out, errs
 
 if __name__ == "__main__":

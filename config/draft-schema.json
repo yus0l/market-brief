@@ -71,6 +71,7 @@
     "additionalProperties": false,
     "required": [
      "id",
+     "date",
      "type",
      "chip",
      "head",
@@ -91,6 +92,10 @@
     "properties": {
      "id": {
       "type": "string"
+     },
+     "date": {
+      "type": "string",
+      "description": "사건 날짜, 한국 날짜 YYYY-MM-DD (발표·결정이 있었던/있을 날)"
      },
      "type": {
       "type": "string",

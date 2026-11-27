@@ -89,7 +89,7 @@
    "chip": "한국은행 금리",
    "head": "한국은행 기준금리 인상",
    "kind": "done",
-   "sub": "오늘",
+   "date": "2026-11-26",
    "dday": false,
    "real": {
     "rate": {
@@ -199,13 +199,15 @@
      "label": "먼저",
      "what": "원/달러 환율",
      "when": "며칠~몇 주",
-     "done": false
+     "done": false,
+     "date": null
     },
     {
      "label": "최종",
      "what": "1월 금통위",
      "when": "1/14",
-     "done": false
+     "done": false,
+     "date": "2027-01-14"
     }
    ],
    "sources": [
@@ -258,7 +260,8 @@
     "expect": "예상대로",
     "actual_src": "https://www.etoday.co.kr/news/view/2652786",
     "expect_src": "https://www.mt.co.kr/economy/2026/11/22/2026112009065366740"
-   }
+   },
+   "sub": "오늘"
   }
  ]
 }

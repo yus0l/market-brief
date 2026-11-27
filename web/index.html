@@ -661,12 +661,25 @@ async function load() {
   try {
     const r = await fetch(DATA_URL, { cache:"no-store" });
     if (!r.ok) throw new Error(r.status);
-    D = await r.json(); checkGraph(D); LOAD = "ok";
+    D = await r.json(); checkGraph(D); subDates(D); LOAD = "ok";
     const ints = D.interests || [];
     S.int = ints.some(x => x.key === Q.get("int")) ? Q.get("int") : (ints[0] && ints[0].key);
     S.ev = (D.events || []).some(e => e.id === Q.get("ev")) ? Q.get("ev") : (D.events[0] && D.events[0].id);
   } catch (e) { LOAD = "error"; }
   S.opt = null; render();
+}
+// 칩 날짜 글자는 저장된 sub 대신 사건 date와 today.json date로 매번 계산 + 정렬: 오늘 결과 → 확인 중인 지난 사건(최근 먼저) → 곧 발표(가까운 순)
+function subDates(d) {
+  const t = d.date && new Date(d.date + "T00:00:00");
+  if (!t || isNaN(t)) return;
+  (d.events || []).forEach(e => {
+    if (!e.date) return;
+    const x = new Date(e.date + "T00:00:00"), n = Math.round((x - t) / 864e5);
+    e.sub = n === 0 ? "오늘" : n === -1 ? "어제" : n > 0 ? `D-${n}` : `${x.getMonth() + 1}/${x.getDate()}`;
+    e.dday = n > 0;
+  });
+  const g = e => !e.date ? 1 : e.kind === "done" && e.date === d.date ? 0 : e.kind === "done" ? 1 : 2;
+  (d.events || []).sort((a, b) => g(a) - g(b) || (g(a) === 1 ? (b.date || "").localeCompare(a.date || "") : (a.date || "").localeCompare(b.date || "")));
 }
 // 경로가 기본 관계 목록 밖의 선을 쓰면 그 선은 그리지 않고 콘솔에 남김 (검사기를 통과했어야 하지만 화면도 한 번 더 막음)
 function checkGraph(d) {

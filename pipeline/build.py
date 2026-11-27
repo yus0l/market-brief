@@ -1,12 +1,12 @@
 """매일 07:30 KST 실행: 수집 → AI 생성 → 조립 → 검사 → web/today.json 공개(08:00).
   python3 pipeline/build.py            # 실제 실행 (키 필요)
   python3 pipeline/build.py --draft X  # AI 단계 건너뛰고 저장된 draft로 조립만 (테스트)"""
-import json, sys, pathlib, datetime as dt
+import json, re, sys, pathlib, datetime as dt
 HERE = pathlib.Path(__file__).resolve().parent; ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 from collect import collect, KST, FRED, ECOS
 NAMES = {k: v[1] for k, v in {**FRED, **ECOS}.items()}
-from validate import validate
+from validate import validate, sub_for
 CFG = json.loads((ROOT / "config" / "graph.json").read_text(encoding="utf-8"))
 SECT = json.loads((ROOT / "config" / "sectors.json").read_text(encoding="utf-8"))
 ARCH = ROOT / "data" / "archive"; WEB = ROOT / "web"
@@ -83,12 +83,12 @@ def assemble(today, facts, draft, upc, yesterday):
             e["schedule_code"] = "BOK"                          # AI가 비워도 한국 금리 결정이면 금통위로 연결 (결과 줄 값 채우기)
         sched = next((u for u in upc if u["code"] == e.get("schedule_code")), None)
         ev = {"id": e["id"], "type": e["type"], "chip": e["chip"], "head": e["head"], "kind": e["kind"],
-              "sub": "오늘" if e["kind"] == "done" else (f"D-{sched['dday']}" if sched else "곧 발표"), "dday": e["kind"] != "done",
+              "date": edate(e, sched, today), "dday": e["kind"] != "done",
               "real": st_dict(e["real"]), "realPath": e["realPath"], "next": e["next"], "actual": None,
               "opts": {k: {"label": o["label"], "path": o["path"], "state": st_dict(o["state"]),
                            "cond": [[c["text"], c["dir"], 1 if c["done"] else 0] for c in o["cond"]], "out": o["out"]} for k, o in e["opts"].items()},
               "judge": {"interest": {}, "items": [judge_row(facts, j["key"], j["side_if_up"]) for j in (e["judge_keys"] or default_judge(facts, e))]},
-              "lean": None, "confirm": [dict(c, done=False, when=md(c.get("when"))) for c in e["confirm"]], "sources": e["sources"],
+              "lean": None, "confirm": [dict(c, done=False, when=md(c.get("when")), date=iso(c.get("when"), today)) for c in e["confirm"]], "sources": e["sources"],
               "sectorTab": "kr" if e["type"] in ("E4",) else "us", "sectors": SECT.get(e["type"])}
         if e["kind"] == "upcoming": ev["top"] = f"예상치 확인 전" if not e["expect_src"] else "예상치 출처 있음"
         if e["kind"] == "done":
@@ -98,7 +98,16 @@ def assemble(today, facts, draft, upc, yesterday):
             d = next(iter(ev["real"].values()), {}); d = d.get("dir") or d.get("kr") or d.get("us")
             ev["result"] = {"dir": d, "text": " · ".join(x for x in (nums, exp) if x) or None, "expect": e["expect"],
                             "actual_src": e["actual_src"], "expect_src": e["expect_src"]}
+        ev["sub"] = sub_for(ev["date"], today.isoformat())
         events.append(ev)
+    # 지난 사건 중 결과 확인(먼저/최종)이 아직 남은 것은 계속 보여줌 (02-UX 칩 규칙)
+    have = {x["id"] for x in events}
+    for y in (yesterday or {}).get("events", []):
+        if y["id"] in have or y["kind"] != "done" or not y.get("date"): continue
+        if any((c.get("date") or "") >= today.isoformat() for c in y.get("confirm", [])):
+            events.append(dict(y, sub=sub_for(y["date"], today.isoformat())))
+    t0 = today.isoformat()
+    events.sort(key=lambda x: (0, "") if x["kind"] == "done" and x["date"] == t0 else (1, "".join(chr(0x10FFFF - ord(ch)) for ch in x["date"])) if x["kind"] == "done" else (2, x["date"]))
     ints = rank_interests(draft["interests"], upc)
     status = {"delayed": None, "quiet": not any(e["kind"] == "done" for e in events), "split": None,
               "closed": {"us": False, "kr": False}, "rankChange": None}
@@ -111,6 +120,22 @@ def assemble(today, facts, draft, upc, yesterday):
         status["rankChange"] = {"from": yesterday["interests"][0]["name"], "to": ints[0]["name"]}
     return {"date": today.isoformat(), "asof": f"{today.month}/{today.day} 08:00", "mock": False,
             "status": status, "interests": ints, "events": events}
+
+def iso(w, today=None):
+    """"2026-12-04" 또는 "12/4"(연도 없음 → 오늘 기준 가까운 해) → "2026-12-04". 못 읽으면 None."""
+    try: return dt.date.fromisoformat(str(w)[:10]).isoformat()
+    except (ValueError, TypeError): pass
+    m = re.match(r"(\d{1,2})/(\d{1,2})", str(w or ""))
+    if not (m and today): return None
+    d = dt.date(today.year, int(m[1]), int(m[2]))
+    if (d - today).days < -180: d = d.replace(year=today.year + 1)
+    return d.isoformat()
+
+def edate(e, sched, today):
+    """사건 날짜(한국 날짜): AI가 준 date → 일정표 → id 앞 날짜 → 오늘 순."""
+    for c in (e.get("date"), sched and (sched.get("kst") or sched.get("date")), str(e.get("id", ""))[:10]):
+        if iso(c): return iso(c)
+    return today.isoformat()
 
 def md(w):   # "2026-12-04" → "12/4" (화면 표기). 그 외 문구는 그대로
     try: d = dt.date.fromisoformat(str(w)[:10]); return f"{d.month}/{d.day}"

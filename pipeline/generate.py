@@ -66,9 +66,9 @@ SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interes
       "key": {"type": "string", "enum": list(CFG["interests"])}, "mention": {"type": "string", "enum": ["많음", "보통", "적음"]},
       "dir": {"type": "string", "enum": ["up", "down"]}, "sources": SRC}}},
   "events": {"type": "array", "maxItems": 3, "items": {"type": "object", "additionalProperties": False,
-      "required": ["id", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
+      "required": ["id", "date", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
       "properties": {
-        "id": {"type": "string"}, "type": {"type": "string", "enum": CFG["event_types"]}, "chip": {"type": "string"}, "head": {"type": "string"},
+        "id": {"type": "string"}, "date": {"type": "string", "description": "사건 날짜, 한국 날짜 YYYY-MM-DD (발표·결정이 있었던/있을 날)"}, "type": {"type": "string", "enum": CFG["event_types"]}, "chip": {"type": "string"}, "head": {"type": "string"},
         "kind": {"type": "string", "enum": ["done", "upcoming"]}, "schedule_code": {"type": ["string", "null"]},
         "expect": {"type": ["string", "null"], "enum": ["예상보다 높음", "예상대로", "예상보다 낮음", None]},
         "actual_src": {"type": ["string", "null"]}, "expect_src": {"type": ["string", "null"]}, "spread": {"type": "boolean"},
