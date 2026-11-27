@@ -15,7 +15,12 @@
      "key",
      "mention",
      "dir",
-     "sources"
+     "sources",
+     "trigger",
+     "trigger_sources",
+     "fact",
+     "fact_sources",
+     "watch"
     ],
     "properties": {
      "key": {
@@ -59,6 +64,62 @@
        ],
        "additionalProperties": false
       }
+     },
+     "trigger": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "칩 아랫줄 계기, 8자 안팎. 순위를 올린 사건·뉴스 주제 자체(예: '한은 금리 인상', '고용 둔화 뉴스'). '가장 많이 언급' 같은 집계 말 금지, ▲▼·'실시간' 금지. 못 만들면 null"
+     },
+     "trigger_sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "fact": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "박스 첫 문장: 무슨 일이 있었나/곧 있나. 30자 안팎, 날짜 말(어제·오늘·요즘·이번 주·N일 뒤) 포함, 출처 있음. 예: '어제 한국은행이 금리를 올렸어요.' 못 쓰면 null"
+     },
+     "fact_sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "watch": {
+      "type": "string",
+      "description": "박스 둘째 문장: 시장이 무엇을 지켜보나. 30자 안팎, '시장은 …보고 있어요'로 끝남, 확인 가능한 지표·일정만, 예측·호재·악재 말 금지. 예: '시장은 이게 대출과 환율에 얼마나 부담이 될지 보고 있어요'"
      }
     }
    }
