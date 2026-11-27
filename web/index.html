@@ -812,7 +812,7 @@ function flowSVG(v) {
   });
   if (v.split) { const f = N.fx; body += `<text x="${f.x}" y="${f.y+f.h/2+13}" font-size="11" text-anchor="middle" fill="${C.ink}" font-weight="600">여기서 갈라졌어요</text>`; }
   if (v.sideTag && pathN.has("stock") && N.stock) {
-    const b = N.stock, t = (v.sideTag.real ? "" : "보통 ") + SIDE[v.sideTag.side], tw = t.length * 11 + 16, by = b.y + b.h/2 + 1;   // 칸 위는 공포 칸과 겹쳐서 바로 아래
+    const b = N.stock, t = "지금은 " + SIDE[v.sideTag.side], tw = t.length * 11 + 16, by = b.y + b.h/2 + 1;   // 칸 위는 공포 칸과 겹쳐서 바로 아래
     body += `<g class="${v.sideTag.flipped ? "sidetag is-flipping" : "sidetag"}"><rect x="${b.x-tw/2}" y="${by}" width="${tw}" height="18" rx="9" fill="${v.sideTag.real?C.acc:C.surf}" stroke="${C.acc}" stroke-width="1.4" ${v.sideTag.real?'':'stroke-dasharray="3 2"'}/>`;
     body += `<text x="${b.x}" y="${by+13}" font-size="11.5" font-weight="600" text-anchor="middle" fill="${v.sideTag.real?'#fff':C.acc}">${t}</text></g>`;
   }
@@ -840,7 +840,7 @@ function playFlow() {
 }
 
 /* ───────── 데이터: today.json (매일 08:00 공개본). 화면은 이 파일만 읽는다 ───────── */
-const SIDE = { good:"호재 쪽", bad:"악재 쪽" };
+const SIDE = { good:"주식에 도움", bad:"주식에 부담" };   // 02-UX "쪽 태그 라이팅" 11/28: 호재/악재·"보통" 안 씀
 const SHOW_SECTORS = false;   // 업종 시트 v1 숨김 (PM 11/26). 업종 표 config/sectors.json은 보관
 const flip = s => s === "good" ? "bad" : "good";
 const h = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
@@ -913,15 +913,15 @@ function touches(e, k) {
 const triI = (d, hypo) => !d ? "" : !hypo ? `<i class="tri ${d}"></i>`
   : `<svg width="11" height="10" viewBox="0 0 11 10" aria-hidden="true" style="flex:none"><polygon points="${d === "up" ? "5.5,1 10,9 1,9" : "5.5,9 10,1 1,1"}" fill="#fff" stroke="${d === "up" ? C.up : C.down}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
 const dirText = d => !d ? "" : ` ${d === "up" ? "오름" : "내림"} 쪽`;   // ▲▼는 실제 움직임에만, 가정은 글자 (명세 §3-6 ④-7)
-const leanText = p => p >= 58 ? "지금 시장은 악재 쪽에 더 가까워요" : p <= 42 ? "지금 시장은 호재 쪽에 더 가까워요" : "지금 시장은 어느 쪽에도 크게 치우치지 않았어요";
+const leanText = p => p >= 58 ? "지금 시장 움직임은 주식에 부담 쪽이에요" : p <= 42 ? "지금 시장 움직임은 주식에 도움 쪽이에요" : "지금 시장은 어느 쪽에도 크게 치우치지 않았어요";
 // "물가 ▼"는 떨어짐으로 읽혀서, 물가가 관심사일 때 ▼는 "오름세 둔화"
 const mdj = s => s && s.length >= 10 ? `${+s.slice(5, 7)}/${+s.slice(8, 10)}` : (s || "");
 const domN = srcs => new Set((srcs || []).map(x => { try { return new URL(x.url).hostname.replace(/^www\./, ""); } catch (_) { return x.url; } })).size;
 // 쪽 이유 한 줄: "시장이 [관심사]를 걱정할 땐, [결과]면 [이유]라 [쪽]으로 읽어요" — 관심사 칸 × 쪽. PM 문장 표 오기 전 임시
 const SIDE_WHY = {
-  cpi: { bad: "시장이 물가를 걱정할 땐, 물가가 높으면 금리가 더 오를까 봐 악재로 읽어요", good: "시장이 물가를 걱정할 땐, 물가가 낮으면 금리를 내릴 여지가 생겨 호재로 읽어요" },
-  rate: { bad: "시장이 금리를 걱정할 땐, 금리가 오르면 빌리는 비용이 늘어 악재로 읽어요", good: "시장이 금리를 걱정할 땐, 금리가 내리면 빌리는 비용이 줄어 호재로 읽어요" },
-  job: { good: "시장이 경기를 걱정할 땐, 지표가 강하면 경기가 버틴다는 뜻이라 호재로 읽어요", bad: "시장이 경기를 걱정할 땐, 지표가 약하면 경기가 식는다는 뜻이라 악재로 읽어요" } };
+  cpi: { bad: "지금 시장은 금리를 걱정해서, 물가가 높으면 금리가 더 오를까 봐 부담으로 봐요", good: "지금 시장은 금리를 걱정해서, 물가가 낮으면 금리를 내릴 여지가 생겨 도움으로 봐요" },
+  rate: { bad: "지금 시장은 금리를 걱정해서, 금리가 오르면 빌리는 비용이 늘어 부담으로 봐요", good: "지금 시장은 금리를 걱정해서, 금리가 내리면 빌리는 비용이 줄어 도움으로 봐요" },
+  job: { good: "지금 시장은 경기를 걱정해서, 고용이 강하면 경기가 버틴다는 뜻이라 도움으로 봐요", bad: "지금 시장은 경기를 걱정해서, 고용이 약하면 경기가 식는다는 뜻이라 부담으로 봐요" } };
 // 나라마다 따로 있는 지표(물가·금리·고용·경기)는 나라를 붙임 (02-UX "지표 이름에 나라 붙이기")
 const CTRY_N = ["cpi", "rate", "job"], CPFX = c => c === "us" ? "미국 " : c === "kr" ? "한국 " : "";
 const iName = x => x && CTRY_N.includes(x.node) && !/^(미국|한국) /.test(x.name) ? CPFX(bCountry(x, [])) + x.name : (x && x.name) || "";
@@ -1019,7 +1019,7 @@ function home() {
 
   // 내 판단 (기기에 저장) → 고르면 시장 쪽 (데이터 있을 때만)
   const p = S.pick[e.id];
-  const PK = T2 ? [["a", `A · ${e.t2.a.short} 쪽`], ["b", `B · ${e.t2.b.short} 쪽`]] : [["good", "호재 쪽"], ["bad", "악재 쪽"]];
+  const PK = T2 ? [["a", `A · ${e.t2.a.short} 쪽`], ["b", `B · ${e.t2.b.short} 쪽`]] : [["good", "주식에 도움"], ["bad", "주식에 부담"]];
   const pickName = k => (PK.find(x => x[0] === k) || [0, SIDE[k] || ""])[1];
   if (!real) {
     r += `<div class="mine"><h4>내 판단은?</h4><div class="btns">${PK.map(([k, t]) => `<button data-pick="${k}" class="${p === k ? "sel" : ""}" aria-pressed="${p === k}">${h(t)}</button>`).join("")}</div>`;
@@ -1030,7 +1030,7 @@ function home() {
         <div class="tl">${t.items.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener"><span class="abt">${h(x.branch.toUpperCase())}</span>${h(x.name)} · ${h(mdj(x.date))}</a>`).join("")}</div>`);
     } else { const Ln = e.lean || {};   // T1 E12: 사건 뒤 가격 반응, 근거는 위 E10
       r += `<div class="lean-t">${h(Ln.text || "시장 쪽은 데이터가 들어오면 보여드려요")}</div>` + (Ln.pos == null ? "" : `<div class="leanbar"><i style="left:${+Ln.pos}%"></i></div>
-        <div class="leanlbl"><span>호재 쪽</span><span>악재 쪽</span></div><div class="basis">${h(Ln.basis)}</div>`);
+        <div class="leanlbl"><span>도움 쪽</span><span>부담 쪽</span></div><div class="basis">${h(Ln.basis)}</div>`);
     }
     r += `</div>`;
   } else {   // E13 결과 뒤 비교
@@ -1111,7 +1111,7 @@ function homeB() {
     if (P) { const pc = bCountry(P, []), ps = sideOf(P, (((D.nowv || {})[pc] || {})[P.node] || {}).dir);
       if (ps && side && ps !== side && bPath(P, pc).some(([, b]) => b === "stock")) e8 = `관심사를 ${josa(I.name, "으로", "로")} 바꾸니 ${SIDE[ps]} → ${SIDE[side]}으로 뒤집혔어요`; } }
   const tri = d => d === "up" ? `<span class="up">▲</span>` : d === "down" ? `<span class="down">▼</span>` : "";
-  const tag = (sd2, dash, flip) => sd2 ? ` <span class="btag${dash ? " dash" : ""}${flip ? " is-flipping" : ""}">보통 ${SIDE[sd2]}</span>` : "";
+  const tag = (sd2, dash, flip) => sd2 ? ` <span class="btag${dash ? " dash" : ""}${flip ? " is-flipping" : ""}">지금은 ${SIDE[sd2]}</span>` : "";
   // 일어난 줄들
   const fm = (I.fact || "").match(/^(\d{1,2}\/\d{1,2})\s+(.+)$/);
   const rows = [];
@@ -1128,7 +1128,7 @@ function homeB() {
     if (b === "stock") { extra = tag(side, false, !!e8);
       // 순서 = E8(바꾼 직후) → 반대 → why → 크기. 3줄까지 보이고 나머지는 "더 보기"
       const why = (SIDE_WHY[I.node] || {})[side];
-      const Ls = [why ? `<p class="bswhy">${h(why)}</p>` : "", contra ? `<p class="bcontra">보통은 ${expStock === "down" ? "내리는데" : "오르는데"} 이번엔 ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
+      const Ls = [why ? `<p class="bswhy">${h(why)}</p>` : "", contra ? `<p class="bcontra">그런데 실제로 ${josa(sname, "은", "는")} ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
         .concat(sizes.map(z => `<p class="bsz">${h(z.text)} · ${refs(z.sources)}</p>`)).filter(Boolean);
       const more = Ls.slice(3);
       desc = Ls.slice(0, 3).join("") + (more.length ? (S.bmore ? more.join("") : `<button class="blink bmorebtn" data-bmore>더 보기</button>`) : ""); }
@@ -1175,7 +1175,7 @@ function homeB() {
   // 아래: 시장은 지금 · 다른 지표 보기 ▸(경로 밖만) · 출처 ▸
   let r = "";
   const Ln = (done || bev || {}).lean;
-  if (Ln) r += `<div class="bsec"><h4 class="stl">시장은 지금</h4><div class="lean-t">${h(Ln.text)}</div>${Ln.pos == null ? "" : `<div class="leanbar"><i style="left:${+Ln.pos}%"></i></div><div class="leanlbl"><span>호재 쪽</span><span>악재 쪽</span></div><div class="basis">${h(Ln.basis)}</div>`}</div>`;
+  if (Ln) r += `<div class="bsec"><h4 class="stl">시장은 지금</h4><div class="lean-t">${h(Ln.text)}</div>${Ln.pos == null ? "" : `<div class="leanbar"><i style="left:${+Ln.pos}%"></i></div><div class="leanlbl"><span>도움 쪽</span><span>부담 쪽</span></div><div class="basis">${h(Ln.basis)}</div>`}</div>`;
   const PN = { "국고채 3년": "rate", "미국 10년물": "rate", "원/달러 환율": "fx", "S&P500": "stock", "VIX": "vix", "코스피": c === "us" ? "kospi" : "stock" };
   const PR = ((done || bev || {}).prices || []).filter(x => !seen.has(PN[x.name]));
   if (PR.length) r += `<div class="bsec judge"><details class="src"><summary>다른 지표 보기</summary>${PR.map(x => `<div class="jrow"><span class="jn">${h(x.name)}</span>
