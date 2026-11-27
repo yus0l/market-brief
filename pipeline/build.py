@@ -122,7 +122,7 @@ def price_reaction(country, edate, facts, status, upcoming_ev):
     side = "bad" if sc >= .34 else "good" if sc <= -.34 else None
     weak = any(r["weak"] and r["counted"] for r in rows)
     return rows, {"pos": round(50 + sc * 50), "side": side,
-                  "text": f"사건 뒤 시장 움직임은 주식에 {'부담' if side == 'bad' else '도움'} 쪽이에요" if side else "사건 뒤 시장 반응이 엇갈려요",
+                  "text": f"사건 뒤 시장 움직임은 {'악재 쪽' if side == 'bad' else '호재 쪽'}에 더 가까워요" if side else "사건 뒤 시장 반응이 엇갈려요",
                   "basis": f"위 시장 움직임 {sum(1 for r in rows if r['counted'])}개를 셌어요" + (" · 약하게는 반만" if weak else "")}
 
 def doms(srcs):
