@@ -284,11 +284,23 @@ def assemble(today, facts, draft, upc, yesterday):
     NOW = {"kr": {"cpi": "kr_cpi", "rate": "ktb3y", "fx": "usdkrw", "stock": "kospi", "oil": "wti", "vix": "vix"},
            "us": {"cpi": "us_cpi", "rate": "us_10y", "job": "us_jobs", "fx": "usdkrw", "stock": "sp500", "oil": "wti", "vix": "vix", "kospi": "kospi"}}
     now = {c: {n: sdir(k) for n, k in m.items() if sdir(k)} for c, m in NOW.items()}
+    def sval(k):   # B v3 타임라인 제목 값 (수집값만)
+        x = facts["series"].get(k)
+        if not x: return None
+        d, u, v = x["date"], x.get("unit", ""), x["value"]
+        md = f"{int(d[4:6])}/{int(d[6:])}" if len(d) == 8 else f"{int(d[5:7])}/{int(d[8:])}" if len(d) == 10 and not d.endswith("-01") else f"{int(d[5:7] if '-' in d else d[4:6])}월"
+        if x.get("yoy") is not None: t = f"전년 대비 {x['yoy']:.1f}%"
+        elif u == "천 명": t = f"{(v - x['prev']) / 10:+,.1f}만 명"
+        elif u == "%": t = f"{v:.2f}%"
+        elif u == "원": t = f"{v:,.0f}원"
+        else: t = f"{v:,.2f}"
+        return {"val": t, "date": md, "dir": sdir(k)}
+    nowv = {c: {n: sval(k) for n, k in m.items() if sval(k)} for c, m in NOW.items()}
     up_codes = {u["code"] for u in upc}
     return {"judge_keys_all": sorted({k for e in events for k in e.get("judgeKeys", [])}),
             "upcoming_keys": sorted(k for k, c in WS.items() if c.get("sched") in up_codes),
             "date": today.isoformat(), "asof": asof_of(facts, today), "mock": False,
-            "status": status, "interests": ints, "events": events, "now": now, "why": {k: v for k, v in CFG.get("why", {}).items() if not k.startswith("_")}}
+            "status": status, "interests": ints, "events": events, "now": now, "nowv": nowv, "why": {k: v for k, v in CFG.get("why", {}).items() if not k.startswith("_")}}
 
 def iso(w, today=None):
     """"2026-12-04" 또는 "12/4"(연도 없음 → 오늘 기준 가까운 해) → "2026-12-04". 못 읽으면 None."""
