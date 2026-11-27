@@ -300,8 +300,9 @@ def assemble(today, facts, draft, upc, yesterday):
         vd = dt.date(int(d[:4]), int(d[-4:-2]), int(d[-2:])) if len(d) == 8 else dt.date.fromisoformat(d)
         if k in BSCH:
             return any(r["code"] == BSCH[k] and vd < dt.date.fromisoformat(r["date"]) < td for r in SCH)
-        hol, n, c = HOL.get(DAYKEY.get(k, "us_stock"), set()), 0, vd + dt.timedelta(days=1)
-        while c <= td:
+        hk = DAYKEY.get(k, "us_stock"); end = td - dt.timedelta(days=1) if hk.startswith("us") else td   # 미국 데이터 = 미국 날짜(한국 −1일)까지 (FRED는 다음 날 게시)
+        hol, n, c = HOL.get(hk, set()), 0, vd + dt.timedelta(days=1)
+        while c <= end:
             if c.weekday() < 5 and c.isoformat() not in hol: n += 1
             c += dt.timedelta(days=1)
         return n >= 2

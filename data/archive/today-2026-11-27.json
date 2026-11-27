@@ -41,6 +41,7 @@
      "url": "https://www.bls.gov/schedule/"
     }
    ],
+   "moves": [],
    "sentence": "11/10 미국 10월 소비자물가가 전월보다 0.4% 올랐어요. 시장은 12/10 미국 CPI가 더 오를지 지켜보고 있어요",
    "fact_sources": [
     {
@@ -108,6 +109,7 @@
      "url": "https://www.bls.gov/schedule/"
     }
    ],
+   "moves": [],
    "sentence": "11/6 미국 10월 실업률이 4.1%로 내렸어요. 시장은 12/4 미국 고용이 더 늘지 지켜보고 있어요",
    "fact_sources": [
     {
@@ -171,6 +173,7 @@
      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     }
    ],
+   "moves": [],
    "sentence": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요. 시장은 12/10 FOMC 금리 결정을 지켜보고 있어요",
    "fact_sources": [
     {
@@ -513,14 +516,14 @@
     "date": "11/24",
     "dir": "up",
     "iso": "2026-11-24",
-    "stale": true
+    "stale": false
    },
    "vix": {
     "val": "26.36",
     "date": "11/24",
     "dir": "down",
     "iso": "2026-11-24",
-    "stale": true
+    "stale": false
    },
    "rate_base": {
     "val": "3.25%",
@@ -548,7 +551,7 @@
     "date": "11/24",
     "dir": "down",
     "iso": "2026-11-24",
-    "stale": true
+    "stale": false
    },
    "job": {
     "val": "+16.5만 명",
@@ -569,21 +572,21 @@
     "date": "11/24",
     "dir": "down",
     "iso": "2026-11-24",
-    "stale": true
+    "stale": false
    },
    "oil": {
     "val": "82.24",
     "date": "11/24",
     "dir": "up",
     "iso": "2026-11-24",
-    "stale": true
+    "stale": false
    },
    "vix": {
     "val": "26.36",
     "date": "11/24",
     "dir": "down",
     "iso": "2026-11-24",
-    "stale": true
+    "stale": false
    },
    "kospi": {
     "val": "4,711.21",
