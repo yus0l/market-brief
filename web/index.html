@@ -252,14 +252,17 @@
   .no-dev .debug-dot { display: none !important; }
   .asof { font-size: var(--fs-caption); color: var(--text-2); margin: 12px 2px 0; }   /* 기준 시각 (02-UX) */
   .ibox { padding: 0; }   /* 배경 없앰 (사용자 11/27) */
-  .ichips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px 12px; padding: 0 2px; }
-  .ichips::-webkit-scrollbar { display: none; }
-  .ichip2 { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; border: 1.5px solid transparent; border-radius: var(--r-control); padding: 8px 12px; font-size: var(--fs-label); font-weight: var(--fw-bold); background: var(--surface-sunken); color: var(--text-2); }
-  .ichip2 .l1 { display: flex; align-items: baseline; gap: 6px; color: var(--text-2); }
-  .ichip2 .rk { font-family: var(--font-mono); font-size: var(--fs-caption); color: var(--text-3); }
-  .ichip2 .l2 { font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-2); white-space: nowrap; }
-  .ichip2.on .l1, .ichip2.on .rk { color: var(--interest-text); }
-  .ichip2.on { background: var(--interest-soft); color: var(--interest-text); border-color: var(--interest); }   /* 흐름도 관심사 칸과 같은 모양, 대비 약 4.9:1 */
+  .isel { position: relative; margin-bottom: 12px; }
+  .isel-btn { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-2); border-radius: var(--r-control); background: var(--surface-1); font-size: var(--fs-label); color: var(--text-1); }
+  .isel-btn .car { color: var(--text-2); margin-left: 2px; }
+  .isel .rk { flex: none; width: 16px; text-align: center; font-size: 13px; font-weight: var(--fw-bold); color: var(--text-1); }
+  .isel .rk.r1 { color: var(--dir-up); }
+  .isel b { font-weight: var(--fw-bold); white-space: nowrap; }
+  .isel .l2 { color: var(--text-2); font-weight: var(--fw-regular); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .isel-list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 100%; margin: 0; padding: 4px; list-style: none; background: var(--surface-1); border: 1px solid var(--border-2); border-radius: var(--r-control); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .isel-list li { display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 8px; border-radius: 8px; font-size: var(--fs-label); cursor: pointer; white-space: nowrap; }
+  .isel-list li.on { background: var(--interest-soft); }
+  .isel-list li:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .ibox .big { font-size: var(--fs-title); font-weight: var(--fw-bold); line-height: 1.4; word-break: keep-all; }
   .ibox .big em { font-style: normal; color: var(--interest-text); white-space: nowrap; }
   .ibox .big .idot { width: 9px; height: 9px; margin: 0 4px 2px 1px; vertical-align: middle; }
@@ -320,8 +323,8 @@
   }
 
   .sect { font-size: var(--fs-caption); color: var(--sub); font-weight: var(--fw-bold); margin: 16px 2px 8px; }
-  .chips-wrap { position: relative; margin-top: 16px; }   /* "사건 고르기" 제목 뺀 자리 간격 */
-  .col-r .chips-wrap { margin-top: 0; }
+  .chips-wrap { position: relative; margin-top: var(--sp-5); }   /* 흐름도 묶음 ↔ 사건 묶음 사이 (1023 이하) */
+  @media (min-width: 1024px) { .col-r .chips-wrap { margin-top: 0; } }
   @media (max-width: 639px) { .chips-wrap::after { content: ""; position: absolute; right: 0; top: 0; bottom: 4px; width: 36px; background: linear-gradient(90deg, rgba(242,242,247,0), var(--bg)); pointer-events: none; } }
   .chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 4px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
@@ -659,7 +662,7 @@ const SHOW_SECTORS = false;   // 업종 시트 v1 숨김 (PM 11/26). 업종 표 
 const flip = s => s === "good" ? "bad" : "good";
 const h = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 let D = null, LOAD = "loading";   // loading | ok | error
-const S = { ev:null, int:null, flip:null, opt:null, legend:false, tab:"us", pick:{}, tried:(() => { try { return localStorage.getItem("mf-tried") === "1"; } catch (_) { return false; } })() };
+const S = { ev:null, int:null, iopen:false, flip:null, opt:null, legend:false, tab:"us", pick:{}, tried:(() => { try { return localStorage.getItem("mf-tried") === "1"; } catch (_) { return false; } })() };
 const Q = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(); } })();
 const DATA_URL = Q.get("data") || "today.json";       // 개발·테스트용: ?data=mock/quiet.json
 try { S.pick = JSON.parse(localStorage.getItem("mf-picks") || "{}"); } catch (e) {}
@@ -684,7 +687,7 @@ function subDates(d) {
   (d.events || []).forEach(e => {
     if (!e.date) return;
     const x = new Date(e.date + "T00:00:00"), n = Math.round((x - t) / 864e5);
-    e.sub = n === 0 ? "오늘" : n === -1 ? "어제" : n > 0 ? `D-${n}` : `${x.getMonth() + 1}/${x.getDate()}`;
+    e.sub = `${x.getMonth() + 1}/${x.getDate()}`;   // 날짜만 (02-UX "사건 칩 시점: 상대 표현 → 날짜")
     e.dday = n > 0;
   });
   const g = e => !e.date ? 1 : e.kind === "done" && e.date === d.date ? 0 : e.kind === "done" ? 1 : 2;
@@ -757,9 +760,11 @@ function home() {
   const sent = h(I.sentence).replace(h(I.name), `<em>${h(I.name)}</em>`);
   const chg = st.rankChange && I.rank === 1 ? `<div class="ds-interest-change">1순위 관심사가 바뀌었어요 · <s>${h(st.rankChange.from)}</s> → ${h(st.rankChange.to)}</div>` : "";
   const ints = D.interests || [];
-  // 관심사 칩 = 오늘의 이슈 순위: 윗줄 "1 금리", 아랫줄 계기(없으면 생략). 1개면 칩 없음 (02-UX)
+  // 관심사 고르기 = 버튼 + 펼침 목록 (02-UX "되돌림: 칩 → 셀렉트"): "1 금리 · 한은 금리 인상", 1은 빨강·2·3 검정
+  const iitem = x => `<span class="rk ${x.rank === 1 ? "r1" : ""}">${x.rank}</span><b>${h(x.name)}</b>${x.reason && x.reason.label ? `<span class="l2"> · ${h(x.reason.label)}</span>` : ""}`;
   const pick = ints.length > 1
-    ? `<div class="ichips" role="radiogroup" aria-label="요즘 시장의 관심사 고르기">${ints.map(x => `<button class="ichip2 ${x.key === I.key ? "on" : ""}" role="radio" aria-checked="${x.key === I.key}" data-ichip="${h(x.key)}"><span class="l1"><span class="rk">${x.rank}</span>${h(x.name)}</span>${x.reason && x.reason.label ? `<span class="l2">${h(x.reason.label)}</span>` : ""}</button>`).join("")}</div>`
+    ? `<div class="isel"><button class="isel-btn" data-iopen aria-haspopup="listbox" aria-expanded="${!!S.iopen}" aria-label="요즘 시장의 관심사 고르기">${iitem(I)}<span class="car" aria-hidden="true">▾</span></button>${S.iopen
+      ? `<ul class="isel-list" role="listbox" aria-label="요즘 시장의 관심사">${ints.map(x => `<li role="option" tabindex="-1" aria-selected="${x.key === I.key}" class="${x.key === I.key ? "on" : ""}" data-ichip="${h(x.key)}">${iitem(x)}</li>`).join("")}</ul>` : ""}</div>`
     : "";
   const ibox = `<section class="icard"><div class="ibox">${chg}${pick}<div class="big">${sent}</div>${ints.length > 1 ? "" : `<div class="small">요즘 시장의 관심사 · ${h(I.name)}${I.reason ? " · " + h(I.reason.label) : ""}</div>`}</div></section>`;
 
@@ -876,7 +881,9 @@ function closeSheet() {
 
 document.addEventListener("click", ev => {
   const ic = ev.target.closest("[data-ichip]");
-  if (ic) { if (ic.dataset.ichip !== S.int) { S.flip = S.int; S.int = ic.dataset.ichip; render(); if (ev.detail === 0) { const b = document.querySelector(`[data-ichip="${ic.dataset.ichip}"]`); if (b) b.focus(); } } return; }   // 키보드로 바꿀 때만 포커스 유지
+  if (ic) { pickInt(ic.dataset.ichip); return; }
+  if (ev.target.closest("[data-iopen]")) { S.iopen = !S.iopen; render(); if (S.iopen) focusOpt(); return; }
+  if (S.iopen && !ev.target.closest(".isel")) { S.iopen = false; render(); }   // 바깥 누르면 닫힘
   const t = ev.target.closest("[data-legend],[data-file],[data-retry],[data-reset],[data-hide],#debugDot,[data-ev],[data-opt],[data-pick],[data-sector],[data-tab],.tapstock,#dimbg");
   if (!t) return;
   const d = t.dataset; S.flip = null;
@@ -899,7 +906,26 @@ document.addEventListener("click", ev => {
 document.addEventListener("change", ev => {
   if (ev.target.matches("[data-int]")) { S.flip = S.int; S.int = ev.target.value; render(); const sel = document.querySelector("[data-int]"); if (sel) sel.focus(); }
 });
+function pickInt(k) {
+  S.iopen = false;
+  if (k !== S.int) { S.flip = S.int; S.int = k; }
+  render(); const b = document.querySelector("[data-iopen]"); if (b) b.focus();
+}
+function focusOpt(k) {
+  const o = [...document.querySelectorAll(".isel-list [role=option]")];
+  const i = k != null ? k : Math.max(0, o.findIndex(x => x.getAttribute("aria-selected") === "true"));
+  if (o[i]) o[i].focus();
+}
 document.addEventListener("keydown", ev => {
+  // 관심사 목록 키보드: ↑↓ 이동, Enter·Space 고르기, Esc 닫기
+  const op = ev.target.closest && ev.target.closest(".isel-list [role=option]");
+  if (S.iopen && (op || ev.target.closest && ev.target.closest("[data-iopen]"))) {
+    const o = [...document.querySelectorAll(".isel-list [role=option]")], i = o.indexOf(op);
+    if (ev.key === "ArrowDown") { ev.preventDefault(); focusOpt(Math.min(o.length - 1, i + 1)); return; }
+    if (ev.key === "ArrowUp") { ev.preventDefault(); focusOpt(Math.max(0, i - 1)); return; }
+    if ((ev.key === "Enter" || ev.key === " ") && op) { ev.preventDefault(); pickInt(op.dataset.ichip); return; }
+    if (ev.key === "Escape") { S.iopen = false; render(); const b = document.querySelector("[data-iopen]"); if (b) b.focus(); return; }
+  }
   if (ev.key === "Escape") closeSheet();
   if ((ev.key === "Enter" || ev.key === " ") && ev.target.classList && ev.target.classList.contains("tapstock")) { ev.preventDefault(); if (SHOW_SECTORS && cur().sectors) openSheet(); }
 });

@@ -91,10 +91,10 @@ def check_interests(ints, errs, allowed=frozenset()):
     return ok
 
 def sub_for(d, today):
-    """칩 날짜 글자: 같은 날 "오늘", 하루 전 "어제", 그 전 "11/26", 미래 "D-n" (today.json date 기준)."""
+    """칩 날짜 글자 = 사건 날짜 "11/26" (today 인자는 호환용)."""
     import datetime as dt
     d, t = dt.date.fromisoformat(d[:10]), dt.date.fromisoformat(today[:10]); n = (d - t).days
-    return "오늘" if n == 0 else "어제" if n == -1 else f"D-{n}" if n > 0 else f"{d.month}/{d.day}"
+    return f"{d.month}/{d.day}"   # 날짜만 (02-UX 11/27: 오늘·어제·D-n 안 씀)
 
 def check_sub(e, today, errs):
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(e.get("date") or "")): errs.append(f"{e.get('id')}: 사건 날짜(date) 없음"); return False

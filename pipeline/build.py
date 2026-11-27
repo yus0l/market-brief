@@ -44,7 +44,7 @@ def rank_interests(draft_ints, upc):
         # 칩 아랫줄 계기 (02-UX "오늘의 이슈 순위"): 앞둔 발표면 코드가 "미국 CPI D-3", 아니면 AI 계기(출처 2개↑, 검사기가 확인)
         if boosted:
             n = x["ev"]["dday"]
-            reason = {"type": "event", "label": f"{x['ev']['name']} D-{n}"}
+            reason = {"type": "event", "label": f"{x['ev']['name']} {md(x['ev'].get('kst') or x['ev']['date'])}"}   # "미국 CPI 12/10"
             fact, fsrc = f"{'오늘' if n == 0 else '내일' if n == 1 else f'{n}일 뒤'} {x['ev']['name']} 발표가 있어요.", [{"name": "발표 일정", "url": x["ev"].get("source", "")}]
         else:
             reason = {"type": "mention", "label": x.get("trigger")}
