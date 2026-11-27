@@ -637,6 +637,14 @@
   .b3 details.ref { display: inline; } .b3 details.ref[open] { display: block; }
   .b3 .b4name details.ref summary { font-size: var(--fs-caption); font-weight: var(--fw-regular); }
   .b4why { margin-top: 4px; font-size: var(--fs-body); color: var(--text-2); line-height: 1.5; word-break: keep-all; }
+  .b4side { font-weight: var(--fw-bold); white-space: nowrap; }
+  .b4side.up { color: var(--dir-up); } .b4side.down { color: var(--dir-down); }
+  .b4side details.ref summary, .b4side .ref { font-weight: var(--fw-regular); }
+  .b4val .b4side { margin-left: 6px; }
+  .b4val .b4side:first-child { margin-left: 0; }
+  .b4conds { margin-top: 4px; display: grid; gap: 2px; font-size: var(--fs-body); color: var(--text-2); }
+  .b4conds p.cur { color: var(--text-1); font-weight: var(--fw-bold); }
+  .b4contra { margin-top: 4px; font-size: var(--fs-body); color: var(--text-2); }
   .b4read { padding-left: 36px; display: grid; gap: 6px; font-size: var(--fs-body); }
   .b4read .bcontra { color: var(--text-1); }
   .b4hyp { list-style: none; margin: -8px 0 0 36px; padding: 0; display: grid; gap: 6px; }
@@ -1154,7 +1162,7 @@ function homeB() {
     const meta = [c.metaDate || (v ? v.date : c.num ? "" : ""), c.next_day ? "다음 날" : "", c.parentName ? `← ${h(c.parentName)}에서` : ""].filter(Boolean).join(" · ")
       + (v && v.stale ? ` <span class="bstale">· 최신 값 확인 전</span>` : "");
     const valL = v ? `${tri(v.dir)} <span class="b4n">${h(v.chg ? `${v.chg.from} → ${v.val}` : v.val)}</span>` : c.num ? `<span class="b4n">${h(c.num.value)}</span>${art(c.num.sources)}` : `<span class="b4no">값 확인 전</span>`;
-    return `<li class="b4c ${has ? "done" : "wait"} ${link === "yes" ? "ln" : link === "no" || !link ? "" : "lnu"}"><span class="b4dot" aria-hidden="true">${has ? "✓" : ""}</span><div>${meta ? `<div class="bmeta">${meta}</div>` : ""}<div class="b4name">${nmSpan(c.name, c.def)}</div><div class="b4val">${valL}${c.badge ? ` <span class="bbadge">${h(c.badge)}</span>` : ""}</div>${c.why ? `<p class="b4why">${h(c.why)}${art(c.why_sources)}</p>` : ""}</div></li>`; };
+    return `<li class="b4c ${has ? "done" : "wait"} ${link === "yes" ? "ln" : link === "no" || !link ? "" : "lnu"}"><span class="b4dot" aria-hidden="true">${has ? "✓" : ""}</span><div>${meta ? `<div class="bmeta">${meta}</div>` : ""}<div class="b4name">${nmSpan(c.name, c.def)}</div><div class="b4val">${valL}${c.badge ? ` <span class="bbadge">${h(c.badge)}</span>` : ""}${c.readTag || ""}</div>${c.readSub || ""}${c.why ? `<p class="b4why">${h(c.why)}${art(c.why_sources)}</p>` : ""}</div></li>`; };
   const sec = (title, body) => body ? `<section class="b4sec"><h4 class="b4st">${title}</h4>${body}</section>` : "";
   // ① 무슨 일
   const P = T.path || [], first = P[0];
@@ -1163,15 +1171,28 @@ function homeB() {
   else if (first) s1 = `<ol class="b4tl">${cellLi(Object.assign({}, first, { badge: T.compareText }), (P[1] || {}).link_prev)}</ol>`;
   // ② 어디로 번지나 (관심사 칸 다음부터)
   const rest = T.recent ? P : P.slice(1);
-  const s2 = rest.length ? `<ol class="b4tl">${rest.map((c, i) => cellLi(c, (rest[i + 1] || {}).link_prev)).join("")}</ol>` : "";
-  // ③ 어떻게 읽나 (원 없음)
+  let s2 = rest.length ? `<ol class="b4tl">${rest.map((c, i) => cellLi(c, (rest[i + 1] || {}).link_prev)).join("")}</ol>` : "";
+  // 읽는 법(③)은 블록이 아니라 경로 끝 주식 칸 줄 값 옆: 채운 ▲▼ = 실제, 빈 △▽ = 해석·가정 (02-UX B v4 수정)
   const R = T.read, cur = T.curNode;
-  let s3 = "";
-  if (R && R.type === "k" && !R.none) s3 = R.sure ? `<p><span class="btag">${SIDE[R.sure]}</span></p>`
-    : `<div class="bconds">${(R.conds || []).map(q => `<p class="${(q.interest || []).includes(cur) ? "cur" : ""}"><span>${h(q.text)}</span><span class="btag">${SIDE[q.side]}</span></p>`).join("")}</div>`;
-  else if (R && R.type === "articles") s3 = (R.items || []).map(a => `<p class="b4rd">${a.cond ? h(a.cond) + " " : ""}기사들은 <b>${SIDE[a.side]}</b>로 봐요${art(a.sources)}</p>`).join("");
-  if (s3 && T.actual) s3 += `<p class="bcontra">그런데 실제로 ${h(josa(T.actual.name, "은", "는"))} ${T.actual.dir === "up" ? "올랐어요" : "내렸어요"}</p>`;
-  if (s3) s3 = `<div class="b4read">${s3}</div>`;
+  const sideH = (sd, extra) => `<span class="b4side ${sd === "good" ? "up" : "down"}">${SIDE[sd]} ${sd === "good" ? "△" : "▽"}${extra || ""}</span>`;
+  const STK = /^(stock|kospi|sector:|idx:|co:)/;
+  let si = -1; P.forEach((c, i) => { if (STK.test(c.key)) si = i; });
+  let tag = "", sub = "";
+  if (R && R.type === "k" && !R.none) {
+    if (R.sure) tag = sideH(R.sure);
+    else sub = `<div class="b4conds">${(R.conds || []).map(q => `<p class="${(q.interest || []).includes(cur) ? "cur" : ""}">${h(q.text)} ${sideH(q.side)}</p>`).join("")}</div>`;
+  } else if (R && R.type === "articles" && R.items && R.items.length) {
+    if (R.items.length === 1 && !R.items[0].cond) tag = sideH(R.items[0].side, art(R.items[0].sources));
+    else sub = `<div class="b4conds">${R.items.map(a => `<p>${a.cond ? h(a.cond) + " " : ""}${sideH(a.side, art(a.sources))}</p>`).join("")}</div>`;
+  }
+  const mainSide = R && R.type === "k" ? R.sure : R && R.type === "articles" && R.items && R.items.length === 1 ? R.items[0].side : null;
+  if (T.actual && mainSide) sub += `<p class="b4contra">${SIDE[mainSide]}로 읽히는데 ${T.actual.dir === "up" ? "올랐어요" : "내렸어요"}</p>`;
+  const PP = P.map((c, i) => i === si ? Object.assign({}, c, { readTag: tag ? " " + tag : "", readSub: sub }) : c);
+  const first2 = PP[0];
+  if (T.recent) s1 = `<ol class="b4tl"><li class="b4c done"><span class="b4dot">✓</span><div>${T.recentDate ? `<div class="bmeta">${h(T.recentDate)}</div>` : ""}<div class="b4name">${h(T.recent)}${art(T.recent_sources)}</div>${si < 0 && (tag || sub) ? `<div class="b4val">${tag}</div>${sub}` : ""}</div></li></ol>`;
+  else if (first2) s1 = `<ol class="b4tl">${cellLi(Object.assign({}, first2, { badge: T.compareText }), (PP[1] || {}).link_prev)}</ol>`;
+  const rest2 = T.recent ? PP : PP.slice(1);
+  s2 = rest2.length ? `<ol class="b4tl">${rest2.map((c, i) => cellLi(c, (rest2[i + 1] || {}).link_prev)).join("")}</ol>` : "";
   // ④ 뭘 보면 갈리나: 다음 발표 하나 + 높으면/낮으면 (가정 = 기본 관계, 점선, 보통 규칙 why)
   let s4 = "";
   const N = T.next;
@@ -1181,15 +1202,20 @@ function homeB() {
         const sg = ((SIGN_C[T.c] || {})[pa + ">" + c.key]) || SIGN[pa + ">" + c.key] || 1; dirs[c.key] = sg > 0 ? dirs[pa] : flip2(dirs[pa]); out.push({ c, d: dirs[c.key], pa }); }
       return out; };
     const short = c => c.short || c.name;
-    const row = (k, hi) => { const H = hyp(hi), open = (S.b4open || {})[k];
-      const sum = H.map(x => `${h(short(x.c))} ${x.d === "up" ? "오름" : "내림"} 쪽`).join(" → ");
-      return `<li class="b4h"><button class="b4hs" data-b4h="${k}" aria-expanded="${!!open}"><span class="b4hl">예상보다 ${hi ? "높으면" : "낮으면"}</span><span class="b4hsum">${sum || "번지는 길 확인 전"}</span><span class="car">${open ? "▴" : "›"}</span></button>${open && H.length ? `<ol class="bhyp">${H.map(x => `<li class="bh"><span class="bhd"></span><div><b>${h(x.c.name)} ${x.d === "up" ? "오름" : "내림"} 쪽</b>${x.c.why_rule ? `<p class="bw">${h(x.c.why_rule)}</p>` : ""}</div></li>`).join("")}</ol>` : ""}</li>`; };
+    const hArr = d => `<span class="b4side ${d === "up" ? "up" : "down"}">${d === "up" ? "△" : "▽"}</span>`;
+    const KT = D.ktags || {};
+    const hSide = hi => { const d = hi ? "up" : "down"; const K = (Object.values(KT).find(v => v.node === first.key && v.dir === d && !v.market && !v.none));
+      if (!K) return null; return K.sure || ((K.conds || []).find(q => (q.interest || []).includes(cur)) || {}).side || null; };
+    const row = (k, hi) => { const H = hyp(hi), open = (S.b4open || {})[k], hs = hSide(hi);
+      const lastStk = H.length && STK.test(H[H.length - 1].c.key);
+      const sum = H.map((x, i) => `${h(short(x.c))} ${hArr(x.d)}${i === H.length - 1 && lastStk && hs ? ` <span class="b4side ${hs === "good" ? "up" : "down"}">${SIDE[hs]}</span>` : ""}`).join(" → ");
+      return `<li class="b4h"><button class="b4hs" data-b4h="${k}" aria-expanded="${!!open}"><span class="b4hl">예상보다 ${hi ? "높으면" : "낮으면"}</span><span class="b4hsum">${sum || "번지는 길 확인 전"}</span><span class="car">${open ? "▴" : "›"}</span></button>${open && H.length ? `<ol class="bhyp">${H.map(x => `<li class="bh"><span class="bhd"></span><div><b>${h(x.c.name)} ${hArr(x.d)}</b>${x.c.why_rule ? `<p class="bw">${h(x.c.why_rule)}</p>` : ""}</div></li>`).join("")}</ol>` : ""}</li>`; };
     s4 = `<ol class="b4tl"><li class="b4c next"><span class="b4dot"></span><div><div class="bmeta">${h(N.md)}</div><div class="b4name">${h(N.name)} 발표</div></div></li></ol><ul class="b4hyp">${row("hi", true)}${row("lo", false)}</ul>`;
   }
   const srcs = (T.sources || []).concat(...P.map(c => c.why_sources || []));
   const srcH = srcs.length ? `<details class="src b4src"><summary>출처</summary>${srcs.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>` : "";
   const sheet = S.bdefs ? `<div class="b4sheet" data-bdefs-close><div><b>${h(S.bdefs.split("|")[0])}</b><p>${h(S.bdefs.split("|")[1] || "")}</p></div></div>` : "";
-  return `<div class="b3">${top}${pick}${sec("무슨 일", s1)}${sec("어디로 번지나", s2)}${sec("어떻게 읽나", s3)}${sec("뭘 보면 갈리나", s4)}${srcH}</div>${sheet}`;
+  return `<div class="b3">${top}${pick}${sec("무슨 일", s1)}${sec("어디로 번지나", s2)}${sec("뭘 보면 갈리나", s4)}${srcH}</div>${sheet}`;
 }
 // v2 today.json "topics"(pipeline/v2.py assemble) → 화면 모양
 function normTopic(t) {
