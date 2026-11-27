@@ -80,7 +80,7 @@ BR = {"type": "object", "additionalProperties": False, "required": ["short", "vi
 SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interests", "events", "extra_numbers"], "properties": {
   "extra_numbers": {"type": "array", "description": "수집값에 없는데 문장에 쓴 숫자. 서로 다른 매체 2개에 같은 숫자가 있을 때만", "items": {"type": "object", "additionalProperties": False,
       "required": ["value", "sources"], "properties": {"value": {"type": "string"}, "sources": SRC}}},
-  "interests": {"type": "array", "items": {"type": "object", "additionalProperties": False, "required": ["key", "mention", "dir", "sources", "trigger", "trigger_sources", "fact", "fact_sources", "watch", "market_type", "market_sources"], "properties": {
+  "interests": {"type": "array", "items": {"type": "object", "additionalProperties": False, "required": ["key", "mention", "dir", "sources", "trigger", "trigger_sources", "fact", "fact_sources", "watch", "market_type", "market_sources", "moves"], "properties": {
       "key": {"type": "string", "enum": list(CFG["interests"])}, "mention": {"type": "string", "enum": ["많음", "보통", "적음"]},
       "dir": {"type": "string", "enum": ["up", "down"]}, "sources": SRC,
       "trigger": {"type": ["string", "null"], "description": "칩 아랫줄 계기, 8자 안팎. 순위를 올린 사건·뉴스 주제 자체(예: '한은 금리 인상', '고용 둔화 뉴스'). '가장 많이 언급' 같은 집계 말 금지, ▲▼·'실시간' 금지. 못 만들면 null"},
@@ -89,7 +89,13 @@ SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interes
       "fact_sources": SRC,
       "watch": {"type": ["string", "null"], "description": "박스 둘째 문장 = 시장 칸, 주어 '시장은'. M1: '시장은 [M/D] [지표]가 [어떻게 될지] 지켜보고 있어요'(일정표 공식 날짜 필수) / M2: '시장은 [칸][방향]을 걱정하고·기대하고·보고 있어요'(같은 해석 기사 2개 이상, 칸 이름으로 말함, 관심사 기준 악재 쪽이면 걱정·호재 쪽이면 기대). 첫 문장과 같은 지표를 반복하지 않음. 40자 안쪽. 근거 없으면 null"},
       "market_type": {"type": ["string", "null"], "enum": ["M1", "M2", None]},
-      "market_sources": SRC}}},
+      "market_sources": SRC,
+      "moves": {"type": "array", "maxItems": 3, "description": "명세 §3-10-3: 이 관심사의 번지는 길 위에서 실제로 움직인 칸마다 '이번에 왜' 한 줄(관심사당 최대 3). 서로 다른 매체 2개가 같은 원인을 말할 때만 why를 쓰고, 아니면 why=null",
+        "items": {"type": "object", "additionalProperties": False, "required": ["node", "why", "sources", "link_prev"], "properties": {
+          "node": {"type": "string", "enum": list(CFG["nodes"]) + ["kospi"]},
+          "why": {"type": ["string", "null"], "description": "'[원인] 때문이라고 봐요' — 원인은 사건·지표·발표 이름(예: '한은 금리 인상', '미국 고용 둔화'). '투자 심리'·'불확실성'만은 실패. 과거형 사실만, 예측·전망 금지('~할 것', '~할 수 있다', '전망', '예상된다'). 숫자 쓰지 않음. 근거 없으면 null"},
+          "sources": SRC,
+          "link_prev": {"type": "string", "enum": ["yes", "no", "unknown"], "description": "yes = 기사들이 이 움직임을 바로 위 칸(번지는 길의 앞 칸)의 움직임 때문이라고 말함 / no = 기사들이 다른 원인을 말함(why에 '같은 날 [소식] 때문이라고 봐요') / unknown = 근거 없음"}}}}}}},
   "events": {"type": "array", "maxItems": 3, "items": {"type": "object", "additionalProperties": False,
       "required": ["id", "date", "ktype", "etype", "t2", "outlook", "size", "question", "watch", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
       "properties": {

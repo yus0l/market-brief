@@ -51,7 +51,7 @@ def rank_interests(draft_ints, upc):
             reason = {"type": "mention", "label": x.get("trigger")}
             fact, fsrc = x.get("fact"), x.get("fact_sources") or []
         out.append({"key": x["key"], "node": c["node"], "name": c["name"], "rank": i + 1, "reason": reason, "upSide": c["upSide"],
-                    "fact": fact, "watch": x.get("watch"), "market_type": x.get("market_type"), "market_sources": x.get("market_sources") or [], "sentence": " ".join(t for t in (fact, x.get("watch")) if t),
+                    "fact": fact, "watch": x.get("watch"), "market_type": x.get("market_type"), "market_sources": x.get("market_sources") or [], "moves": x.get("moves") or [], "sentence": " ".join(t for t in (fact, x.get("watch")) if t),
                     "fact_sources": fsrc, "trigger_sources": x.get("trigger_sources") or [],
                     "explain": c["explain"], "sources": x["sources"]})
     return out
@@ -286,6 +286,25 @@ def assemble(today, facts, draft, upc, yesterday):
     NOW = {"kr": {"cpi": "kr_cpi", "rate": "ktb3y", "fx": "usdkrw", "stock": "kospi", "oil": "wti", "vix": "vix"},
            "us": {"cpi": "us_cpi", "rate": "us_10y", "job": "us_jobs", "fx": "usdkrw", "stock": "sp500", "oil": "wti", "vix": "vix", "kospi": "kospi"}}
     now = {c: {n: sdir(k) for n, k in m.items() if sdir(k)} for c, m in NOW.items()}
+    # "최신 값 확인 전" (검수 11/28): 일간 = 데이터 나라 휴장일 뺀 2영업일+, 월간 = 그 값 다음 발표일이 지났는데 그대로, 기준금리 = 다음 결정일이 지났는데 그대로
+    HOL = {k: set(v) for k, v in json.loads((ROOT / "config" / "holidays.json").read_text(encoding="utf-8")).items() if not k.startswith("_")}
+    DAYKEY = {"us_10y": "us_bond", "us_base": "us_bond", "sp500": "us_stock", "vix": "us_stock", "wti": "us_stock", "usdkrw": "kr", "ktb3y": "kr", "kospi": "kr", "kr_base": "kr"}
+    MON = {"us_cpi": "US_CPI", "us_ppi": "US_PPI", "us_jobs": "US_JOBS", "kr_cpi": "KR_CPI"}, 
+    BSCH = {"us_base": "FOMC", "kr_base": "BOK"}
+    SCH = load_schedule(); td = today if isinstance(today, dt.date) else dt.date.fromisoformat(str(today)[:10])
+    def is_stale(k, d, x):
+        if k in MON[0]:   # 값의 달 M → M 다음다음 달 이후 발표가 오늘 전에 있었으면 새 값이 나왔어야 함
+            y, m = int(d[:4]), int(d[5:7] if "-" in d else d[4:6]); m2 = (y * 12 + m - 1 + 2); after = dt.date(m2 // 12, m2 % 12 + 1, 1)
+            return any(r["code"] == MON[0][k] and after <= dt.date.fromisoformat(r["date"]) < td for r in SCH)
+        if len(d) not in (8, 10): return False
+        vd = dt.date(int(d[:4]), int(d[-4:-2]), int(d[-2:])) if len(d) == 8 else dt.date.fromisoformat(d)
+        if k in BSCH:
+            return any(r["code"] == BSCH[k] and vd < dt.date.fromisoformat(r["date"]) < td for r in SCH)
+        hol, n, c = HOL.get(DAYKEY.get(k, "us_stock"), set()), 0, vd + dt.timedelta(days=1)
+        while c <= td:
+            if c.weekday() < 5 and c.isoformat() not in hol: n += 1
+            c += dt.timedelta(days=1)
+        return n >= 2
     def sval(k):   # B v3 타임라인 제목 값 (수집값만)
         x = facts["series"].get(k)
         if not x: return None
@@ -297,6 +316,7 @@ def assemble(today, facts, draft, upc, yesterday):
         elif u == "원": t = f"{v:,.0f}원"
         else: t = f"{v:,.2f}"
         r = {"val": t, "date": md, "dir": sdir(k), "iso": f"{d[:4]}-{d[4:6]}-{d[6:]}" if len(d) == 8 else d if len(d) == 10 else None}
+        r["stale"] = is_stale(k, d, x)
         ch = x.get("changed") or ({"date": d, "from": x["prev"]} if k in ("kr_base", "us_base") and x.get("prev") is not None and x["prev"] != v else None)
         if ch:   # 기준금리: 마지막 결정 (§3-10-2)
             cd = ch["date"].replace("-", "")

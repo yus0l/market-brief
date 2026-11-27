@@ -484,43 +484,50 @@
     "val": "전년 대비 2.8%",
     "date": "10월",
     "dir": "down",
-    "iso": null
+    "iso": null,
+    "stale": false
    },
    "rate": {
     "val": "3.62%",
     "date": "11/26",
     "dir": "up",
-    "iso": "2026-11-26"
+    "iso": "2026-11-26",
+    "stale": false
    },
    "fx": {
     "val": "1,343원",
     "date": "11/27",
     "dir": "down",
-    "iso": "2026-11-27"
+    "iso": "2026-11-27",
+    "stale": false
    },
    "stock": {
     "val": "4,711.21",
     "date": "11/26",
     "dir": "up",
-    "iso": "2026-11-26"
+    "iso": "2026-11-26",
+    "stale": false
    },
    "oil": {
     "val": "82.24",
     "date": "11/24",
     "dir": "up",
-    "iso": "2026-11-24"
+    "iso": "2026-11-24",
+    "stale": true
    },
    "vix": {
     "val": "26.36",
     "date": "11/24",
     "dir": "down",
-    "iso": "2026-11-24"
+    "iso": "2026-11-24",
+    "stale": true
    },
    "rate_base": {
     "val": "3.25%",
     "date": "11/26",
     "dir": "up",
     "iso": "2026-11-26",
+    "stale": false,
     "chg": {
      "from": "3.00%",
      "md": "11/26",
@@ -533,49 +540,57 @@
     "val": "전년 대비 4.1%",
     "date": "10월",
     "dir": "up",
-    "iso": "2026-10-01"
+    "iso": "2026-10-01",
+    "stale": false
    },
    "rate": {
     "val": "4.91%",
     "date": "11/24",
     "dir": "down",
-    "iso": "2026-11-24"
+    "iso": "2026-11-24",
+    "stale": true
    },
    "job": {
     "val": "+16.5만 명",
     "date": "10월",
     "dir": "up",
-    "iso": "2026-10-01"
+    "iso": "2026-10-01",
+    "stale": false
    },
    "fx": {
     "val": "1,343원",
     "date": "11/27",
     "dir": "down",
-    "iso": "2026-11-27"
+    "iso": "2026-11-27",
+    "stale": false
    },
    "stock": {
     "val": "7,201.09",
     "date": "11/24",
     "dir": "down",
-    "iso": "2026-11-24"
+    "iso": "2026-11-24",
+    "stale": true
    },
    "oil": {
     "val": "82.24",
     "date": "11/24",
     "dir": "up",
-    "iso": "2026-11-24"
+    "iso": "2026-11-24",
+    "stale": true
    },
    "vix": {
     "val": "26.36",
     "date": "11/24",
     "dir": "down",
-    "iso": "2026-11-24"
+    "iso": "2026-11-24",
+    "stale": true
    },
    "kospi": {
     "val": "4,711.21",
     "date": "11/26",
     "dir": "up",
-    "iso": "2026-11-26"
+    "iso": "2026-11-26",
+    "stale": false
    }
   }
  },

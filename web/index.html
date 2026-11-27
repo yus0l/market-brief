@@ -582,7 +582,10 @@
   .br > .btabs { margin: 0 0 6px; }
   .br::before { content: ""; position: absolute; left: 11px; top: 28px; bottom: 2px; width: 2px; background: var(--text-1); }
   .br.seg-dash::before { left: 11.5px; width: 0; background: none; border-left: 1.5px dashed var(--border-2); }
-  .br.last::before { display: none; }
+  .br.last::before, .br.seg-none::before { display: none; }
+  .br.seg-grey::before { left: 11.5px; width: 1.5px; background: var(--border-2); }
+  .bnm[data-bdef] { cursor: help; text-decoration: underline dotted var(--text-3); text-underline-offset: 4px; }
+  .bdesc .bnow { color: var(--text-1); }
   .bdot3 { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--border-2); background: var(--surface-1); display: grid; place-items: center; font-size: 13px; font-weight: var(--fw-bold); color: #fff; }
   .br > .btabs + .bdot3 { grid-row: 2; }
   .br.done .bdot3 { background: var(--text-1); border-color: var(--text-1); }
@@ -1116,11 +1119,8 @@ function homeB() {
   const sizes = rel.flatMap(e => e.size || []).slice(0, 2);
   const open = k => lvl === 1 || S.bAllOpen || !!(S.bopen || {})[k];
   // 값 기준일이 오늘보다 2영업일 이상 오래되면 "최신 값 확인 전"
-  // 영업일 = 주말·그 나라 휴장일(config/holidays.json) 뺀 날. 원/달러·코스피는 한국, 나머지는 칸 나라
-  const stale = (x, k) => { if (!x || !x.iso || !D.date) return false; const H = D.holidays || {}, hol = (["fx", "kospi"].includes(k) || c === "kr" ? H.kr : ["rate", "rate_base"].includes(k) ? H.us_bond : H.us_stock) || [];
-    let n = 0; const d = new Date(x.iso + "T00:00"), e = new Date(D.date + "T00:00");
-    for (d.setDate(d.getDate() + 1); d <= e; d.setDate(d.getDate() + 1)) { const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; if (d.getDay() % 6 && !hol.includes(iso)) n++; } return n >= 2; };
-  const metaOf = (x, nm, k) => `${x ? x.date : "날짜 확인 전"} · ${h(nm)}${stale(x, k) ? ` <span class="bstale">· 최신 값 확인 전</span>` : ""}`;
+  const stale = x => !!(x && x.stale);   // 판정은 build.py (휴장일·일정표 기준)
+  const metaOf = (x, nm, k) => `${x ? x.date : "날짜 확인 전"} · ${h(nm)}${stale(x) ? ` <span class="bstale">· 최신 값 확인 전</span>` : ""}`;
   // why는 실제 방향이 보통 규칙과 같을 때만 (§3-10-3). 다르면 "보통은 … 이번엔 …"
   const whyOrNot = (a, b) => { const da = a === "rate" ? dirOf("rate") : dirOf(a), db = dirOf(b), sg = ((SIGN_C[c] || {})[a + ">" + b]) || SIGN[a + ">" + b] || 1;
     if (!da || !db) return { t: `<p class="bw">${h(bWhy(a + ">" + b, c))}</p>`, off: false };
@@ -1134,10 +1134,18 @@ function homeB() {
   const rows = [];
   const BASE_N = CPFX(c) + "기준금리", bv = NV.rate_base;
   const DEF = { mkt: "시장에서 매일 정해지는 금리예요. 앞으로 기준금리가 어떻게 될지에 대한 예상이 담겨요", base: "중앙은행이 회의에서 정하는 금리예요" };
-  const defL = t => lvl === 1 && !S.bAllOpen ? `<div class="bdef">${DEF[t]}</div>` : "";
-  const baseLine = () => !bv ? `${h(BASE_N)} · 확인 전` : bv.chg ? `${h(BASE_N)} ${tri(bv.dir)} ${h(bv.chg.from)} → ${h(bv.val)} <span class="bstale">${h(bv.chg.md)} 결정</span>` : `${h(BASE_N)} ${h(bv.val)}`;
+  const defL = t => (S.bdef || {})[t] ? `<div class="bdef">${DEF[t]}</div>` : "";   // 용어 정의는 이름 눌렀을 때만 (01-정보설계 결정 1)
+  const bnm = `<span class="bnm" data-bdef="base">${h(BASE_N)}</span>`;
+  const baseLine = () => !bv ? `${bnm} · 확인 전` : bv.chg ? `${bnm}${josa(BASE_N, "이", "가").slice(BASE_N.length)} ${tri(bv.dir)} ${h(bv.chg.from)}에서 ${h(ro(bv.val))} ${bv.dir === "up" ? "올랐어요" : "내렸어요"} <span class="bstale">${h(bv.chg.md)} 결정</span>` : `${bnm} ${h(bv.val)}`;
+  const ro = w => { const l = w.replace(/\s+$/, "").slice(-1), cc = l.charCodeAt(0);
+    if (/\d/.test(l)) return w + ("0368".includes(l) ? "으로" : "로");
+    if (cc >= 0xAC00 && cc <= 0xD7A3) { const j = (cc - 0xAC00) % 28; return w + (j && j !== 8 ? "으로" : "로"); } return w + "로"; };
+  const said = (nm, x, kind) => { const nmT = `<span class="bnm"${kind ? ` data-bdef="${kind}"` : ""}>${h(nm)}</span>`;
+    if (!x || !x.dir) return `${nmT} · 확인 전`;
+    const v = x.val, cnt = /^[+-]/.test(v);
+    return `${nmT}${josa(nm, "이", "가").slice(nm.length)} ${tri(x.dir)} ${h(cnt ? v.replace(/^[+-]/, "") : ro(v).slice(0, ro(v).length))} ${cnt ? (x.dir === "up" ? "늘었어요" : "줄었어요") : x.dir === "up" ? "올랐어요" : "내렸어요"}`; };
   const nodeRow = (k, meta, desc, extra, asBase) => { const x = NV[k]; const nm = bName(k, c);
-    let title = x && x.dir ? `${h(nm)} ${tri(x.dir)} ${h(x.val)}` : `${h(nm)} · 확인 전`, sub = "";
+    let title = said(nm, x, k === "rate" ? "mkt" : ""), sub = "";
     let def = "";
     if (k === "rate") { if (asBase) { sub = title + defL("mkt"); title = baseLine(); def = defL("base"); } else { sub = baseLine() + defL("base"); def = defL("mkt"); } }   // 금리 칸 = 기준금리 + 시장 금리 두 줄 (§3-10-2)
     rows.push({ k: "n" + k, st: (asBase ? bv && bv.val : x && x.dir) ? "done" : "wait", meta, title, sub: def + (sub ? `<div class="bsub2">${sub}</div>` : ""), desc, extra: extra || "" }); };
@@ -1147,15 +1155,16 @@ function homeB() {
   const seen = new Set([I.node]);
   const ORD = k => k === "stock" ? 1 : k === "kospi" ? 2 : 0;   // 전달 칸 → 주식 → 다음 날 코스피 순서로 읽히게
   path.slice().sort((p, q) => ORD(p[1]) - ORD(q[1])).forEach(([a, b]) => { if (seen.has(b)) return; seen.add(b); const x = NV[b];
-    const meta = b === "kospi" ? `다음 날 · 코스피${stale(x, "kospi") ? ` <span class="bstale">· 최신 값 확인 전</span>` : ""}` : metaOf(x, bName(b, c), b);
-    let desc = "", extra = "";   // 실제 줄 설명 = 이번 이유(데이터 형식 PM 대기). 규칙 why는 가정 줄에만 (02-UX 11/28)
+    const meta = b === "kospi" ? `다음 날 · 코스피${stale(x) ? ` <span class="bstale">· 최신 값 확인 전</span>` : ""}` : metaOf(x, bName(b, c), b);
+    const mv = (I.moves || []).find(m => m.node === b);   // 명세 §3-10-3 이번에 왜 (AI, 매체 2개) — 없으면 비움
+    let desc = mv && mv.why ? `<p class="bnow">${h(mv.why)} · ${refs(mv.sources)}</p>` : "", extra = "";
     if (b === "stock") { extra = conds.length > 1 ? "" : tag(side, false); 
       // 순서 = E8(바꾼 직후) → 반대 → why → 크기. 3줄까지 보이고 나머지는 "더 보기"
       const Ls = [conds.length > 1 ? `<div class="bconds">${conds.map(q => `<p class="${q.cur ? "cur" : ""}"><span>${h(q.text)}</span><span class="btag">${SIDE[q.side]}</span></p>`).join("")}</div>` : "", contra ? `<p class="bcontra">그런데 실제로 ${josa(sname, "은", "는")} ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
         .concat(sizes.map(z => `<p class="bsz">${h(z.text)} · ${refs(z.sources)}</p>`)).filter(Boolean);
       const more = Ls.slice(3);
       desc = Ls.slice(0, 3).join("") + (more.length ? (S.bmore ? more.join("") : `<button class="blink bmorebtn" data-bmore>더 보기</button>`) : ""); }
-    nodeRow(b, meta, desc, extra); });
+    nodeRow(b, meta, desc, extra); rows[rows.length - 1].link = mv ? mv.link_prev : "unknown"; });
   if (!path.some(([, b]) => b === "stock")) rows.push({ k: "nostock", st: "wait", meta: "어디로 번지나", title: "주식까지 바로 이어지지 않아요", desc: "", extra: "" });
   // 앞으로 줄 + 가정 경로
   const w4 = bev && bev.watch, G = bev ? (bev.gen ? bev : w4 && WNODE[w4.key] ? { node: WNODE[w4.key], name: w4.name } : null) : null;
@@ -1180,7 +1189,7 @@ function homeB() {
     hp.forEach(([a, b]) => { if (hseen.has(b) || !dirs[b]) return; hseen.add(b);
       hyp.push(`<li class="bh"><span class="bhd"></span><div><b>${dirs[b] === "up" ? "△" : "▽"} ${h(bName(b, c))} ${dirs[b] === "up" ? "오를" : "내릴"} 수 있음</b>${b === "stock" ? tag(hs, true) : ""}<p class="bw">${h(bWhy(a + ">" + b, c))}</p></div></li>`); });
   }
-  const tl = `<ol class="btl3">${rows.map((r, i) => { const nx = rows[i + 1]; const seg = r.st === "done" && nx && nx.st !== "next" ? "solid" : "dash";
+  const tl = `<ol class="btl3">${rows.map((r, i) => { const nx = rows[i + 1]; const seg = !nx || nx.st === "next" ? "dash" : nx.link === "no" ? "none" : nx.link === "yes" && r.st === "done" ? "solid" : nx.link ? "grey" : r.st === "done" ? "solid" : "dash";
     return `<li class="br ${r.st} ${i === rows.length - 1 ? "last" : ""} seg-${seg}">${r.pre || ""}<span class="bdot3" aria-hidden="true">${r.st === "done" ? "✓" : ""}</span><div class="bbody3"${r.desc ? ` data-brow="${r.k}"` : ""}><div class="bmeta">${r.meta}</div><div class="btitle3">${r.title}${r.extra}</div>${r.sub || ""}${r.desc ? `<div class="bdesc"${open(r.k) ? "" : " hidden"}>${r.desc}</div>` : ""}</div>${r.after || ""}</li>`; }).join("")}</ol>${hyp.length ? `<ol class="bhyp">${hyp.join("")}</ol>` : ""}`;
   // 위
   let top = "";
@@ -1277,9 +1286,10 @@ document.addEventListener("click", ev => {
   if (ev.target.closest("[data-iopen]")) { S.iopen = !S.iopen; render(); if (S.iopen) focusOpt(); return; }
   if (S.iopen && !ev.target.closest(".isel")) { S.iopen = false; render(); }   // 바깥 누르면 닫힘
   if (BMODE && LOAD === "ok") {
-    const b = ev.target.closest("[data-bmore],[data-brow],[data-bev],[data-bopt],[data-breset]");
+    const b = ev.target.closest("[data-bdef],[data-bmore],[data-brow],[data-bev],[data-bopt],[data-breset]");
     if (b) { const d = b.dataset; S.flip = null;
-      if (d.bmore !== undefined) S.bmore = true;
+      if (d.bdef) { S.bdef = S.bdef || {}; S.bdef[d.bdef] = !S.bdef[d.bdef]; }
+      else if (d.bmore !== undefined) S.bmore = true;
       else if (d.brow) { if (bFade() === 1 && !S.bAllOpen) return; S.bopen = S.bopen || {}; S.bopen[d.brow] = !S.bopen[d.brow]; }
       else if (d.bev) { S.bev = d.bev; S.bopt = null; }
       else if (d.bopt) S.bopt = S.bopt === d.bopt ? null : d.bopt;

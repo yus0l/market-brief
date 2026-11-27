@@ -59,7 +59,8 @@
      "fact_sources",
      "watch",
      "market_type",
-     "market_sources"
+     "market_sources",
+     "moves"
     ],
     "properties": {
      "key": {
@@ -191,6 +192,73 @@
         "url"
        ],
        "additionalProperties": false
+      }
+     },
+     "moves": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "명세 §3-10-3: 이 관심사의 번지는 길 위에서 실제로 움직인 칸마다 '이번에 왜' 한 줄(관심사당 최대 3). 서로 다른 매체 2개가 같은 원인을 말할 때만 why를 쓰고, 아니면 why=null",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "node",
+        "why",
+        "sources",
+        "link_prev"
+       ],
+       "properties": {
+        "node": {
+         "type": "string",
+         "enum": [
+          "oil",
+          "job",
+          "cpi",
+          "rate",
+          "fx",
+          "gold",
+          "stock",
+          "vix",
+          "kospi",
+          "kospi"
+         ]
+        },
+        "why": {
+         "type": [
+          "string",
+          "null"
+         ],
+         "description": "'[원인] 때문이라고 봐요' — 원인은 사건·지표·발표 이름(예: '한은 금리 인상', '미국 고용 둔화'). '투자 심리'·'불확실성'만은 실패. 과거형 사실만, 예측·전망 금지('~할 것', '~할 수 있다', '전망', '예상된다'). 숫자 쓰지 않음. 근거 없으면 null"
+        },
+        "sources": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "url": {
+            "type": "string"
+           }
+          },
+          "required": [
+           "name",
+           "url"
+          ],
+          "additionalProperties": false
+         }
+        },
+        "link_prev": {
+         "type": "string",
+         "enum": [
+          "yes",
+          "no",
+          "unknown"
+         ],
+         "description": "yes = 기사들이 이 움직임을 바로 위 칸(번지는 길의 앞 칸)의 움직임 때문이라고 말함 / no = 기사들이 다른 원인을 말함(why에 '같은 날 [소식] 때문이라고 봐요') / unknown = 근거 없음"
+        }
+       }
       }
      }
     }

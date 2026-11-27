@@ -214,6 +214,31 @@ def check_types(e, allowed, errs):
     e["size"] = keep[:2]
     return True
 
+NODE_SER = {"cpi": ["us_cpi", "kr_cpi", "us_ppi"], "rate": ["us_10y", "ktb3y", "kr_base", "us_base"], "job": ["us_jobs"], "fx": ["usdkrw"],
+            "stock": ["sp500", "kospi"], "kospi": ["kospi"], "oil": ["wti"], "vix": ["vix"]}
+PREDICT = re.compile(r"할 것|될 것|할 수 있|될 수 있|전망|예상된다|것으로 보")
+EMPTYCAUSE = re.compile(r"^(투자\s*심리|시장\s*심리|불확실성|경계감|관망세|심리)\s*(이|가|의|에)?$")
+def check_moves(x, facts, allowed, errs):
+    """명세 §3-10-3: 실제 줄 '이번에 왜' — 매체 2개·원인 이름·예측 금지·link_prev 셋 중 하나·yes면 앞 칸이 실제로 움직였어야."""
+    S = facts.get("series", {})
+    def moved(n): return any(S.get(k) and (S[k].get("value") != S[k].get("prev") or S[k].get("yoy") != S[k].get("yoy_prev")) for k in NODE_SER.get(n, []))
+    out = []
+    for m in (x.get("moves") or [])[:3]:
+        m = dict(m); k = x.get("key"); w = (m.get("why") or "").strip()
+        if m.get("link_prev") not in ("yes", "no", "unknown"): errs.append(f"관심사 {k}·{m.get('node')}: link_prev 값 밖 → unknown"); m["link_prev"] = "unknown"
+        if m["link_prev"] == "yes" and not any(b == m.get("node") and moved(a) for a, b, *_ in CFG["edges"]):
+            errs.append(f"관심사 {k}·{m.get('node')}: link_prev yes인데 앞 칸이 실제로 안 움직임 → 뺌"); continue
+        if w:
+            cause = re.sub(r"^같은 날\s*", "", w.rstrip(". ").removesuffix("때문이라고 봐요").strip())
+            why = ("서로 다른 매체 2개 미만" if ndoms(m.get("sources")) < 2 else "'때문이라고 봐요' 틀 아님" if not w.rstrip(". ").endswith("때문이라고 봐요")
+                   else "원인 이름 없음" if len(cause) < 3 or EMPTYCAUSE.match(cause) else "예측·전망 표현" if PREDICT.search(w)
+                   else "금지어" if bad_words(w) else "출처 없는 숫자" if not nums_ok(w, allowed) else "")
+            if why: errs.append(f"관심사 {k}·{m.get('node')}: 이번에 왜 빠짐({why}) — {w}"); w = ""
+        m["why"] = w or None
+        if not m["why"] and m["link_prev"] != "yes": m["link_prev"] = "unknown" if m["link_prev"] == "no" else m["link_prev"]
+        out.append(m)
+    return out
+
 def validate(today, facts):
     """today(생성본)를 검사해서 통과한 것만 남긴 사본과 오류 목록을 돌려준다."""
     errs = []
@@ -225,6 +250,7 @@ def validate(today, facts):
         else: errs.append(f"숫자 {n.get('value')}: 서로 다른 매체 2개 미만이라 허용 안 함")
     out = dict(today)
     out["interests"] = check_interests(today.get("interests", []), errs, allowed)
+    for x in out["interests"]: x["moves"] = check_moves(x, facts, allowed, errs)
     out["events"] = [e for e in today.get("events", []) if (e.get("watchChip") or check_sub(e, today.get("date"), errs)) and check_watch(e, errs) and check_event(e, allowed, today.get("date"), errs)][:3]
     out["events"] = [e for e in out["events"] if check_types(e, allowed, errs)]
     KT = json.loads((pathlib.Path(__file__).resolve().parent.parent / "config" / "sidetags.json").read_text(encoding="utf-8"))
