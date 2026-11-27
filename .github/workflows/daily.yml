@@ -3,6 +3,7 @@ name: deploy-pages
 on:
   push: { paths: ["web/**"] }
   workflow_dispatch: {}
+concurrency: { group: pages, cancel-in-progress: false }   # 배포가 겹치면 차례로
 permissions: { contents: read, pages: write, id-token: write }
 jobs:
   deploy:
