@@ -2,6 +2,14 @@
 
 설계: `../서비스-v1-설계.md` · 기준: `02-UX.md` 서비스 v1 · `01-기획.md` v4~v4.3
 
+## 인계 (2026-11-28, 이전 개발 창)
+- **돌아가는 것**: 07:10 collect.yml(FRED·ECOS → data/facts-날짜.json) → 07:30 예약 실행 trig_01VcBarWwXQYRNVVyzZGRDRR(Sonnet, pipeline/routine-prompt.md, v1) → build.py → web/today.json → push = Pages 배포(daily.yml, node --check). 기본 화면 = v1 흐름도, `?b=1` = B v4 타임라인.
+- **B v4 (`?b=1`)**: homeB(). web/today-v2.json이 있으면 그걸, 없으면 v1 데이터를 topicsFromV1()로 바꿔 그림. `?b=1&v2mock=1` = web/mock/v2-topics.json 목업. 사실 = 흰 바탕, 해석 = 회색 박스, 호재/악재는 이유(sidetags.json reason) 있을 때만.
+- **반쯤 된 것**: pipeline/v2.py(정보설계 v3 스키마·검사기·조립, `python3 pipeline/v2.py run 초안`) + routine-prompt-v2.md. 매일 실행엔 미연결(전환 = B를 기본 화면으로 올리는 날). 11/28 수동 1회 결과: 관심사 1개(엔비디아), 회사 주가 매체 2개 못 찾아 경로 없음 → 기업 숫자 검색 보강 필요.
+- **안 끝난 것**: 02-UX.md "B v4 전체 점검" 11개(잘림·실제로는 조건·"다음 날" 날짜·✓→점·선 연속 등) 미착수. #10 "최신 값 확인 전"은 합의 규칙(데이터 나라 휴일 제외 2영업일)상 11/24 S&P는 정상.
+- **주의**: 키는 GitHub Secrets만(FRED_API_KEY·ECOS_API_KEY). 키 없이 로컬에서 build.py 그냥 돌리면 오늘 날짜 빈 파일 생김 → 과거 날짜 재조립은 날짜 고정 실행기로. 스키마 바꾸면 `python3 pipeline/generate.py`·`python3 pipeline/v2.py`로 다시 내보내기. 큰 변경 전 versions/에 백업. 검사 `python3 pipeline/test_build.py`("bad:" 줄은 정상 부정 예시)·`test_v2.py`.
+- **결정 대기**: BANNED "매도"가 사실 "외국인 순매도"도 막음(PM). holidays.json 2027 미입력.
+
 ## 폴더
 | 경로 | 내용 |
 |---|---|

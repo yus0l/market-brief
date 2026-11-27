@@ -162,6 +162,7 @@
    "type": "k",
    "k": "K11",
    "sure": "good",
+   "reason": "회사가 예상보다 돈을 더 벌어서",
    "conds": null,
    "none": null
   },
@@ -225,6 +226,7 @@
     {
      "cond": null,
      "side": "bad",
+     "reason": "수입 비용 증가",
      "sources": [
       {
        "name": "a",

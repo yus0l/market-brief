@@ -11,6 +11,15 @@ from urllib.parse import urlparse
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CFG = json.loads((ROOT / "config" / "graph.json").read_text(encoding="utf-8"))
 KT = {k: v for k, v in json.loads((ROOT / "config" / "sidetags.json").read_text(encoding="utf-8")).items() if not k.startswith("_")}
+def kt_reason_errors(kt):   # 검사기: 태그에 이유가 비면 실패 (명세 §3-11-2)
+    e = []
+    for k, v in kt.items():
+        if v.get("none"): continue
+        if v.get("sure") and not (v.get("reason") or "").strip(): e.append(f"{k}: 이유 없음")
+        for q in v.get("conds", []):
+            if not (q.get("reason") or "").strip(): e.append(f"{k} {q.get('text')}: 이유 없음")
+    return e
+assert not kt_reason_errors(KT), kt_reason_errors(KT)
 
 # §3 요소 목록 (MVP만). base = {기준 지표}를 어디서 얻나, path = {경로} 그리는 법, sched = 발표 올림
 ELEMENTS = {
@@ -71,8 +80,9 @@ SCHEMA = {"type": "object", "additionalProperties": False, "required": ["date", 
             "path": {"type": "array", "maxItems": 6, "items": CELL, "description": "관심사 칸에서 시작해 시장 칸(주식·업종·금리·환율·지수)에서 끝나는 칸 목록. 미국 경로의 '다음 날 코스피'는 코드가 붙임"},
             "ktype": {"type": ["string", "null"], "enum": list(KT) + [None], "description": "명세 §3-11 K표 번호. 맞는 게 없으면 null"},
             "read_articles": {"type": "array", "maxItems": 2, "description": "K표에 없을 때만: 기사들이 보는 쪽. 갈리면 갈래별 2개", "items": {
-                "type": "object", "additionalProperties": False, "required": ["cond", "side", "sources"],
+                "type": "object", "additionalProperties": False, "required": ["cond", "side", "reason", "sources"],
                 "properties": {"cond": {"type": ["string", "null"], "description": "갈릴 때 조건('[다른 소식]이랑 같이 나오면'). 하나면 null"},
+                               "reason": {"type": ["string", "null"], "description": "기사들이 그렇게 보는 이유, 명사구(예: '수입 비용 증가', 서로 다른 매체 2개가 같은 이유). 화면 '기사들은 {reason} 때문에 {악재}로 봐요'. 숫자·예측 금지. 없으면 null → 태그 안 보임"},
                                "side": {"type": "string", "enum": ["good", "bad"]}, "sources": SRC}}}}}}}}
 SEARCH_BUDGET = """웹 검색 18회 배분 (v2 제안):
 - 관심사 찾기·언급 세기·주목 이유: 4회 (요소별 넓게: 경제/중앙은행, 기업, 정책·지정학, 한국)
@@ -146,8 +156,9 @@ def check(draft, facts, errs):
         t["path"] = cells
         # 읽는 법: K표 → 없으면 기사 근거(매체 2개, 갈래별)
         if t.get("ktype") and t["ktype"] not in KT: errs.append(f"[{nm}] ktype 표 밖 → 기사 근거로"); t["ktype"] = None
-        ra = [a for a in (t.get("read_articles") or []) if len(doms(a.get("sources"))) >= 2 and not bad(a.get("cond"))]
-        if len(ra) < len(t.get("read_articles") or []): errs.append(f"[{nm}] 읽는 법 기사 근거 일부 빠짐(매체 2개 미만)")
+        ra = [a for a in (t.get("read_articles") or []) if len(doms(a.get("sources"))) >= 2 and not bad(a.get("cond"))
+              and (a.get("reason") or "").strip() and not PREDICT.search(a["reason"]) and not NUM.search(a["reason"]) and not bad(a["reason"])]
+        if len(ra) < len(t.get("read_articles") or []): errs.append(f"[{nm}] 읽는 법 기사 근거 일부 빠짐(매체 2개 미만 또는 이유 없음 — 이유 없는 태그 금지)")
         t["read_articles"] = [] if t.get("ktype") else ra
         out.append(t)
     return out
@@ -200,7 +211,7 @@ def assemble(topics, facts, today, nowv=None):
                          "why": None, "why_sources": [], "link_prev": "unknown", "next_day": True})
         # 읽는 법
         K = KT.get(t.get("ktype")) if t.get("ktype") else None
-        read = ({"type": "k", "k": t["ktype"], "sure": K.get("sure"), "conds": K.get("conds"), "none": K.get("none")} if K
+        read = ({"type": "k", "k": t["ktype"], "sure": K.get("sure"), "reason": K.get("reason"), "conds": K.get("conds"), "none": K.get("none")} if K
                 else {"type": "articles", "items": t["read_articles"]} if t.get("read_articles") else None)
         # 실제로는: 읽는 법이 한 쪽이고 마지막 시장 칸이 반대로 움직였으면
         side = (read or {}).get("sure") or (read["items"][0]["side"] if read and read["type"] == "articles" and len(read["items"]) == 1 else None)

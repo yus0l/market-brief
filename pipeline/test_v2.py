@@ -17,7 +17,7 @@ draft = {"date": "2026-11-27", "topics": [
    "expect": None, "expect_sources": [], "recent": "미국 상무부가 데이터센터 전력 규제 초안을 냈어요", "recent_sources": U("a"), "ktype": None, "read_articles": [], "path": []},
   {"name": "관세", "element": "policy", "country": "us", "mention_sources": U("a", "b", "c"), "reason": "관세 발표", "reason_sources": U("a", "b"), "base_key": None, "base_num": None,
    "expect": None, "expect_sources": [], "recent": "미국이 관세 인상안을 발표했어요", "recent_sources": U("a", "b"), "ktype": None,
-   "read_articles": [{"cond": None, "side": "bad", "sources": U("a", "b")}],
+   "read_articles": [{"cond": None, "side": "bad", "reason": "수입 비용 증가", "sources": U("a", "b")}],
    "path": [C("px:구리", "구리 가격", num={"value": "4.1달러", "sources": U("a", "b")}), C("idx:나스닥", "나스닥", num={"value": "18,420", "sources": U("a", "b")}, link_sources=U("a", "b"))]}]}
 errs = []
 ok = v2.check(draft, F, errs)

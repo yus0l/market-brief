@@ -372,6 +372,7 @@
        "required": [
         "cond",
         "side",
+        "reason",
         "sources"
        ],
        "properties": {
@@ -381,6 +382,13 @@
           "null"
          ],
          "description": "갈릴 때 조건('[다른 소식]이랑 같이 나오면'). 하나면 null"
+        },
+        "reason": {
+         "type": [
+          "string",
+          "null"
+         ],
+         "description": "기사들이 그렇게 보는 이유, 명사구(예: '수입 비용 증가', 서로 다른 매체 2개가 같은 이유). 화면 '기사들은 {reason} 때문에 {악재}로 봐요'. 숫자·예측 금지. 없으면 null → 태그 안 보임"
         },
         "side": {
          "type": "string",

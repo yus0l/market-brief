@@ -9,6 +9,10 @@ NAMES = {k: v[1] for k, v in {**FRED, **ECOS}.items()}
 from validate import validate, sub_for
 CFG = json.loads((ROOT / "config" / "graph.json").read_text(encoding="utf-8"))
 KT = {k: v for k, v in json.loads((ROOT / "config" / "sidetags.json").read_text(encoding="utf-8")).items() if not k.startswith("_")}
+for _k, _v in KT.items():   # 이유 없는 쪽 태그 금지 (명세 §3-11-2): 표에 이유가 비면 실패
+    if _v.get("none"): continue
+    assert not _v.get("sure") or (_v.get("reason") or "").strip(), f"sidetags {_k}: 이유 없음"
+    for _q in _v.get("conds", []): assert (_q.get("reason") or "").strip(), f"sidetags {_k}: 조건 줄 이유 없음"
 SECT = json.loads((ROOT / "config" / "sectors.json").read_text(encoding="utf-8"))
 ARCH = ROOT / "data" / "archive"; WEB = ROOT / "web"
 EVENT_SERIES = {"BOK": "kr_base", "US_JOBS": "us_jobs"}            # 결과 숫자를 수집값으로 채울 수 있는 발표

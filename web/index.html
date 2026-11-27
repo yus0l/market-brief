@@ -300,6 +300,8 @@
   .banner.gray { background: var(--surface-sunken); color: var(--text-2); }
 
   /* 흐름도: 스크롤해도 위에 고정 */
+  .sidewhy { margin-top: 8px; font-size: var(--fs-label); color: var(--text-2); word-break: keep-all; }
+  .sidewhy .sd.good { color: var(--dir-up); } .sidewhy .sd.bad { color: var(--dir-down); }
   .flow {
     position: sticky; top: calc(var(--dbg-h) + env(safe-area-inset-top, 0px)); z-index: 10;
     background: var(--surface-2); border-radius: var(--r-stage); padding: var(--sp-4);   /* 폰 16 */ margin-top: 10px;
@@ -895,7 +897,19 @@ function playFlow() {
 }
 
 /* ───────── 데이터: today.json (매일 08:00 공개본). 화면은 이 파일만 읽는다 ───────── */
-const SIDE = { good:"호재", bad:"악재" };   // 02-UX "쪽 태그 라이팅 v2" 11/28: 확실하면 호재/악재 한 단어, "보통" 안 씀
+const SIDE = { good:"호재", bad:"악재" };
+// 쪽 태그 이유 (명세 §3-11-2): K표 행(조건 줄)의 reason. 이유 없으면 null → 태그 숨김
+function kReason(node, dir, side, cur) {
+  const KT = D.ktags || {};
+  for (const K of Object.values(KT)) {
+    if (K.node !== node || K.dir !== dir || K.market || K.none) continue;
+    if (K.sure) { if (K.sure === side && K.reason) return K.reason; continue; }
+    const cs = (K.conds || []).filter(q => q.side === side && q.reason);
+    const q = cs.find(q => (q.interest || []).includes(cur)) || cs[0];
+    if (q) return q.reason;
+  }
+  return null;
+}   // 02-UX "쪽 태그 라이팅 v2" 11/28: 확실하면 호재/악재 한 단어, "보통" 안 씀
 const SHOW_SECTORS = false;   // 업종 시트 v1 숨김 (PM 11/26). 업종 표 config/sectors.json은 보관
 const flip = s => s === "good" ? "bad" : "good";
 const h = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
@@ -1001,7 +1015,8 @@ function home() {
   const fc = flipped ? " is-flipping" : "";
 
   v.expect = e.result && e.result.expect;
-  v.sideTag = op && via && opSide ? { side: opSide, real, flipped } : null;
+  const sReason = op && via && opSide ? kReason(I.node, idir, opSide, I.node) : null;
+  v.sideTag = sReason ? { side: opSide, real, flipped } : null;   // 이유 없는 태그 금지 (§3-11-2)
   v.explain = (Object.keys(v.real).length || Object.keys(v.hypo).length) ? .3 : 1;
 
   // 위쪽 상태 배너
@@ -1026,7 +1041,7 @@ function home() {
   // 범례: 그 순간 화면에 있는 표시만 (02-UX 정보 정리)
   const hasNext = (v.next || []).some(k => !v.real[k] && !v.hypo[k]);
   const lg = v.hypoPath.length ? `<span><i class="sw dash"></i>점선 = 가정</span>` : "";   // 범례는 필요한 것만 (02-UX)
-  const flow = `<div class="flow">${flowSVG(v)}${lg ? `<div class="legend">${lg}</div>` : ""}</div>`;
+  const flow = `<div class="flow">${flowSVG(v)}${v.sideTag ? `<p class="sidewhy"><b class="sd ${opSide}">${SIDE[opSide]}</b>로 읽혀요 · ${h(sReason)}</p>` : ""}${lg ? `<div class="legend">${lg}</div>` : ""}</div>`;
 
   // 사건 칩: 오늘 → 곧 발표
   let r = `<div class="chips-wrap"><div class="chips" role="tablist">` + D.events.map(x =>
@@ -1190,12 +1205,14 @@ function homeB() {
   let si = -1; P.forEach((c, i) => { if (STK.test(c.key)) si = i; });
   let rl = null, rs = [];
   if (R && R.type === "k" && !R.none) {
-    rl = R.sure ? [`<p>${sideH(R.sure)}로 읽혀요</p>`]
-      : (R.conds || []).map(q => `<p class="${(q.interest || []).includes(cur) ? "cur" : "oth"}">${h(q.text)} ${sideH(q.side)}</p>`);
+    rl = R.sure ? (R.reason ? [`<p>${sideH(R.sure)}로 읽혀요 · ${h(R.reason)}</p>`] : null)
+      : (R.conds || []).filter(q => q.reason).map(q => `<p class="${(q.interest || []).includes(cur) ? "cur" : "oth"}">${h(q.text)} ${sideH(q.side)} · ${h(q.reason)}</p>`);
+    if (rl && !rl.length) rl = null;
   } else if (R && R.type === "articles" && R.items && R.items.length) {
-    rl = R.items.map(a => `<p>${a.cond ? h(a.cond) + " " : ""}기사들은 ${sideH(a.side)}로 봐요</p>`); R.items.forEach(a => rs.push(...(a.sources || [])));
+    const its = R.items.filter(a => a.reason);
+    rl = its.length ? its.map(a => `<p>${a.cond ? h(a.cond) + " " : ""}기사들은 ${h(a.reason)} 때문에 ${sideH(a.side)}로 봐요</p>`) : null; its.forEach(a => rs.push(...(a.sources || [])));
   }
-  const mainSide = R && R.type === "k" ? R.sure : R && R.type === "articles" && R.items && R.items.length === 1 ? R.items[0].side : null;
+  const mainSide = !rl ? null : R.type === "k" ? (R.reason ? R.sure : null) : R.items.filter(a => a.reason).length === 1 ? R.items.find(a => a.reason).side : null;
   const contra = T.actual && mainSide ? `그런데 실제로는 ${T.actual.dir === "up" ? "올랐어요" : "내렸어요"}` : "";
   const PP = P.map((c, i) => i === si ? Object.assign({}, c, { readLines: rl, readSrc: rs, contra }) : c);
   const first2 = PP[0];
@@ -1215,7 +1232,8 @@ function homeB() {
     const hArr = d => d === "up" ? "오를 수 있음" : "내릴 수 있음";
     const KT = D.ktags || {};
     const hSide = hi => { const d = hi ? "up" : "down"; const K = (Object.values(KT).find(v => v.node === first.key && v.dir === d && !v.market && !v.none));
-      if (!K) return null; return K.sure || ((K.conds || []).find(q => (q.interest || []).includes(cur)) || {}).side || null; };
+      if (!K) return null; const sd = K.sure || ((K.conds || []).find(q => (q.interest || []).includes(cur)) || {}).side || null;
+      return sd && kReason(first.key, d, sd, cur) ? sd : null; };
     const row = (k, hi) => { const H = hyp(hi), open = (S.b4open || {})[k], hs = hSide(hi);
       const lastStk = H.length && STK.test(H[H.length - 1].c.key);
       const sum = H.map((x, i) => i === H.length - 1 && lastStk && hs ? `${h(short(x.c))} <span class="b4side ${hs === "good" ? "up" : "down"}">${SIDE[hs]}</span>` : `${h(short(x.c))} ${hArr(x.d)}`).join(" → ");
@@ -1270,7 +1288,7 @@ function topicsFromV1() {
     const nr0 = I.next_rel, nr = nr0 && ((/^(US_|FOMC)/.test(nr0.code) ? "us" : "kr") === c) ? nr0 : null;   // {다음 발표}는 관심사 나라와 같은 것만, 없으면 ④ 안 그림
     return { name: I.name, rank: I.rank || ix + 1, reason: (I.reason && I.reason.label) || (nr ? `${nr.name} ${nr.md}` : null), c, curNode: I.node,
       compareText: exTextOf(done) || (iv && iv.dir ? (iv.dir === "up" ? "지난번보다 높음" : "지난번보다 낮음") : null),
-      path: cells, read: K ? { type: "k", sure: K.sure, conds: K.conds, none: K.none } : null, actual,
+      path: cells, read: K ? { type: "k", sure: K.sure, reason: K.reason, conds: K.conds, none: K.none } : null, actual,
       next: nr ? { name: nr.name, md: nr.md } : null, sources: I.sources || [] };
   });
 }
