@@ -47,6 +47,26 @@
    "source": "https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/"
   },
   {
+   "code": "KR_CPI",
+   "name": "한국 소비자물가",
+   "target": "11월",
+   "date": "2026-12-02",
+   "kst": "2026-12-02T08:00+09:00",
+   "time_note": "관행",
+   "verified": true,
+   "source": "https://mods.go.kr/lcofNewsPln.es?mid=a60303000000"
+  },
+  {
+   "code": "KR_CPI",
+   "name": "한국 소비자물가",
+   "target": "12월·연간",
+   "date": "2026-12-31",
+   "kst": "2026-12-31T08:00+09:00",
+   "time_note": "관행",
+   "verified": true,
+   "source": "https://mods.go.kr/lcofNewsPln.es?mid=a60303000000"
+  },
+  {
    "code": "US_CPI",
    "name": "미국 CPI",
    "target": "2026년 12월",

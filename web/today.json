@@ -5,6 +5,7 @@
   "usdkrw"
  ],
  "upcoming_keys": [
+  "kr_cpi",
   "us_jobs"
  ],
  "date": "2026-11-27",
@@ -25,109 +26,10 @@
  },
  "interests": [
   {
-   "key": "rate",
-   "node": "rate",
-   "name": "금리",
-   "rank": 1,
-   "reason": {
-    "type": "mention",
-    "label": "한은 금리 인상"
-   },
-   "upSide": "bad",
-   "fact": "어제 한국은행이 기준금리를 올렸어요.",
-   "watch": "시장은 한국 소비자물가 발표를 보고 있어요",
-   "sentence": "어제 한국은행이 기준금리를 올렸어요. 시장은 한국 소비자물가 발표를 보고 있어요",
-   "fact_sources": [
-    {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
-    },
-    {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
-    }
-   ],
-   "trigger_sources": [
-    {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
-    },
-    {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
-    }
-   ],
-   "explain": [
-    [
-     "rate",
-     "stock"
-    ]
-   ],
-   "sources": [
-    {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
-    },
-    {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
-    },
-    {
-     "name": "파이낸셜뉴스 금통위 인상",
-     "url": "https://www.fnnews.com/news/202611260931178752"
-    },
-    {
-     "name": "머니투데이 주담대 금리",
-     "url": "https://www.mt.co.kr/finance/2026/11/26/2026112615315475729"
-    }
-   ]
-  },
-  {
-   "key": "job",
-   "node": "job",
-   "name": "경기",
-   "rank": 2,
-   "reason": {
-    "type": "event",
-    "label": "미국 고용 12/4"
-   },
-   "upSide": "good",
-   "fact": "7일 뒤 미국 고용 발표가 있어요.",
-   "watch": "시장은 다음 미국 고용 발표를 보고 있어요",
-   "sentence": "7일 뒤 미국 고용 발표가 있어요. 시장은 다음 미국 고용 발표를 보고 있어요",
-   "fact_sources": [
-    {
-     "name": "발표 일정",
-     "url": "https://www.bls.gov/schedule/"
-    }
-   ],
-   "trigger_sources": [],
-   "explain": [
-    [
-     "job",
-     "stock"
-    ]
-   ],
-   "sources": [
-    {
-     "name": "StockAnalysis 실업수당",
-     "url": "https://stockanalysis.com/news/jobless-claims-rise-third-week-november-2026/"
-    },
-    {
-     "name": "AP 10월 고용",
-     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
-    },
-    {
-     "name": "InvestingLive 실업수당",
-     "url": "https://investinglive.com/news/us-initial-jobless-claims-203k-vs-197k-estimate/"
-    }
-   ]
-  },
-  {
    "key": "cpi",
    "node": "cpi",
    "name": "물가",
-   "rank": 3,
+   "rank": 1,
    "reason": {
     "type": "mention",
     "label": "PCE 물가 발표"
@@ -178,6 +80,105 @@
     {
      "name": "Wichita Liberty 10월 PCE",
      "url": "https://www.wichitaliberty.org/economics/october-2026-pce-inflation-report/"
+    }
+   ]
+  },
+  {
+   "key": "job",
+   "node": "job",
+   "name": "경기",
+   "rank": 2,
+   "reason": {
+    "type": "event",
+    "label": "미국 고용 12/4"
+   },
+   "upSide": "good",
+   "fact": "7일 뒤 미국 고용 발표가 있어요.",
+   "watch": "시장은 다음 미국 고용 발표를 보고 있어요",
+   "sentence": "7일 뒤 미국 고용 발표가 있어요. 시장은 다음 미국 고용 발표를 보고 있어요",
+   "fact_sources": [
+    {
+     "name": "발표 일정",
+     "url": "https://www.bls.gov/schedule/"
+    }
+   ],
+   "trigger_sources": [],
+   "explain": [
+    [
+     "job",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "StockAnalysis 실업수당",
+     "url": "https://stockanalysis.com/news/jobless-claims-rise-third-week-november-2026/"
+    },
+    {
+     "name": "AP 10월 고용",
+     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
+    },
+    {
+     "name": "InvestingLive 실업수당",
+     "url": "https://investinglive.com/news/us-initial-jobless-claims-203k-vs-197k-estimate/"
+    }
+   ]
+  },
+  {
+   "key": "rate",
+   "node": "rate",
+   "name": "금리",
+   "rank": 3,
+   "reason": {
+    "type": "mention",
+    "label": "한은 금리 인상"
+   },
+   "upSide": "bad",
+   "fact": "어제 한국은행이 기준금리를 올렸어요.",
+   "watch": "시장은 한국 소비자물가 발표를 보고 있어요",
+   "sentence": "어제 한국은행이 기준금리를 올렸어요. 시장은 한국 소비자물가 발표를 보고 있어요",
+   "fact_sources": [
+    {
+     "name": "뉴스웨이 한은 3.25% 인상",
+     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+    },
+    {
+     "name": "WOW TV 한은 점도표",
+     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+    }
+   ],
+   "trigger_sources": [
+    {
+     "name": "뉴스웨이 한은 3.25% 인상",
+     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+    },
+    {
+     "name": "WOW TV 한은 점도표",
+     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+    }
+   ],
+   "explain": [
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "뉴스웨이 한은 3.25% 인상",
+     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+    },
+    {
+     "name": "WOW TV 한은 점도표",
+     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+    },
+    {
+     "name": "파이낸셜뉴스 금통위 인상",
+     "url": "https://www.fnnews.com/news/202611260931178752"
+    },
+    {
+     "name": "머니투데이 주담대 금리",
+     "url": "https://www.mt.co.kr/finance/2026/11/26/2026112615315475729"
     }
    ]
   }
@@ -293,8 +294,8 @@
     {
      "label": "먼저",
      "what": "한국 소비자물가 발표",
-     "when": "일정 확인 전",
-     "date": null,
+     "when": "12/2",
+     "date": "2026-12-02",
      "done": false
     },
     {
@@ -363,8 +364,8 @@
      "name": "한국은행 ECOS",
      "url": "https://ecos.bok.or.kr/"
     },
-    "next": null,
-    "next_date": null,
+    "next": "12/2",
+    "next_date": "2026-12-02",
     "high": "물가 부담이 이어지는 쪽",
     "low": "오름세가 둔화되는 쪽",
     "hit": null
@@ -377,7 +378,7 @@
     "actual_src": "https://ecos.bok.or.kr/",
     "expect_src": null
    },
-   "sub": "일정 확인 전",
+   "sub": "12/2",
    "trigger": "11/26 기준금리 3.00% → 3.25%",
    "watchChip": true
   }

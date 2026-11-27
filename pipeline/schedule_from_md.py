@@ -25,6 +25,13 @@ for line in MD.read_text(encoding="utf-8").splitlines():
     if code == "DEC2026":                                       # 2026년 12월 표: | 발표 | 대상 | 날짜 (ET) | 비고 |
         M = {"미국 고용": ("US_JOBS", "미국 고용"), "FOMC": ("FOMC", "FOMC 금리 결정"), "미국 CPI": ("US_CPI", "미국 CPI"),
              "미국 PPI": ("US_PPI", "미국 PPI"), "ISM 제조업": ("US_ISM", "ISM 제조업")}
+        if cells[0] == "한국 소비자물가":                          # 한국 날짜 그대로, 시각은 원문에 없음 → 08:00 KST 관행
+            m = re.search(r"(\d+)/(\d+)", cells[2])
+            if m:
+                d = dt.date(2026, int(m[1]), int(m[2]))
+                rows.append({"code": "KR_CPI", "name": "한국 소비자물가", "target": cells[1], "date": d.isoformat(), "kst": f"{d.isoformat()}T08:00+09:00",
+                             "time_note": "관행", "verified": "공식" in cells[3] and "미확인" not in cells[3], "source": "https://mods.go.kr/lcofNewsPln.es?mid=a60303000000"})
+            continue
         if cells[0] not in M: continue
         m = re.search(r"(?:결정 )?(\d+)/(\d+) \([^)]*\) (\d+):(\d+)", cells[2])
         if not m: continue
