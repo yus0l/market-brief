@@ -1123,10 +1123,12 @@ function homeB() {
   const T = [
     [fm ? `${fm[1]} · 무슨 일` : "무슨 일", h(fm ? fm[2] : n1), done && done.result && done.result.text ? `<p>${h(done.result.text)}</p>` : ""],
     ["어디로 번지나", chain ? h(chain) : "주식까지 바로 이어지지 않아요", path.length ? `<ul class="bwl">${whyLines}</ul>` : ""],
-    ["무엇과 비교하나", !reachStock ? "주식까지 바로 이어지지 않아요" : `${h(exText || "예상치 확인 전")} · 보통 ${sideW}`,
+    [reachStock && !exText ? "무엇과 비교하나 · 예상치 확인 전" : "무엇과 비교하나", !reachStock ? "주식까지 바로 이어지지 않아요"
+      : exText ? `${h({ "예상보다 높음": "예상보다 높게 나왔어요", "예상대로": "예상대로 나왔어요", "예상보다 낮음": "예상보다 낮게 나왔어요" }[exText] || exText)} · 보통 ${sideW}` : `보통 ${sideW}으로 읽어요`,
       `${e8 ? `<p class="be8">${h(e8)}</p>` : ""}<p>${n3}</p>${sizes.length ? `<p class="bmore">크기를 바꾸는 소식이 있어요 ↓</p>` : ""}`],
     [!bev ? "뭘 보면 갈리나" : bev.gen ? `${h(bev.sub)} · ${h(bev.name)}` : w4 && w4.next ? `${h(w4.next)} · ${h(w4.name)}` : `${h(bev.sub || "")} · ${h(bev.chip || "")}`,
-      !bev || (w4 && !w4.next && !bev.gen) ? "다음 발표 일정 확인 전이에요" : bev.gen || w4 ? "예상보다 높으면 / 낮으면" : h(bev.head),
+      !bev || (w4 && !w4.next && !bev.gen) ? "다음 발표 일정 확인 전이에요"
+      : bev.gen || w4 ? `${h(josa(bName(bev.gen ? bev.node : WNODE[w4.key] || I.node, c), "이", "가"))} 예상보다 높은지 낮은지로 갈려요` : h(bev.head),
       I.watch ? `<p>${h(I.watch)}</p>` : ""]];
   const tl = `<ol class="btl">${T.map(([meta, title, desc], k) => { const i = k + 1, stt = all || i < step ? "done" : i === step ? "now" : "next";
       const open = lvl === 1 || !!(S.bopen || {})[i];
