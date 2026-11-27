@@ -11,10 +11,11 @@
    ========================================================= */
 :root{
   /* ---------- 색: 바탕 ---------- */
-  --color-bg:            #F2F2F7;  /* Apple systemGroupedBackground (= systemGray6) */
+  --color-bg:            #FFFFFF;  /* v0.9: Apple systemBackground — 페이지 흰색 */
+  --surface-box:         #F2F2F7;  /* v0.9: 박스 = systemGray6. 흐름도·다음에 볼 지표·상태 배너·셀렉트 버튼에만 */
   --surface-1:           #FFFFFF;  /* Apple secondarySystemGroupedBackground */
   --surface-2:           #FFFFFF;  /* 흐름도 무대 (칸은 테두리+그림자로 띄움) */
-  --surface-sunken:      #EEEEF0;  /* 세그먼트 바탕 (Apple tertiarySystemFill 근사 #767680 12%) */
+  --surface-sunken:      #E5E5EA;  /* v0.9: Apple systemGray5 — 회색 박스 안 선택·세그먼트 바탕 */
   --border-1:            #E5E5EA;  /* Apple systemGray5 */
   --border-2:            #D1D1D6;  /* Apple systemGray4 */
 
@@ -337,7 +338,7 @@
   .sect { font-size: var(--fs-caption); color: var(--sub); font-weight: var(--fw-bold); margin: 16px 2px 8px; }
   .chips-wrap { position: relative; margin-top: var(--sp-5); }   /* 흐름도 묶음 ↔ 사건 묶음 사이 (1023 이하) */
   @media (min-width: 1024px) { .col-r .chips-wrap { margin-top: 0; } }
-  @media (max-width: 639px) { .chips-wrap::after { content: ""; position: absolute; right: 0; top: 0; bottom: 1px; width: 36px; background: linear-gradient(90deg, rgba(242,242,247,0), var(--bg)); pointer-events: none; } }
+  @media (max-width: 639px) { .chips-wrap::after { content: ""; position: absolute; right: 0; top: 0; bottom: 1px; width: 36px; background: linear-gradient(90deg, rgba(255,255,255,0), var(--bg)); pointer-events: none; } }
   /* 사건 탭 = 라인 탭 (02-UX "사건 칩 → 라인 탭"): 선택 = 검정 굵게 + 2px 검정 밑줄, 아래 1px 선에 패널이 바로 붙음 */
   .chips { display: flex; gap: 20px; overflow-x: auto; padding: 0; scrollbar-width: none; border-bottom: 1px solid var(--border-1); }
   .chips::-webkit-scrollbar { display: none; }
@@ -501,6 +502,14 @@
   .mine h4 { margin-bottom: 0; }
   .src { margin-top: 0; }
   .pdiv + .mine { margin-top: 0; }
+
+  /* ── 바탕 흰색 + 박스는 연회색, 필요한 곳에만 (02-UX v0.9): 흐름도 / 다음에 볼 지표 / 상태 배너 + 셀렉트 버튼 ── */
+  .flow { background: var(--surface-box); box-shadow: none; border-radius: 16px; }
+  .ds-banner { background: var(--surface-box); border-radius: 16px; }
+  .wcard { background: var(--surface-box); padding: 16px; border-radius: 16px; }
+  .isel-btn { background: var(--surface-box); border: 0; }
+  .icard { background: none; padding: 0; border-radius: 0; }
+  .panel { background: none; }
 </style>
 
 <div class="debug" id="debug"></div>
@@ -569,7 +578,7 @@ const WEAK = [["fx","stock"]];          // 미국 → 한국 쪽은 한 단계 �
 const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const C = { up:tok("--dir-up"), down:tok("--dir-down"), acc:tok("--meaning"), edge:tok("--edge-idle"), ink:tok("--text-1"), sub:tok("--text-2"),
             mute:tok("--text-3"), label:tok("--text-2"), amber:tok("--interest"), amberText:tok("--interest-text"),
-            stage:tok("--surface-2"), surf:tok("--surface-1"), sunk:tok("--surface-sunken"), b1:tok("--border-1"), b2:tok("--border-2") };
+            stage:tok("--surface-box"), surf:tok("--surface-1"), sunk:tok("--surface-sunken"), b1:tok("--border-1"), b2:tok("--border-2") };
 const MONO = tok("--font-mono");
 const has = (list, a, b) => (list || []).some(p => p[0] === a && p[1] === b);
 
