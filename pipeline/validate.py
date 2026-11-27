@@ -101,13 +101,46 @@ def check_sub(e, today, errs):
     if e.get("sub") != sub_for(e["date"], today): errs.append(f"{e['id']}: 날짜 글자 '{e.get('sub')}'가 date {e['date']}와 안 맞음"); return False
     return True
 
+WS = CFG.get("watch_series", {})
+def check_watch(e, errs):
+    """02-UX 검사 3규칙: ① 시나리오 조건·결과 확인 첫 단계 = watch 지표 ② 지표 나라 = 사건 나라 ③ 시나리오가 이미 일어난 방향을 뒤집지 않음."""
+    w = e.get("watch")
+    if not w: return True
+    name = w.get("name", "")
+    for k, o in (e.get("opts") or {}).items():
+        if not o.get("cond") or name not in o["cond"][0][0]: errs.append(f"{e['id']} opts.{k}: 조건 첫 칸이 보는 지표({name})가 아님"); return False
+    if not e.get("confirm") or name not in e["confirm"][0].get("what", ""): errs.append(f"{e['id']}: 결과 확인 첫 단계가 보는 지표가 아님"); return False
+    real = e.get("real") or {}
+    ctry = {m for v in real.values() for m in ("us", "kr") if v.get(m)}
+    wc = WS.get(w.get("key"), {}).get("country")
+    if ctry == {"kr"} and wc == "us" or ctry == {"us"} and wc == "kr": errs.append(f"{e['id']}: 보는 지표 나라({wc})가 사건 나라와 다름"); return False
+    for k, o in (e.get("opts") or {}).items():
+        if e.get("actual"): break
+        for node, st in (o.get("state") or {}).items():
+            r = real.get(node)
+            if r and any(st.get(m) and r.get(m) and st[m] != r[m] for m in ("dir", "us", "kr")):
+                errs.append(f"{e['id']} opts.{k}: 이미 일어난 {node} 방향을 뒤집음"); return False
+    return True
+
+def watch_terms(t):
+    """문장에 나온 지표 키 (별칭 기준)."""
+    return {k for k, c in WS.items() for a in c.get("alias", []) if a in t}
+
 def validate(today, facts):
     """today(생성본)를 검사해서 통과한 것만 남긴 사본과 오류 목록을 돌려준다."""
     errs = []
     allowed = {str(v).replace(",", "") for v in facts.get("allowed_numbers", [])}
     out = dict(today)
     out["interests"] = check_interests(today.get("interests", []), errs, allowed)
-    out["events"] = [e for e in today.get("events", []) if check_sub(e, today.get("date"), errs) and check_event(e, allowed, today.get("date"), errs)][:3]
+    out["events"] = [e for e in today.get("events", []) if (e.get("watchChip") or check_sub(e, today.get("date"), errs)) and check_watch(e, errs) and check_event(e, allowed, today.get("date"), errs)][:3]
+    # 관심사 둘째 문장 지표 ⊂ 사건 watch·같이 볼 것·7일 안 발표 (02-UX)
+    ok_keys = {e["watch"]["key"] for e in out["events"] if e.get("watch")} | set(today.get("judge_keys_all", [])) | set(today.get("upcoming_keys", []))
+    keep = []
+    for x in out["interests"]:
+        bad = watch_terms(x.get("watch") or "") - ok_keys
+        if bad: errs.append(f"관심사 {x['key']}: 둘째 문장 지표 {sorted(bad)}가 화면의 보는 지표·같이 볼 것에 없음"); x = dict(x, sentence=x.get("fact") or "", watch=None)
+        if x.get("sentence"): keep.append(x)
+    out["interests"] = keep
     return out, errs
 
 if __name__ == "__main__":

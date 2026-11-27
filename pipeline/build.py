@@ -84,6 +84,26 @@ def judge_row(f, key, side_if_up):
     chs = f"{ch:+.2f}%p" if unit == "%" else f"{(s['value'] / s['prev'] - 1) * 100:+.2f}%"
     return [s["name"], d, f"{s['value']:,.2f}{unit} · {'전일보다' if key in DAILY else '직전보다'} {chs} ({mdd(s['date'])} 기준)", side]
 
+WS = CFG.get("watch_series", {})
+
+def watch_card(key, hi, lo, facts, today):
+    """보는 지표 카드 (02-UX "지난 사건 → 다음에 볼 지표"): 값·방향·출처·다음 발표는 코드(수집값·일정표)만. 없으면 None → 화면 "값 확인 전"/"일정 확인 전"."""
+    c = WS.get(key)
+    if not c: return None
+    s = facts["series"].get(key); val = dirn = asof = src = None
+    if s:
+        if "yoy" in s:
+            val = f"{mdd(s['date'])} 전년 대비 {s['yoy']:.1f}%"; ch = s["yoy"] - s["yoy_prev"]
+        else:
+            unit = s["unit"] if s["unit"] in ("%", "원") else ""
+            val = f"{s['value']:,.2f}{unit} ({mdd(s['date'])} 기준)"; ch = s["value"] - s["prev"]
+        dirn = "up" if ch > 0 else "down" if ch < 0 else None; src = s["source"]
+    nx = next((r for r in sorted(load_schedule(), key=lambda r: r["date"]) if r["code"] == c["sched"] and r.get("verified")
+               and (r.get("kst") or r["date"])[:10] >= today.isoformat()), None) if c.get("sched") else None
+    nd = (nx.get("kst") or nx["date"])[:10] if nx else None
+    return {"key": key, "short": c["short"], "name": c["full"], "value": val, "dir": dirn, "source": src,
+            "next": md(nd) if nd else None, "next_date": nd, "high": hi, "low": lo, "hit": None}
+
 def assemble(today, facts, draft, upc, yesterday):
     events = []
     for e in draft["events"]:
@@ -95,9 +115,23 @@ def assemble(today, facts, draft, upc, yesterday):
               "real": st_dict(e["real"]), "realPath": e["realPath"], "next": e["next"], "actual": None,
               "opts": {k: {"label": o["label"], "path": o["path"], "state": st_dict(o["state"]),
                            "cond": [[c["text"], c["dir"], 1 if c["done"] else 0] for c in o["cond"]], "out": o["out"]} for k, o in e["opts"].items()},
+              "judgeKeys": [j["key"] for j in (e["judge_keys"] or default_judge(facts, e))],
               "judge": {"interest": {}, "items": [judge_row(facts, j["key"], j["side_if_up"]) for j in (e["judge_keys"] or default_judge(facts, e))]},
               "lean": None, "confirm": [dict(c, done=False, when=md(c.get("when")), date=iso(c.get("when"), today)) for c in e["confirm"]], "sources": e["sources"],
               "sectorTab": "kr" if e["type"] in ("E4",) else "us", "sectors": SECT.get(e["type"])}
+        # 보는 지표 + 열린 질문 + 시나리오·결과 확인 첫 단계를 그 지표와 1:1
+        w = e.get("watch") or {}
+        ev["watch"] = watch_card(w.get("key"), w.get("high"), w.get("low"), facts, today) if w else None
+        ev["question"] = e.get("question")
+        if ev["watch"]:
+            W = ev["watch"]
+            for k, d in (("a", "up"), ("b", "down")):
+                if k in ev["opts"]:
+                    rest = [c for c in ev["opts"][k]["cond"] if W["short"] not in c[0] and W["name"] not in c[0]]
+                    ev["opts"][k]["cond"] = [[W["name"], d, 0]] + rest[:2]
+            first = {"label": "먼저", "what": f"{W['name']} 발표", "when": W["next"] or "일정 확인 전", "date": W["next_date"], "done": False}
+            later = [dict(c, label="최종") for c in ev["confirm"] if W["short"] not in c["what"] and W["name"] not in c["what"]][:1]
+            ev["confirm"] = [first] + later
         if e["kind"] == "upcoming": ev["top"] = f"예상치 확인 전" if not e["expect_src"] else "예상치 출처 있음"
         if e["kind"] == "done":
             s = facts["series"].get(EVENT_SERIES.get(e.get("schedule_code") or "", ""), None)
@@ -107,13 +141,26 @@ def assemble(today, facts, draft, upc, yesterday):
             ev["result"] = {"dir": d, "text": " · ".join(x for x in (nums, exp) if x) or None, "expect": e["expect"],
                             "actual_src": e["actual_src"], "expect_src": e["expect_src"]}
         ev["sub"] = sub_for(ev["date"], today.isoformat())
+        if e["kind"] == "done" and ev.get("result", {}).get("text"):
+            sname = NAMES.get(EVENT_SERIES.get(e.get("schedule_code") or "", ""), "")
+            ev["trigger"] = f"{md(ev['date'])} {sname} {ev['result']['text']}".replace("  ", " ")   # 계기 한 줄 "11/26 기준금리 3.00% → 3.25%"
         events.append(ev)
     # 지난 사건 중 결과 확인(먼저/최종)이 아직 남은 것은 계속 보여줌 (02-UX 칩 규칙)
     have = {x["id"] for x in events}
     for y in (yesterday or {}).get("events", []):
         if y["id"] in have or y["kind"] != "done" or not y.get("date"): continue
         if any((c.get("date") or "") >= today.isoformat() for c in y.get("confirm", [])):
-            events.append(dict(y, sub=sub_for(y["date"], today.isoformat())))
+            y = dict(y, sub=sub_for(y["date"], today.isoformat()))
+            if y.get("watch"): y["watch"] = dict(watch_card(y["watch"]["key"], y["watch"]["high"], y["watch"]["low"], facts, today) or y["watch"])
+            events.append(y)
+    # 결과 확인이 남은 지난 사건: 칩 = 다음에 볼 지표 + 발표 날짜, 같은 지표가 두 칩이면 하나로
+    seen = set(); merged = []
+    for x in events:
+        if x["kind"] == "done" and x["date"] < today.isoformat() and x.get("watch"):
+            if x["watch"]["key"] in seen: continue
+            seen.add(x["watch"]["key"]); x["chip"] = x["watch"]["short"]; x["sub"] = x["watch"]["next"] or "일정 확인 전"; x["watchChip"] = True
+        merged.append(x)
+    events = merged
     t0 = today.isoformat()
     events.sort(key=lambda x: (0, "") if x["kind"] == "done" and x["date"] == t0 else (1, "".join(chr(0x10FFFF - ord(ch)) for ch in x["date"])) if x["kind"] == "done" else (2, x["date"]))
     ints = rank_interests(draft["interests"], upc)
@@ -126,7 +173,10 @@ def assemble(today, facts, draft, upc, yesterday):
     if not daily or max(daily) < (today - dt.timedelta(days=4)).isoformat(): status["delayed"] = max(daily) if daily else "어제"
     if yesterday and yesterday.get("interests") and ints and yesterday["interests"][0]["key"] != ints[0]["key"]:
         status["rankChange"] = {"from": yesterday["interests"][0]["name"], "to": ints[0]["name"]}
-    return {"date": today.isoformat(), "asof": f"{today.month}/{today.day} 08:00", "mock": False,
+    up_codes = {u["code"] for u in upc}
+    return {"judge_keys_all": sorted({k for e in events for k in e.get("judgeKeys", [])}),
+            "upcoming_keys": sorted(k for k, c in WS.items() if c.get("sched") in up_codes),
+            "date": today.isoformat(), "asof": f"{today.month}/{today.day} 08:00", "mock": False,
             "status": status, "interests": ints, "events": events}
 
 def iso(w, today=None):

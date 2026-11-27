@@ -1,19 +1,241 @@
 {
-  "_doc": "기획 v4 §4 기본 관계 13개 + 칸 8개 + 관심사 후보 3개(v4.1). 화면 index.html의 E 목록과 같아야 한다. 13개를 넘기지 않는다.",
-  "nodes": {"oil": "유가", "job": "경기·고용", "cpi": "물가", "rate": "금리", "fx": "달러·환율", "gold": "금", "stock": "주식", "vix": "공포"},
-  "split": ["rate", "stock"],
-  "edges": [
-    ["oil", "cpi"], ["job", "cpi"], ["fx", "cpi"], ["job", "rate"], ["cpi", "rate"], ["rate", "cpi"],
-    ["rate", "gold"], ["rate", "stock"], ["rate", "fx"], ["fx", "stock"],
-    ["vix", "stock", "both"], ["job", "stock"], ["fx", "gold"]
+ "_doc": "기획 v4 §4 기본 관계 13개 + 칸 8개 + 관심사 후보 3개(v4.1). 화면 index.html의 E 목록과 같아야 한다. 13개를 넘기지 않는다.",
+ "nodes": {
+  "oil": "유가",
+  "job": "경기·고용",
+  "cpi": "물가",
+  "rate": "금리",
+  "fx": "달러·환율",
+  "gold": "금",
+  "stock": "주식",
+  "vix": "공포"
+ },
+ "split": [
+  "rate",
+  "stock"
+ ],
+ "edges": [
+  [
+   "oil",
+   "cpi"
   ],
-  "interests": {
-    "cpi":  {"name": "물가", "node": "cpi",  "upSide": "bad",  "explain": [["cpi", "rate"], ["rate", "stock"]], "events": ["US_CPI", "US_PPI", "KR_CPI"],
-             "sentence": {"up": "지금 시장은 물가가 올라 주식에 악재가 될까 봐 걱정하고 있어요", "down": "지금 시장은 물가 오름세가 꺾여 주식에 호재가 될지 보고 있어요"}},
-    "job":  {"name": "경기", "node": "job",  "upSide": "good", "explain": [["job", "stock"]], "events": ["US_JOBS", "US_ISM"],
-             "sentence": {"down": "지금 시장은 경기가 식어 주식에 악재가 될까 봐 걱정하고 있어요", "up": "지금 시장은 경기가 살아나 주식에 호재가 될지 보고 있어요"}},
-    "rate": {"name": "금리", "node": "rate", "upSide": "bad",  "explain": [["rate", "stock"]], "events": ["FOMC", "BOK"],
-             "sentence": {"up": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요", "down": "지금 시장은 금리가 내려 주식에 호재가 될지 보고 있어요"}}
+  [
+   "job",
+   "cpi"
+  ],
+  [
+   "fx",
+   "cpi"
+  ],
+  [
+   "job",
+   "rate"
+  ],
+  [
+   "cpi",
+   "rate"
+  ],
+  [
+   "rate",
+   "cpi"
+  ],
+  [
+   "rate",
+   "gold"
+  ],
+  [
+   "rate",
+   "stock"
+  ],
+  [
+   "rate",
+   "fx"
+  ],
+  [
+   "fx",
+   "stock"
+  ],
+  [
+   "vix",
+   "stock",
+   "both"
+  ],
+  [
+   "job",
+   "stock"
+  ],
+  [
+   "fx",
+   "gold"
+  ]
+ ],
+ "interests": {
+  "cpi": {
+   "name": "물가",
+   "node": "cpi",
+   "upSide": "bad",
+   "explain": [
+    [
+     "cpi",
+     "rate"
+    ],
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "events": [
+    "US_CPI",
+    "US_PPI",
+    "KR_CPI"
+   ],
+   "sentence": {
+    "up": "지금 시장은 물가가 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+    "down": "지금 시장은 물가 오름세가 꺾여 주식에 호재가 될지 보고 있어요"
+   }
   },
-  "event_types": ["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8"]
+  "job": {
+   "name": "경기",
+   "node": "job",
+   "upSide": "good",
+   "explain": [
+    [
+     "job",
+     "stock"
+    ]
+   ],
+   "events": [
+    "US_JOBS",
+    "US_ISM"
+   ],
+   "sentence": {
+    "down": "지금 시장은 경기가 식어 주식에 악재가 될까 봐 걱정하고 있어요",
+    "up": "지금 시장은 경기가 살아나 주식에 호재가 될지 보고 있어요"
+   }
+  },
+  "rate": {
+   "name": "금리",
+   "node": "rate",
+   "upSide": "bad",
+   "explain": [
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "events": [
+    "FOMC",
+    "BOK"
+   ],
+   "sentence": {
+    "up": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+    "down": "지금 시장은 금리가 내려 주식에 호재가 될지 보고 있어요"
+   }
+  }
+ },
+ "event_types": [
+  "E1",
+  "E2",
+  "E3",
+  "E4",
+  "E5",
+  "E6",
+  "E7",
+  "E8"
+ ],
+ "watch_series": {
+  "kr_cpi": {
+   "short": "한국 물가",
+   "full": "한국 소비자물가",
+   "country": "kr",
+   "sched": "KR_CPI",
+   "alias": [
+    "한국 물가",
+    "한국 소비자물가",
+    "소비자물가"
+   ]
+  },
+  "kr_base": {
+   "short": "한국 기준금리",
+   "full": "한국 기준금리",
+   "country": "kr",
+   "sched": "BOK",
+   "alias": [
+    "금통위",
+    "한국 기준금리",
+    "기준금리"
+   ]
+  },
+  "ktb3y": {
+   "short": "국고채 3년",
+   "full": "국고채 3년 금리",
+   "country": "kr",
+   "sched": null,
+   "alias": [
+    "국고채"
+   ]
+  },
+  "usdkrw": {
+   "short": "원/달러",
+   "full": "원/달러 환율",
+   "country": "kr",
+   "sched": null,
+   "alias": [
+    "환율",
+    "원/달러"
+   ]
+  },
+  "kospi": {
+   "short": "코스피",
+   "full": "코스피",
+   "country": "kr",
+   "sched": null,
+   "alias": [
+    "코스피"
+   ]
+  },
+  "us_cpi": {
+   "short": "미국 CPI",
+   "full": "미국 소비자물가(CPI)",
+   "country": "us",
+   "sched": "US_CPI",
+   "alias": [
+    "미국 CPI",
+    "미국 물가",
+    "CPI"
+   ]
+  },
+  "us_ppi": {
+   "short": "미국 PPI",
+   "full": "미국 생산자물가(PPI)",
+   "country": "us",
+   "sched": "US_PPI",
+   "alias": [
+    "PPI",
+    "생산자물가"
+   ]
+  },
+  "us_jobs": {
+   "short": "미국 고용",
+   "full": "미국 고용",
+   "country": "us",
+   "sched": "US_JOBS",
+   "alias": [
+    "미국 고용",
+    "고용"
+   ]
+  },
+  "us_10y": {
+   "short": "미국 10년물",
+   "full": "미국채 10년물 금리",
+   "country": "us",
+   "sched": "FOMC",
+   "alias": [
+    "FOMC",
+    "연준",
+    "미국 금리",
+    "10년물"
+   ]
+  }
+ }
 }

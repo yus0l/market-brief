@@ -90,11 +90,25 @@
     "dir": "up",
     "text": "3.00% → 3.25% · 예상대로 인상"
    },
+   "question": "금리를 올린 뒤, 물가 부담이 이어질까요?",
+   "watch": {
+    "key": "kr_cpi",
+    "short": "한국 물가",
+    "name": "한국 소비자물가",
+    "value": null,
+    "dir": null,
+    "source": null,
+    "next": null,
+    "next_date": null,
+    "high": "물가 부담이 이어지는 쪽",
+    "low": "오름세가 둔화되는 쪽",
+    "hit": null
+   },
    "confirm": [
     {
      "label": "먼저",
-     "what": "원/달러 환율",
-     "when": "며칠~몇 주",
+     "what": "한국 소비자물가 발표",
+     "when": "일정 확인 전",
      "done": false
     },
     {
@@ -117,48 +131,7 @@
    "actual": null,
    "opts": {
     "a": {
-     "label": "물가가 잡히면",
-     "path": [
-      [
-       "rate",
-       "fx"
-      ],
-      [
-       "fx",
-       "cpi"
-      ],
-      [
-       "rate",
-       "cpi"
-      ]
-     ],
-     "state": {
-      "fx": {
-       "dir": "down"
-      },
-      "cpi": {
-       "dir": "down"
-      }
-     },
-     "cond": [
-      [
-       "금리",
-       "up",
-       1
-      ],
-      [
-       "원화 강세",
-       null
-      ]
-     ],
-     "mid": [
-      "물가 오름세 둔화",
-      "down"
-     ],
-     "out": ""
-    },
-    "b": {
-     "label": "물가가 안 잡히면",
+     "label": "물가 부담이 이어지면",
      "path": [
       [
        "cpi",
@@ -173,19 +146,15 @@
       "cpi": {
        "dir": "up"
       },
-      "rate": {
-       "kr": "up"
-      },
       "stock": {
        "kr": "down"
       }
      },
      "cond": [
       [
-       "물가",
+       "한국 소비자물가",
        "up",
-       0,
-       "유지"
+       0
       ],
       [
        "추가 인상",
@@ -193,6 +162,28 @@
       ]
      ],
      "seq": true,
+     "out": ""
+    },
+    "b": {
+     "label": "오름세가 둔화되면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "cpi": {
+       "dir": "down"
+      }
+     },
+     "cond": [
+      [
+       "한국 소비자물가",
+       "down",
+       0
+      ]
+     ],
      "out": ""
     }
    },

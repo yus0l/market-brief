@@ -19,6 +19,8 @@ RULES = """규칙 (서비스 원칙 — 어기면 그 항목은 화면에 안 �
 - 시나리오 조건은 확인 가능한 지표·일정만('투자 심리가 회복되면' 같은 것 금지).
 - '물가 ▼'는 '물가 오름세 둔화'로 쓴다.
 - 관심사 박스 문장 = [사실 한 문장 fact] + [시장이 보는 것 한 문장 watch]. '걱정' 고정 틀 쓰지 않음, '보고 있어요'로 끝냄. 쪽(호재·악재)은 쓰지 않는다.
+- 사건마다 watch(다음에 볼 지표) 하나: 사건과 같은 나라 지표. 시나리오 a = watch가 예상보다 높을 때, b = 낮을 때. 시나리오 조건 첫 칸·결과 확인 첫 단계는 그 지표(시스템이 채움). 시나리오 state는 그 지표가 말하는 칸만 바꾸고, 이미 일어난 사실(real)의 방향을 뒤집지 않는다.
+- 관심사 박스 둘째 문장(watch)의 지표는 사건 watch 지표나 '판단할 때 같이 볼 것' 지표 중에서만.
 - 관심사 계기(trigger)는 출처 기사 2개 이상일 때만. 7일 안 발표 때문이면 trigger·fact는 null로 둬도 된다(시스템이 'D-n'과 날짜 문장을 만든다)."""
 
 def graph_text():
@@ -73,8 +75,13 @@ SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interes
       "fact_sources": SRC,
       "watch": {"type": "string", "description": "박스 둘째 문장: 시장이 무엇을 지켜보나. 30자 안팎, '시장은 …보고 있어요'로 끝남, 확인 가능한 지표·일정만, 예측·호재·악재 말 금지. 예: '시장은 이게 대출과 환율에 얼마나 부담이 될지 보고 있어요'"}}}},
   "events": {"type": "array", "maxItems": 3, "items": {"type": "object", "additionalProperties": False,
-      "required": ["id", "date", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
+      "required": ["id", "date", "question", "watch", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
       "properties": {
+        "question": {"type": ["string", "null"], "description": "지난 사건 패널 제목 = 열린 질문, '…까요?'로 끝남. 예: '금리를 올린 뒤, 물가 부담이 이어질까요?'"},
+        "watch": {"type": ["object", "null"], "additionalProperties": False, "required": ["key", "high", "low"], "description": "다음에 볼 지표 하나. 사건과 같은 나라 지표(한국 사건 → 한국 지표). 시나리오 a = high, b = low",
+                  "properties": {"key": {"type": "string", "enum": sorted({**json.loads((HERE.parent / 'config' / 'graph.json').read_text(encoding='utf-8')).get('watch_series', {})})},
+                                 "high": {"type": "string", "description": "예상보다 높게 나오면 → 어떤 방향인지 (쪽 말 금지). 예: '물가 부담이 이어지는 쪽'"},
+                                 "low": {"type": "string", "description": "낮게 나오면 → 예: '오름세가 둔화되는 쪽'"}}},
         "id": {"type": "string"}, "date": {"type": "string", "description": "사건 날짜, 한국 날짜 YYYY-MM-DD (발표·결정이 있었던/있을 날)"}, "type": {"type": "string", "enum": CFG["event_types"]}, "chip": {"type": "string"}, "head": {"type": "string"},
         "kind": {"type": "string", "enum": ["done", "upcoming"]}, "schedule_code": {"type": ["string", "null"]},
         "expect": {"type": ["string", "null"], "enum": ["예상보다 높음", "예상대로", "예상보다 낮음", None]},

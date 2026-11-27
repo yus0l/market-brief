@@ -133,6 +133,8 @@
     "required": [
      "id",
      "date",
+     "question",
+     "watch",
      "type",
      "chip",
      "head",
@@ -151,6 +153,50 @@
      "sources"
     ],
     "properties": {
+     "question": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "지난 사건 패널 제목 = 열린 질문, '…까요?'로 끝남. 예: '금리를 올린 뒤, 물가 부담이 이어질까요?'"
+     },
+     "watch": {
+      "type": [
+       "object",
+       "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+       "key",
+       "high",
+       "low"
+      ],
+      "description": "다음에 볼 지표 하나. 사건과 같은 나라 지표(한국 사건 → 한국 지표). 시나리오 a = high, b = low",
+      "properties": {
+       "key": {
+        "type": "string",
+        "enum": [
+         "kospi",
+         "kr_base",
+         "kr_cpi",
+         "ktb3y",
+         "us_10y",
+         "us_cpi",
+         "us_jobs",
+         "us_ppi",
+         "usdkrw"
+        ]
+       },
+       "high": {
+        "type": "string",
+        "description": "예상보다 높게 나오면 → 어떤 방향인지 (쪽 말 금지). 예: '물가 부담이 이어지는 쪽'"
+       },
+       "low": {
+        "type": "string",
+        "description": "낮게 나오면 → 예: '오름세가 둔화되는 쪽'"
+       }
+      }
+     },
      "id": {
       "type": "string"
      },

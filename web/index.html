@@ -251,17 +251,29 @@
   .src a { display: block; margin-top: 6px; color: var(--meaning); word-break: break-all; }
   .no-dev .debug-dot { display: none !important; }
   .asof { font-size: var(--fs-caption); color: var(--text-2); margin: 12px 2px 0; }   /* 기준 시각 (02-UX) */
-  .ibox { padding: 0; }   /* 배경 없앰 (사용자 11/27) */
+  .ibox { padding: 0; }
+  .trig { margin-top: 6px; font-size: var(--fs-caption); color: var(--text-2); }
+  .wcard { margin-top: 12px; padding: var(--sp-4); border-radius: var(--r-control); background: var(--surface-sunken); }
+  .wcard .wl { font-size: var(--fs-caption); color: var(--text-2); }
+  .wcard .wn { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin-top: 4px; font-size: var(--fs-body); }
+  .wcard .wv { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-label); }
+  .wcard .wx { margin-top: 2px; font-size: var(--fs-caption); color: var(--text-2); }
+  .wcard .wx b { color: var(--text-1); }
+  .wcard .wx a { color: var(--text-2); }
+  .wcard .wr { margin-top: 10px; display: grid; gap: 4px; font-size: var(--fs-label); }
+  .wcard .wr .hit { font-weight: var(--fw-bold); }
+  .wcard .wr .dim { color: var(--text-3); }   /* 배경 없앰 (사용자 11/27) */
   .isel { position: relative; margin-bottom: 12px; }
-  .isel-btn { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-2); border-radius: var(--r-control); background: var(--surface-1); font-size: var(--fs-label); color: var(--text-1); }
-  .isel-btn .car { color: var(--text-2); margin-left: 2px; }
+  .isel-btn { display: flex; width: 100%; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-2); border-radius: var(--r-control); background: var(--surface-1); font-size: var(--fs-label); color: var(--text-1); }
+  .isel-btn .car { color: var(--text-2); margin-left: auto; padding-left: 6px; flex: none; }   /* ▾ 오른쪽 끝 (보완 4) */
   .isel .rk { flex: none; width: 16px; text-align: center; font-size: 13px; font-weight: var(--fw-bold); color: var(--text-1); }
   .isel .rk.r1 { color: var(--dir-up); }
   .isel b { font-weight: var(--fw-bold); white-space: nowrap; }
-  .isel .l2 { color: var(--text-2); font-weight: var(--fw-regular); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .isel-list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 100%; margin: 0; padding: 4px; list-style: none; background: var(--surface-1); border: 1px solid var(--border-2); border-radius: var(--r-control); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
-  .isel-list li { display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 8px; border-radius: 8px; font-size: var(--fs-label); cursor: pointer; white-space: nowrap; }
-  .isel-list li.on { background: var(--interest-soft); }
+  .isel .l2 { min-width: 0; color: var(--text-2); font-weight: var(--fw-regular); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* 넘치면 계기만 말줄임 */
+  .isel .rk, .isel b { flex: none; }
+  .isel-list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; box-sizing: border-box; margin: 0; padding: 4px; list-style: none; background: var(--surface-1); border: 1px solid var(--border-2); border-radius: var(--r-control); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .isel-list li { min-width: 0; display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 8px; border-radius: 8px; font-size: var(--fs-label); cursor: pointer; white-space: nowrap; }
+  .isel-list li.on { background: var(--surface-sunken); }   /* 셀렉트 안 주황 없음 (보완 3) */
   .isel-list li:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .ibox .big { font-size: var(--fs-title); font-weight: var(--fw-bold); line-height: 1.4; word-break: keep-all; }
   .ibox .big em { font-style: normal; color: var(--interest-text); white-space: nowrap; }
@@ -685,7 +697,7 @@ function subDates(d) {
   const t = d.date && new Date(d.date + "T00:00:00");
   if (!t || isNaN(t)) return;
   (d.events || []).forEach(e => {
-    if (!e.date) return;
+    if (!e.date || e.watchChip) return;   // 지표 칩은 sub = 다음 발표 날짜 (build가 계산)
     const x = new Date(e.date + "T00:00:00"), n = Math.round((x - t) / 864e5);
     e.sub = `${x.getMonth() + 1}/${x.getDate()}`;   // 날짜만 (02-UX "사건 칩 시점: 상대 표현 → 날짜")
     e.dday = n > 0;
@@ -742,6 +754,7 @@ function home() {
   const st = D.status || {}, I = curInt();
   INTEREST = I.node; EXPLAIN = I.explain || [];
   const e = cur(), L = layers(e, I, st), { v, real, o, op, via, idir, opSide } = L;
+  const past = e.kind === "done" && e.date && D.date && e.date < D.date;   // 지난 사건 (결과 확인 남음)
   // 관심사를 바꾼 직후: 같은 사건의 쪽이 뒤집혔으면 태그 뒤집힘 + 한 줄
   let flipped = false;
   if (S.flip) { const P = D.interests.find(x => x.key === S.flip); const ps = P && layers(e, P, st).opSide; flipped = !!(ps && opSide && ps !== opSide); }
@@ -777,8 +790,15 @@ function home() {
   let r = `<div class="chips-wrap"><div class="chips" role="tablist">` + D.events.map(x =>
     `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}<small class="${x.dday ? "dday" : ""}">${h(x.sub)}</small></button>`).join("") + `</div></div>`;
 
-  r += `<section class="panel"><div class="row"><span class="ttl">${h(e.head)}</span></div>`;
-  if (e.result) r += `<div class="res">${triI(e.result.dir)}${h(e.result.text)}</div>`;
+  r += `<section class="panel"><div class="row"><span class="ttl">${h(past && e.question ? e.question : e.head)}</span></div>`;
+  if (past && e.trigger) r += `<div class="trig">${h(e.trigger)}</div>`;   // 지난 사건: 결과 줄 → 계기 한 줄
+  else if (e.result && e.result.text) r += `<div class="res">${triI(e.result.dir)}${h(e.result.text)}</div>`;
+  // 보는 지표 카드 (값·다음 발표는 수집값·일정표만, 없으면 "값 확인 전"/"일정 확인 전")
+  if (e.watch) { const w = e.watch;
+    r += `<div class="wcard"><div class="wl">다음에 볼 지표</div>
+      <div class="wn"><b>${h(w.name)}</b><span class="wv">${w.value ? `${h(w.value)} ${triI(w.dir)}` : "값 확인 전"}</span></div>
+      <div class="wx">${w.next ? `다음 발표 <b>${h(w.next)}</b>` : "일정 확인 전"}${w.source ? ` · <a href="${h(w.source.url)}" target="_blank" rel="noopener">${h(w.source.name)}</a>` : ""}</div>
+      <div class="wr"><div class="${w.hit === "low" ? "dim" : w.hit === "high" ? "hit" : ""}">예상보다 높게 나오면 → ${h(w.high || "")}</div><div class="${w.hit === "high" ? "dim" : w.hit === "low" ? "hit" : ""}">낮게 나오면 → ${h(w.low || "")}</div></div></div>`; }
   // 결과 확인: 두 단계면 .ds-confirm, 아니면 한 줄 라벨
   if (e.confirm && e.confirm.length) r += `<div class="ds-confirm" style="margin-top:12px">결과 확인 ${e.confirm.map(c =>
       `<span class="step ${c.done ? "is-done" : ""}">${h(c.label)} <b>${h(c.what)}</b>${c.when && !c.done ? " · " + h(c.when) : ""}</span>`).join(`<span class="arrow">→</span>`)}</div>`;
