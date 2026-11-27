@@ -524,7 +524,7 @@ const E = [   // 기획 v4 §4 기본 관계 13개. graph.json과 같은 목록�
 // 보통 관계 방향: +1 같이 움직임, −1 반대로 움직임. 실선 = 두 칸이 실제로 움직였다(원인 뜻 아님)
 const SIGN = { "oil>cpi":1, "job>cpi":1, "fx>cpi":1, "job>rate":1, "cpi>rate":1, "rate>gold":-1, "rate>stock":-1, "rate>fx":1, "fx>stock":-1, "vix>stock":-1, "job>stock":1 };
 const SIGN_C = { kr: { "rate>fx": -1 } };   // 한국 금리 ▲ → 원화 강세 → 원/달러 ▼ 가 보통
-const LPOS = { "rate>stock": [235, 76] };      // 짧은 선은 라벨을 선 밖 빈 곳에
+const LPOS = { "rate>stock": [235, 97] };      // 짧은 선: 라벨 아래 끝이 선에서 6px 위 (선 y112 − 6 − 높이 반 9)
 const CNAME = { stock:{ kr:"코스피", us:"S&P 500" }, rate:{ kr:"금리", us:"금리" }, fx:{ kr:"환율", us:"환율" } };
 const WNODE = { kr_cpi:"cpi", us_cpi:"cpi", us_ppi:"cpi", kr_base:"rate", ktb3y:"rate", us_10y:"rate", usdkrw:"fx", kospi:"stock", us_jobs:"job" };
 function contras(v) {   // 실제 경로 중 두 칸의 실제 방향이 보통 관계와 반대인 선
@@ -643,12 +643,6 @@ function flowSVG(v) {
     body += `<text x="${e.lab.x}" y="${e.lab.y+3.5}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.label}">${e.lab.t}</text>`;
   });
 
-  // "보통과 반대" 라벨: 선 가운데, 흰 바탕 pill + border-2, text-1 (색 새로 안 씀)
-  lit.filter(e => e.contra).forEach(e => {
-    const P = e.pts, k = Math.max(1, Math.floor(P.length / 2)), o = LPOS[e.a + ">" + e.b], x = o ? mx(o[0]) : (P[k - 1][0] + P[k][0]) / 2, y = o ? o[1] : (P[k - 1][1] + P[k][1]) / 2, t = "보통과 반대", lw = t.length * 10 + 14;
-    body += `<rect x="${x-lw/2}" y="${y-9}" width="${lw}" height="18" rx="9" fill="${C.surf}" stroke="${C.b2}"/>`;
-    body += `<text x="${x}" y="${y+4}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.ink}">${t}</text>`;
-  });
   // 칸
   Object.entries(N).forEach(([k, n]) => {
     const s = st[k] || {}, next = !s.on && (v.next || []).includes(k);
@@ -679,6 +673,12 @@ function flowSVG(v) {
       if (s.dir) body += tri(x + w/2 - 11, y - h/2 + 11, s.dir.d, s.dir.h, 4.5) + (s.dir.x ? tri(x + w/2 - 22, y - h/2 + 11, s.dir.x, true, 3.5) : "");
     }
     body += `</g>`;
+  });
+  // "보통과 반대" 라벨: 선 가운데, 흰 바탕 pill + border-2, text-1 (색 새로 안 씀)
+  lit.filter(e => e.contra).forEach(e => {
+    const P = e.pts, k = Math.max(1, Math.floor(P.length / 2)), o = LPOS[e.a + ">" + e.b], x = o ? mx(o[0]) : (P[k - 1][0] + P[k][0]) / 2, y = o ? o[1] : (P[k - 1][1] + P[k][1]) / 2, t = "보통과 반대", lw = t.length * 10 + 14;
+    body += `<rect x="${x-lw/2}" y="${y-9}" width="${lw}" height="18" rx="9" fill="${C.surf}" stroke="${C.b2}"/>`;
+    body += `<text x="${x}" y="${y+4}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.ink}">${t}</text>`;
   });
   const f = N.fx;
   body += `<text x="${f.x}" y="${f.y+f.h/2+13}" font-size="11" text-anchor="middle" fill="${v.split?C.acc:C.label}" font-weight="${v.split?600:400}">${v.split?"여기서 갈라졌어요":"미국 → 한국 다리"}</text>`;
@@ -842,7 +842,7 @@ function home() {
   if (e.outlook) r += `<div class="outl"><span class="k">앞으로</span>${h(e.outlook.text)} · ${refs(e.outlook.sources)}</div>`;   // 금리 예상대로일 때 (명세 §3-10)
   const CT = contras(v), T2 = e.etype === "T2" && e.t2;
   const ctLine = CT.length ? `<div class="contra">이번엔 보통과 다르게 움직였어요 · ${CT.map(c => `${h(c.na)} ${triI(c.dA)}인데 ${h(c.nb)} ${triI(c.dB)}`).join(" · ")}</div>` : "";
-  if (!real) r += ctLine;
+  r += ctLine;   // 보통과 반대 한 줄은 결과 전/후 상관없이 E2 바로 아래 한 곳 (UX 11/27)
   // E3 확인할 것: T1 "다음에 볼 지표" / T2 "확인할 일". 결과 확인 다음 단계는 카드 아래 "그다음" 한 줄로 합침
   const later = (e.confirm || []).slice(e.watch ? 1 : 0);
   const then = later.length ? `<div class="wthen">그다음 · <b>${later.map(c => `${h((c.what || "").replace(/ 금리 결정$/, ""))} ${h(c.when || "")}`).join(" → ")}</b></div>` : "";
@@ -868,7 +868,7 @@ function home() {
       <div class="hc-t">${real ? "이번엔 이렇게 됐어요" : "보통 이렇게 읽어요"}</div>
       <div class="hc-row">${real && via && idir ? `<span class="cond">${dirWord(I, idir)}${triI(idir)}${I.market_type === "M2" && I.watch && (opSide === "bad" ? I.watch.includes("걱정하고") : I.watch.includes("기대하고")) ? ` 시장이 ${opSide === "bad" ? "걱정" : "기대"}하던 쪽` : ""}</span><span class="arrow">→</span>` : ""}${op.cond.map(([t, d, done, suf]) => `<span class="cond">${h(t)}${!real && !done ? (T2 ? "" : dirText(d)) : triI(d)}${suf ? " " + h(suf) : ""}</span>`).join(op.seq ? `<span class="arrow">→</span>` : `<span class="plus">+</span>`)}
         ${op.mid ? `<span class="arrow">→</span><span class="cond">${h(op.mid[0])}${real ? triI(op.mid[1]) : dirText(op.mid[1])}</span>` : ""}
-        ${opSide ? `<span class="arrow">→</span><span class="out"><b class="${flipped ? "ds-side is-flipping" : ""}" style="${flipped ? "background:none;padding:0" : ""}">${SIDE[opSide]}</b>${op.out ? " · " + h(op.out) : ""}</span>` : ""}</div>${real ? ctLine : ""}${T2 && e.t2[o] ? `<div class="views">${h(e.t2[o].view)}<div class="vs2">${(e.t2[o].view_sources || []).map(lnk).join("")}</div></div>` : ""}</div>`;
+        ${opSide ? `<span class="arrow">→</span><span class="out"><b class="${flipped ? "ds-side is-flipping" : ""}" style="${flipped ? "background:none;padding:0" : ""}">${SIDE[opSide]}</b>${op.out ? " · " + h(op.out) : ""}</span>` : ""}</div>${T2 && e.t2[o] ? `<div class="views">${h(e.t2[o].view)}<div class="vs2">${(e.t2[o].view_sources || []).map(lnk).join("")}</div></div>` : ""}</div>`;
   }
 
   // E10 판단할 때 같이 볼 것 = E12 근거 전부(가격 반응 행만, 명세 §3-8) + 크기를 바꾸는 것(§3-10 ③)
