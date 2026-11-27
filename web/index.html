@@ -522,6 +522,7 @@
   .bsteps .bre { margin-left: auto; color: var(--text-2); text-decoration: underline; }
   .bnar { margin-top: 8px; font-size: var(--fs-body); line-height: 1.5; color: var(--text-1); word-break: keep-all; min-height: 48px; }
   .bnar p + p { margin-top: 4px; }
+  .bnar .be8 { font-size: var(--fs-label); font-weight: var(--fw-bold); color: var(--meaning); }
   .bnar .bsub, .bnar .bmore { font-size: var(--fs-label); color: var(--text-2); }
   .bnl { padding-left: 18px; display: grid; gap: 4px; font-size: var(--fs-label); }
   .bwl { list-style: none; display: grid; gap: 6px; font-size: var(--fs-label); }
@@ -1035,7 +1036,14 @@ function homeB() {
   const put = k => { if (dirOf(k)) v.real[k] = { dir: dirOf(k) }; };
   put(I.node);
   if (step >= 2) { v.realPath = path.slice(); path.forEach(([a, b]) => { put(a); put(b); }); if (step === 2 && !all) { v.drawOrder = path.map(([a, b]) => a + ">" + b); v.drawDur = lvl >= 2 ? .6 : 1.2; } v.tapWhy = true; }
-  if (step >= 3) { v.expect = done && done.result && done.result.expect; if (reachStock && side) v.sideTag = { side, real: false }; }
+  // ③에서 관심사를 바꾸면: 앞 관심사의 쪽과 다르면 쪽 태그 뒤집힘 + E8 문장 (다른 단계에선 단계만 유지)
+  let e8 = "";
+  if (step === 3 && !all && S.flip && S.flip !== I.key) {
+    const P = (D.interests || []).find(x => x.key === S.flip);
+    if (P) { const pc = bCountry(P, []), ps = sideOf(P, ((D.now || {})[pc] || {})[P.node]);
+      if (ps && side && ps !== side && bPath(P, pc).some(([, b]) => b === "stock")) e8 = `관심사를 ${josa(I.name, "으로", "로")} 바꾸니 ${SIDE[ps]} → ${SIDE[side]}으로 뒤집혔어요`; }
+  }
+  if (step >= 3) { v.expect = done && done.result && done.result.expect; if (reachStock && side) v.sideTag = { side, real: false, flipped: !!e8 }; }
   let nextNode = null;
   if (step >= 4 && bev && !all && S.bopt) { v.real = {}; v.realPath = []; v.sideTag = null; v.expect = null; }   // 가정을 고르면 가정 경로만 (실제와 섞지 않음)
   if (step >= 4 && bev) {
@@ -1073,7 +1081,7 @@ function homeB() {
   if (all) narr = lvl === 3 ? "" : `<ol class="bnl"><li>${h(n1)}</li><li>${path.length ? `${h(bName(path[0][0], c))} → ${h(bName(path[0][1], c))} · ${h(bWhy(path[0][0] + ">" + path[0][1], c))}` : "이 관심사에서 바로 이어지는 선이 없어요"}</li><li>${n3}</li><li>${h(n4)}</li></ol>`;
   else if (step === 1) narr = `<p>${h(n1)}</p>`;
   else if (step === 2) narr = path.length ? `<p id="bwhy">${lvl >= 2 ? "선을 누르면 왜 이어지는지 보여요" : h(bName(path[0][0], c) + " → " + bName(path[0][1], c) + " · " + bWhy(path[0][0] + ">" + path[0][1], c))}</p>${lvl >= 2 ? "" : `<ul class="bwl" id="bwl" hidden>${whyLines}</ul>`}` : `<p>이 관심사에서 주식까지 바로 이어지는 선이 없어요</p>`;
-  else if (step === 3) narr = `<p>${n3}</p>${sizes.length ? `<p class="bmore">같은 사건에 크기를 바꾸는 소식이 있어요 ↓</p>` : ""}`;
+  else if (step === 3) narr = `${e8 ? `<p class="be8">${h(e8)}</p>` : ""}<p>${n3}</p>${sizes.length ? `<p class="bmore">같은 사건에 크기를 바꾸는 소식이 있어요 ↓</p>` : ""}`;
   else narr = `<p>${h(n4)}</p>${I.watch ? `<p class="bsub">${h(I.watch)}</p>` : ""}`;
   // ④ 조작: 관련 발표 탭 + 높으면/낮으면
   let ctl = "";
@@ -1181,7 +1189,7 @@ document.addEventListener("click", ev => {
   if (S.iopen && !ev.target.closest(".isel")) { S.iopen = false; render(); }   // 바깥 누르면 닫힘
   if (BMODE && LOAD === "ok") {
     const b = ev.target.closest("[data-bstep],[data-bnext],[data-ball],[data-bev],[data-bopt],[data-breset],[data-why]");
-    if (b) { const d = b.dataset; S.bTouched = true;
+    if (b) { const d = b.dataset; S.bTouched = true; S.flip = null;
       if (d.why) { const p = document.getElementById("bwhy"); if (p) { p.hidden = false; p.textContent = b.getAttribute("data-wt") || b.textContent; } return; }   // 선·목록을 누르면 그 선의 "왜"
       if (d.bstep) { S.ball = false; S.bstep = +d.bstep; S.bopt = null; }
       else if (d.bnext !== undefined) S.bstep = Math.min(4, S.bstep + 1);
