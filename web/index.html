@@ -596,6 +596,8 @@
   .btag.dash { border-style: dashed; }
   .btag.is-flipping { animation: ds-flip .55s var(--ease); }
   .bdesc .bcontra { color: var(--text-1); }
+  .bnoexp { font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-3); vertical-align: 2px; }
+  .bmorebtn { padding: 4px 0; font-size: var(--fs-label); }
   .bdesc .bsz { font-size: var(--fs-label); }
   .bhyp { margin: 0 0 8px 36px; border-left: 1.5px dashed var(--border-2); padding-left: 16px; }
   .bh { position: relative; padding: 4px 0 14px; }
@@ -1108,16 +1110,18 @@ function homeB() {
     rows.push({ k: "n" + k, st: x && x.dir ? "done" : "wait", meta, title: x && x.dir ? `${h(nm)} ${tri(x.dir)} ${h(x.val)}` : `${h(nm)} · 확인 전`, desc, extra: extra || "" }); };
   const x0 = NV[I.node];
   nodeRow(I.node, `${fm ? fm[1] : x0 ? x0.date : ""} · ${h(bName(I.node, c))}`, fm ? `<p>${h(fm[2])}</p>` : "",
-    exText ? ` <span class="bbadge">${h(exText)}</span>` : "");
+    exText ? ` <span class="bbadge">${h(exText)}</span>` : ` <span class="bnoexp">예상치 확인 전</span>`);
   const seen = new Set([I.node]);
   const ORD = k => k === "stock" ? 1 : k === "kospi" ? 2 : 0;   // 전달 칸 → 주식 → 다음 날 코스피 순서로 읽히게
   path.slice().sort((p, q) => ORD(p[1]) - ORD(q[1])).forEach(([a, b]) => { if (seen.has(b)) return; seen.add(b); const x = NV[b];
     const meta = b === "kospi" ? "다음 날 · 코스피" : `${x ? x.date : "날짜 확인 전"} · ${h(bName(b, c))}`;
     let desc = `<p class="bw">${h(bWhy(a + ">" + b, c))}</p>`, extra = "";
     if (b === "stock") { extra = tag(side, false, !!e8);
-      desc = (e8 ? `<p class="be8">${h(e8)}</p>` : "") + desc + (!exText ? `<p>예상치를 아직 못 찾았어요. 보통은 ${h(josa(I.name, "이", "가"))} ${iDir === "up" ? "오르면" : "내리면"} ${SIDE[side] || ""}으로 읽어요</p>` : "")
-        + (contra ? `<p class="bcontra">보통은 ${expStock === "down" ? "내리는데" : "오르는데"} 이번엔 ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "")
-        + sizes.map(z => `<p class="bsz">${h(z.text)} · ${refs(z.sources)}</p>`).join(""); }
+      // 순서 = E8(바꾼 직후) → 반대 → why → 크기. 3줄까지 보이고 나머지는 "더 보기"
+      const Ls = [e8 ? `<p class="be8">${h(e8)}</p>` : "", contra ? `<p class="bcontra">보통은 ${expStock === "down" ? "내리는데" : "오르는데"} 이번엔 ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
+        .concat(sizes.map(z => `<p class="bsz">${h(z.text)} · ${refs(z.sources)}</p>`)).filter(Boolean);
+      const more = Ls.slice(3);
+      desc = Ls.slice(0, 3).join("") + (more.length ? (S.bmore ? more.join("") : `<button class="blink bmorebtn" data-bmore>더 보기</button>`) : ""); }
     nodeRow(b, meta, desc, extra); });
   if (!path.some(([, b]) => b === "stock")) rows.push({ k: "nostock", st: "wait", meta: "어디로 번지나", title: "주식까지 바로 이어지지 않아요", desc: "", extra: "" });
   // 앞으로 줄 + 가정 경로
@@ -1240,9 +1244,10 @@ document.addEventListener("click", ev => {
   if (ev.target.closest("[data-iopen]")) { S.iopen = !S.iopen; render(); if (S.iopen) focusOpt(); return; }
   if (S.iopen && !ev.target.closest(".isel")) { S.iopen = false; render(); }   // 바깥 누르면 닫힘
   if (BMODE && LOAD === "ok") {
-    const b = ev.target.closest("[data-brow],[data-bev],[data-bopt],[data-breset]");
+    const b = ev.target.closest("[data-bmore],[data-brow],[data-bev],[data-bopt],[data-breset]");
     if (b) { const d = b.dataset; S.flip = null;
-      if (d.brow) { if (bFade() === 1 && !S.bAllOpen) return; S.bopen = S.bopen || {}; S.bopen[d.brow] = !S.bopen[d.brow]; }
+      if (d.bmore !== undefined) S.bmore = true;
+      else if (d.brow) { if (bFade() === 1 && !S.bAllOpen) return; S.bopen = S.bopen || {}; S.bopen[d.brow] = !S.bopen[d.brow]; }
       else if (d.bev) { S.bev = d.bev; S.bopt = null; }
       else if (d.bopt) S.bopt = S.bopt === d.bopt ? null : d.bopt;
       else if (d.breset !== undefined) S.bAllOpen = true;
@@ -1272,7 +1277,7 @@ document.addEventListener("change", ev => {
 });
 function pickInt(k) {
   S.iopen = false;
-  if (k !== S.int) { S.flip = S.int; S.int = k; S.bopt = null; S.bev = null; }
+  if (k !== S.int) { S.flip = S.int; S.int = k; S.bopt = null; S.bev = null; S.bmore = false; }
   render(); const b = document.querySelector("[data-iopen]"); if (b) b.focus();
 }
 function focusOpt(k) {
