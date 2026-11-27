@@ -23,76 +23,20 @@
  },
  "interests": [
   {
-   "key": "cpi",
-   "node": "cpi",
-   "name": "물가",
-   "rank": 1,
-   "reason": {
-    "type": "mention",
-    "label": "PCE 물가 발표"
-   },
-   "upSide": "bad",
-   "fact": "이번 주 미국 PCE 물가 지표가 나왔어요.",
-   "watch": null,
-   "sentence": "이번 주 미국 PCE 물가 지표가 나왔어요.",
-   "fact_sources": [
-    {
-     "name": "CNBC 10월 PCE",
-     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
-    },
-    {
-     "name": "Benzinga PCE·GDP",
-     "url": "https://www.benzinga.com/markets/economic-data/26/11/63619838/pce-inflation-october-gdp-second-estimate"
-    }
-   ],
-   "trigger_sources": [
-    {
-     "name": "CNBC 10월 PCE",
-     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
-    },
-    {
-     "name": "Benzinga PCE·GDP",
-     "url": "https://www.benzinga.com/markets/economic-data/26/11/63619838/pce-inflation-october-gdp-second-estimate"
-    }
-   ],
-   "explain": [
-    [
-     "cpi",
-     "rate"
-    ],
-    [
-     "rate",
-     "stock"
-    ]
-   ],
-   "sources": [
-    {
-     "name": "CNBC 10월 PCE",
-     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
-    },
-    {
-     "name": "Benzinga PCE·GDP",
-     "url": "https://www.benzinga.com/markets/economic-data/26/11/63619838/pce-inflation-october-gdp-second-estimate"
-    },
-    {
-     "name": "Wichita Liberty 10월 PCE",
-     "url": "https://www.wichitaliberty.org/economics/october-2026-pce-inflation-report/"
-    }
-   ]
-  },
-  {
    "key": "job",
    "node": "job",
    "name": "경기",
-   "rank": 2,
+   "rank": 1,
    "reason": {
     "type": "event",
     "label": "미국 고용 12/4"
    },
    "upSide": "good",
-   "fact": "7일 뒤 미국 고용 발표가 있어요.",
-   "watch": "시장은 다음 미국 고용 발표를 보고 있어요",
-   "sentence": "7일 뒤 미국 고용 발표가 있어요. 시장은 다음 미국 고용 발표를 보고 있어요",
+   "fact": "12/4(금) 미국 고용 발표가 있어요.",
+   "watch": null,
+   "market_type": null,
+   "market_sources": [],
+   "sentence": "12/4(금) 미국 고용 발표가 있어요.",
    "fact_sources": [
     {
      "name": "발표 일정",
@@ -106,52 +50,46 @@
      "stock"
     ]
    ],
-   "sources": [
-    {
-     "name": "StockAnalysis 실업수당",
-     "url": "https://stockanalysis.com/news/jobless-claims-rise-third-week-november-2026/"
-    },
-    {
-     "name": "AP 10월 고용",
-     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
-    },
-    {
-     "name": "InvestingLive 실업수당",
-     "url": "https://investinglive.com/news/us-initial-jobless-claims-203k-vs-197k-estimate/"
-    }
-   ]
+   "sources": []
   },
   {
    "key": "rate",
    "node": "rate",
    "name": "금리",
-   "rank": 3,
+   "rank": 2,
    "reason": {
     "type": "mention",
     "label": "한은 금리 인상"
    },
    "upSide": "bad",
-   "fact": "어제 한국은행이 기준금리를 올렸어요.",
-   "watch": "시장은 한국 소비자물가 발표를 보고 있어요",
-   "sentence": "어제 한국은행이 기준금리를 올렸어요. 시장은 한국 소비자물가 발표를 보고 있어요",
+   "fact": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요.",
+   "watch": null,
+   "market_type": "M1",
+   "market_sources": [
+    {
+     "name": "FOMC 일정",
+     "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    }
+   ],
+   "sentence": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요.",
    "fact_sources": [
     {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
     },
     {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
     }
    ],
    "trigger_sources": [
     {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
     },
     {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+     "name": "세계일보 한은 3.25% 상향",
+     "url": "https://www.segye.com/newsView/20261126507219"
     }
    ],
    "explain": [
@@ -162,20 +100,20 @@
    ],
    "sources": [
     {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
     },
     {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+     "name": "세계일보 한은 3.25% 상향",
+     "url": "https://www.segye.com/newsView/20261126507219"
     },
     {
-     "name": "파이낸셜뉴스 금통위 인상",
-     "url": "https://www.fnnews.com/news/202611260931178752"
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
     },
     {
-     "name": "머니투데이 주담대 금리",
-     "url": "https://www.mt.co.kr/finance/2026/11/26/2026112615315475729"
+     "name": "국제뉴스 금통위 인상",
+     "url": "https://www.gukjenews.com/news/articleView.html?idxno=3763574"
     }
    ]
   }
@@ -212,7 +150,7 @@
    "actual": null,
    "opts": {
     "a": {
-     "label": "물가 부담이 이어지면",
+     "label": "한국 물가가 예상보다 높으면",
      "path": [
       [
        "rate",
@@ -235,7 +173,7 @@
      "out": "금리 부담이 이어지는 쪽으로 볼 수 있어요"
     },
     "b": {
-     "label": "물가 오름세가 둔화되면",
+     "label": "한국 물가가 예상보다 낮으면",
      "path": [
       [
        "rate",
@@ -305,16 +243,16 @@
    ],
    "sources": [
     {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
     },
     {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
     },
     {
-     "name": "파이낸셜뉴스 금통위 인상",
-     "url": "https://www.fnnews.com/news/202611260931178752"
+     "name": "네이트 한은 소수의견",
+     "url": "https://m.news.nate.com/view/20261126n13055"
     }
    ],
    "sectorTab": "us",
@@ -367,7 +305,7 @@
     "low": "오름세가 둔화되는 쪽",
     "hit": null
    },
-   "question": "금리를 올린 뒤, 물가 부담이 이어질까요?",
+   "question": "12/2 한국 소비자물가가 다시 오를까요?",
    "result": {
     "dir": "up",
     "text": "3.00% → 3.25%",

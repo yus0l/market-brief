@@ -6,45 +6,52 @@
    "dir": "up",
    "sources": [
     {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
     },
     {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+     "name": "세계일보 한은 3.25% 상향",
+     "url": "https://www.segye.com/newsView/20261126507219"
     },
     {
-     "name": "파이낸셜뉴스 금통위 인상",
-     "url": "https://www.fnnews.com/news/202611260931178752"
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
     },
     {
-     "name": "머니투데이 주담대 금리",
-     "url": "https://www.mt.co.kr/finance/2026/11/26/2026112615315475729"
+     "name": "국제뉴스 금통위 인상",
+     "url": "https://www.gukjenews.com/news/articleView.html?idxno=3763574"
     }
    ],
    "trigger": "한은 금리 인상",
    "trigger_sources": [
     {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
     },
     {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+     "name": "세계일보 한은 3.25% 상향",
+     "url": "https://www.segye.com/newsView/20261126507219"
     }
    ],
-   "fact": "어제 한국은행이 기준금리를 올렸어요.",
+   "fact": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요.",
    "fact_sources": [
     {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
     },
     {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
     }
    ],
-   "watch": "시장은 한국 소비자물가 발표를 보고 있어요"
+   "watch": "시장은 12/10 미국 FOMC 금리 결정을 지켜보고 있어요",
+   "market_type": "M1",
+   "market_sources": [
+    {
+     "name": "FOMC 일정",
+     "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    }
+   ]
   },
   {
    "key": "cpi",
@@ -52,65 +59,51 @@
    "dir": "up",
    "sources": [
     {
-     "name": "CNBC 10월 PCE",
-     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
+     "name": "KB 물가 쇼크·긴축 우려",
+     "url": "https://kbthink.com/investment/today-pick/2611/261111-1.html"
     },
     {
-     "name": "Benzinga PCE·GDP",
-     "url": "https://www.benzinga.com/markets/economic-data/26/11/63619838/pce-inflation-october-gdp-second-estimate"
+     "name": "Axios stocks inflation fed",
+     "url": "https://www.axios.com/2026/11/09/stocks-inflation-fed"
     },
     {
-     "name": "Wichita Liberty 10월 PCE",
-     "url": "https://www.wichitaliberty.org/economics/october-2026-pce-inflation-report/"
+     "name": "InvestingLive CPI 이후",
+     "url": "https://investinglive.com/news/us-cpi-takes-centre-stage-as-markets-look-to-steady-the-ship-after-the-midterm-selloff/"
+    },
+    {
+     "name": "PandaForecast 10월 CPI",
+     "url": "https://pandaforecast.com/financial-news/us-october-cpi-hotter-fed-december-hike/"
     }
    ],
-   "trigger": "PCE 물가 발표",
+   "trigger": "미국 CPI 상회",
    "trigger_sources": [
     {
-     "name": "CNBC 10월 PCE",
-     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
+     "name": "KB 물가 쇼크·긴축 우려",
+     "url": "https://kbthink.com/investment/today-pick/2611/261111-1.html"
     },
     {
-     "name": "Benzinga PCE·GDP",
-     "url": "https://www.benzinga.com/markets/economic-data/26/11/63619838/pce-inflation-october-gdp-second-estimate"
+     "name": "PandaForecast 10월 CPI",
+     "url": "https://pandaforecast.com/financial-news/us-october-cpi-hotter-fed-december-hike/"
     }
    ],
-   "fact": "이번 주 미국 PCE 물가 지표가 나왔어요.",
-   "fact_sources": [
-    {
-     "name": "CNBC 10월 PCE",
-     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
-    },
-    {
-     "name": "Benzinga PCE·GDP",
-     "url": "https://www.benzinga.com/markets/economic-data/26/11/63619838/pce-inflation-october-gdp-second-estimate"
-    }
-   ],
-   "watch": "시장은 미국 물가 발표를 보고 있어요"
+   "fact": null,
+   "fact_sources": [],
+   "watch": null,
+   "market_type": null,
+   "market_sources": []
   },
   {
    "key": "job",
    "mention": "보통",
    "dir": "down",
-   "sources": [
-    {
-     "name": "StockAnalysis 실업수당",
-     "url": "https://stockanalysis.com/news/jobless-claims-rise-third-week-november-2026/"
-    },
-    {
-     "name": "AP 10월 고용",
-     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
-    },
-    {
-     "name": "InvestingLive 실업수당",
-     "url": "https://investinglive.com/news/us-initial-jobless-claims-203k-vs-197k-estimate/"
-    }
-   ],
+   "sources": [],
    "trigger": null,
    "trigger_sources": [],
    "fact": null,
    "fact_sources": [],
-   "watch": "시장은 다음 미국 고용 발표를 보고 있어요"
+   "watch": null,
+   "market_type": null,
+   "market_sources": []
   }
  ],
  "events": [
@@ -214,20 +207,20 @@
    ],
    "sources": [
     {
-     "name": "뉴스웨이 한은 3.25% 인상",
-     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
     },
     {
-     "name": "WOW TV 한은 점도표",
-     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
     },
     {
-     "name": "파이낸셜뉴스 금통위 인상",
-     "url": "https://www.fnnews.com/news/202611260931178752"
+     "name": "네이트 한은 소수의견",
+     "url": "https://m.news.nate.com/view/20261126n13055"
     }
    ],
    "date": "2026-11-26",
-   "question": "금리를 올린 뒤, 물가 부담이 이어질까요?",
+   "question": "12/2 한국 소비자물가가 다시 오를까요?",
    "watch": {
     "key": "kr_cpi",
     "high": "물가 부담이 이어지는 쪽",
