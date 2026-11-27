@@ -475,6 +475,32 @@
   .bar span:last-child { font-size: var(--fs-caption); color: var(--sub); }
 
   @media (prefers-reduced-motion: reduce) { .sk { animation: none; } .sheet { transition: none; } }
+
+  /* ── 사건 패널: 카드 박스 풀기 (02-UX, 사용자 11/27) — 위계는 순서·작은 제목·간격 32·구분선 2개로 ── */
+  .panel { border-radius: 0; box-shadow: none; border: 0; margin-top: 0; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px)); }
+  @media (max-width: 1023px) {   /* 폰·한 열: 탭 줄과 흰 면이 좌우 끝까지 */
+    .chips-wrap, .panel { margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); }
+    .chips { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  }
+  @media (min-width: 1024px) { .panel { padding: 24px 24px 32px; } }
+  .stl, .wcard .wl, .hc-t, .jh h4, .mine h4, .szh { font-size: 12px; font-weight: var(--fw-bold); color: var(--text-2); }
+  .wcard { background: none; padding: 0; border-radius: 0; margin-top: 32px; }
+  .wcard .wn { margin-top: 6px; }
+  .wcard .wx { margin-top: 4px; }
+  .scen-top { margin-top: 32px; }
+  .hintcard, .hintcard.real { background: none; border: 0; border-radius: 0; padding: 0; margin-top: 32px; }
+  .hc-t { margin-bottom: 8px; }
+  .cond { background: none; padding: 0; border-radius: 0; font-weight: var(--fw-medium); }
+  .icond.none { background: none; padding: 0; color: var(--text-2); margin-top: 16px !important; }
+  .ds-flip-note { background: none; padding: 0; }
+  .ds-confirm .step { background: none; padding: 0; }
+  .pdiv { border: 0; border-top: 1px solid var(--border-1); margin: 32px 0; }
+  .judge { margin-top: 0; }
+  .jh { margin-bottom: 2px; }
+  .mine { margin-top: 32px; }
+  .mine h4 { margin-bottom: 0; }
+  .src { margin-top: 0; }
+  .pdiv + .mine { margin-top: 0; }
 </style>
 
 <div class="debug" id="debug"></div>
@@ -848,7 +874,7 @@ function home() {
   r += ctLine;   // 보통과 반대 한 줄은 결과 전/후 상관없이 E2 바로 아래 한 곳 (UX 11/27)
   // E3 확인할 것: T1 "다음에 볼 지표" / T2 "확인할 일". 결과 확인 다음 단계는 카드 아래 "그다음" 한 줄로 합침
   const later = (e.confirm || []).slice(e.watch ? 1 : 0);
-  const then = later.length ? `<div class="wthen">그다음 · <b>${later.map(c => `${h((c.what || "").replace(/ 금리 결정$/, ""))} ${h(c.when || "")}`).join(" → ")}</b></div>` : "";
+  const then = later.length ? ` · 그다음 <b>${later.map(c => `${h((c.what || "").replace(/ 금리 결정$/, ""))} ${h(c.when || "")}`).join(" → ")}</b>` : "";
   const lnk = x => x ? `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>` : "";
   if (T2) { const vf = e.t2.verify || {};
     r += `<div class="wcard"><div class="wl">확인할 일</div><div class="wn"><b>${h(vf.what)}</b></div>
@@ -856,7 +882,7 @@ function home() {
   else if (e.watch) { const w = e.watch;
     r += `<div class="wcard"><div class="wl">다음에 볼 지표</div>
       <div class="wn"><b>${h(w.name)}</b><span class="wv">${w.value ? `${h(w.value)} ${triI(w.dir)}` : "값 확인 전"}</span></div>
-      <div class="wx">${w.next ? `다음 발표 <b>${h(w.next)}</b>` : "일정 확인 전"} · ${w.expect ? `예상 <b>${h(w.expect.value)}</b>${w.expect.source ? ` (${lnk(w.expect.source)})` : ""}` : "예상 확인 전"}${w.source ? " · " + lnk(w.source) : ""}</div>${then}</div>`; }
+      <div class="wx">${w.next ? `다음 발표 <b>${h(w.next)}</b>` : "일정 확인 전"}${then} · ${w.expect ? `예상 <b>${h(w.expect.value)}</b>${w.expect.source ? ` (${lnk(w.expect.source)})` : ""}` : "예상 확인 전"}${w.source ? " · " + lnk(w.source) : ""}</div></div>`; }
   else if (later.length) r += `<div class="wcard"><div class="wl">결과 확인</div><div class="wx">${later.map(c => `${h(c.what)} ${h(c.when || "")}`).join(" → ")}</div></div>`;
   r += `<div class="scen-top">${T2 ? "발표 내용이 어느 쪽인지로 갈려요" : "발표 숫자가 예상보다 높은지 낮은지로 갈려요"}</div>`;
   r += `<div class="scen" style="margin-top:8px">
@@ -876,6 +902,7 @@ function home() {
 
   // E10 판단할 때 같이 볼 것 = E12 근거 전부(가격 반응 행만, 명세 §3-8) + 크기를 바꾸는 것(§3-10 ③)
   const PR = e.prices || [], SZ = e.size || [];
+  r += `<hr class="pdiv">`;
   if (PR.length || SZ.length) {
     r += `<div class="judge"><div class="jh"><h4>판단할 때 같이 볼 것</h4></div>` + PR.map(x => `<div class="jrow"><span class="jn">${h(x.name)}</span>
       <span class="side ${x.note ? "none cnt0" : x.side || "none"}">${x.note ? h(x.note) : x.side ? SIDE[x.side] + (x.weak ? " · 약하게" : "") : "—"}</span><span class="jv">${triI(x.dir)}${x.value == null ? "값 확인 전" : h(x.value)}</span></div>`).join("");
@@ -904,7 +931,7 @@ function home() {
     const act = T2 ? `실제로는 ${e.actual.toUpperCase()} 갈래였어요` : Ln.pos != null ? (Ln.side ? `사건 뒤 시장 움직임: ${SIDE[Ln.side]}` : "사건 뒤 시장 반응: 엇갈려요") : opSide ? `실제 시장 반응: ${SIDE[opSide]}` : "";
     if (act) r += `<div class="mine"><div class="vs">${p ? `내 판단: ${h(pickName(p))}<span class="arr">→</span>` : ""}<span class="act">${h(act)}</span></div>${e.reason ? `<div class="hint">${h(e.reason)}</div>` : ""}</div>`;
   }
-  if (e.sources && e.sources.length) r += `<details class="src"><summary>출처</summary>${e.sources.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;
+  if (e.sources && e.sources.length) r += `<hr class="pdiv"><details class="src"><summary>출처</summary>${e.sources.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;
   if (SHOW_SECTORS && e.sectors) r += `<button class="linkbtn" data-sector>업종별 영향 보기 ›</button>`;
   r += `</section>`;
   // 기준 시각 한 줄 (데이터 기준, 화면 연 시각 아님): "11/27(금) 08:00 기준"
