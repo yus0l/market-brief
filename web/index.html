@@ -693,15 +693,17 @@ function flowSVG(v) {
     const nameFill = lv === 3 ? C.t3 : C.ink, fw = lv === 1 ? 700 : 400, subFill = lv === 3 ? C.t3 : C.sub;
     const sub = (SUBS[CN][k] || "").split("·").filter(Boolean), dd = s.dir || s[CN], closed = v.closed && v.closed[CN] && (k === "rate" || k === "stock" || k === "kospi");
     const core = k === v.core && pathN.size;
-    // 상태 글자: 사건 칸 = 예상 대비(도형 없이 색 글자) / 실제 = "▲ 오름" "▼ 내림" / 가정 = 회색 "△ 오를 수 있음"
-    const EXC = { "예상보다 높음": C.up, "예상보다 낮음": C.down, "예상대로": C.sub };
-    const stt = closed ? ["휴장", C.mute] : core && v.expect && EXC[v.expect] ? [v.expect, EXC[v.expect]]
-      : !dd ? null : dd.h ? [`${dd.d === "up" ? "△ 오를" : "▽ 내릴"} 수 있음`, C.sub]
-      : core ? [dd.d === "up" ? "오름" : "내림", dd.d === "up" ? C.up : C.down] : [dd.d === "up" ? "▲ 오름" : "▼ 내림", dd.d === "up" ? C.up : C.down];
-    const lines = 1 + sub.length + (stt ? 1 : 0), y0 = y - (lines - 1) * 13.5 / 2 + 4;
+    // 상태 글자: 실제 = "▲ 오름" 빨강 / "▼ 내림" 파랑 (사건 칸도 같음), 가정 = 회색 "△ 오를 수 있음"
+    // 사건 칸 예상 대비는 색 없이 칸 아래 회색 배지 (02-UX 정정 11/27)
+    const stt = closed ? ["휴장", C.mute] : !dd ? null : dd.h ? [`${dd.d === "up" ? "△ 오를" : "▽ 내릴"} 수 있음`, C.sub]
+      : [dd.d === "up" ? "▲ 오름" : "▼ 내림", dd.d === "up" ? C.up : C.down];
+    const exb = core && ["예상보다 높음", "예상보다 낮음", "예상대로"].includes(v.expect) ? v.expect : null;
+    const lines = 1 + sub.length + (stt ? 1 : 0), y0 = y - (lines - 1) * 13.5 / 2 + 4 - (exb ? 5 : 0);
     body += `<text x="${x}" y="${y0}" font-size="13" text-anchor="middle" font-weight="${fw}" fill="${nameFill}">${n.t}</text>`;
     sub.forEach((t, i) => body += `<text x="${x}" y="${y0 + 14 + i * 13}" font-size="10.5" text-anchor="middle" fill="${subFill}">${t}</text>`);
     if (stt) body += `<text x="${x}" y="${y0 + 14 + sub.length * 13 + 1}" font-size="10.5" font-weight="600" text-anchor="middle" fill="${stt[1]}">${stt[0]}</text>`;
+    if (exb) { const bw = exb.length * 11 + 14, by = T + h - 8;   // 칸 아래 테두리에 걸친 회색 배지
+      body += `<rect x="${x-bw/2}" y="${by}" width="${bw}" height="17" rx="8" fill="${C.sunk}"/><text x="${x}" y="${by+12.5}" font-size="11.5" text-anchor="middle" fill="${C.ink}">${exb}</text>`; }
     body += `</g>`;
   });
   // "보통과 반대" 라벨: 선 가운데, 흰 바탕 pill + border-2, text-1 (색 새로 안 씀)

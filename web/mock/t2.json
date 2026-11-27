@@ -412,7 +412,7 @@
    "result": {
     "dir": "up",
     "text": "3.00% → 3.25%",
-    "expect": null,
+    "expect": "예상대로",
     "actual_src": "https://ecos.bok.or.kr/",
     "expect_src": null
    },
