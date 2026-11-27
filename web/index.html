@@ -837,7 +837,7 @@ function home() {
 
   // 사건 칩: 오늘 → 곧 발표
   let r = `<div class="chips-wrap"><div class="chips" role="tablist">` + D.events.map(x =>
-    `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}<small>${h(x.sub)}</small></button>`).join("") + `</div></div>`;
+    `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}</button>`).join("") + `</div></div>`;
 
   r += `<section class="panel"><div class="row"><span class="ttl">${h(past && e.question ? e.question : e.head)}</span></div>`;
   if (past && e.trigger) r += `<div class="trig">${h(e.trigger)}</div>`;   // 지난 사건: 계기 한 줄
