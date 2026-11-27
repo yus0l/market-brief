@@ -1,0 +1,176 @@
+/* =========================================================
+   my-service 디자인 시스템 v0.7 (2026-11-26) — 기본 색·글꼴은 Apple HIG 시스템 값 기반
+   개발은 이 파일을 그대로 불러 쓰고, 값은 여기서만 바꾼다.
+   ========================================================= */
+:root{
+  /* ---------- 색: 바탕 ---------- */
+  --color-bg:            #F2F2F7;  /* Apple systemGroupedBackground (= systemGray6) */
+  --surface-1:           #FFFFFF;  /* Apple secondarySystemGroupedBackground */
+  --surface-2:           #FFFFFF;  /* 흐름도 무대 (칸은 테두리+그림자로 띄움) */
+  --surface-sunken:      #EEEEF0;  /* 세그먼트 바탕 (Apple tertiarySystemFill 근사 #767680 12%) */
+  --border-1:            #E5E5EA;  /* Apple systemGray5 */
+  --border-2:            #D1D1D6;  /* Apple systemGray4 */
+
+  /* ---------- 색: 글자 ---------- */
+  --text-1:              #000000;  /* Apple label */
+  --text-2:              #6C6C70;  /* Apple systemGray (접근성 고대비 값). secondaryLabel(60%)은 작은 글자 대비 4.5:1 미달이라 이 값 사용 */
+  --text-3:              #AEAEB2;  /* Apple systemGray2 — 비활성·자리표시 전용 */
+
+  /* ---------- 색: 의미 (섞지 않는다) ---------- */
+  /* 1) 방향 = 사실. 오름/내림, 예상보다 높음/낮음 */
+  --dir-up:              #FF3B30;  /* Apple systemRed */
+  --dir-down:            #007AFF;  /* Apple systemBlue */
+  --dir-flat:            #C7C7CC;  /* Apple systemGray3 */
+  /* 2) 의미 = 해석. 호재 쪽/악재 쪽, 선택됨 */
+  --meaning:             #5856D6;  /* Apple systemIndigo */
+  --meaning-soft:        #EEEEFB;  /* systemIndigo 10% on white */
+  /* 3) 관심사 = 판단 기준 칸 */
+  --interest:            #FF9500;  /* Apple systemOrange */
+  --interest-soft:       #FFF4E5;  /* systemOrange 10% on white */
+  --interest-text:       #C93400;  /* Apple systemOrange 접근성 고대비 값 (글자용) */
+
+  /* ---------- 선 ---------- */
+  --edge-idle:           #C7C7CC;  /* Apple systemGray3 */
+  --edge-w-idle:         1.5px;
+  --edge-w-on:           2.5px;
+  --edge-dash:           6 4;      /* 가정 */
+  --edge-hypo-opacity:   .6;
+
+  /* ---------- 글자 ---------- */
+  --font-sans: "Pretendard", "Pretendard Variable", "Apple SD Gothic Neo", -apple-system, sans-serif;  /* 사용자 지정: Pretendard 우선, 없으면 Apple SD Gothic Neo */
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;  /* Apple SF Mono */
+  --fs-display: 20px;   /* Apple Title3 */
+  --fs-title:   17px;   /* Apple Headline (semibold) */
+  --fs-section: 15px;   /* Apple Subheadline semibold — 섹션 제목 */
+  --fs-body:    15px;   /* Apple Subheadline — 본문, 버튼 */
+  --fs-label:   13px;   /* Apple Footnote — 칸 이름, 행 */
+  --fs-caption: 12px;   /* Apple Caption1 — 보조 설명 */
+  --fs-mono:    11px;   /* Apple Caption2 — 구역·슬롯·보조 라벨 */
+  --fw-regular: 400; --fw-medium: 500; --fw-bold: 600;  /* Apple은 강조에 semibold */
+  --lh-tight: 1.3; --lh-body: 1.55;
+
+  /* ---------- 간격 (4 배수) ---------- */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+
+  /* ---------- 모서리 ---------- */
+  --r-tag: 8px; --r-control: 12px; --r-node: 12px; --r-panel: 16px; --r-stage: 28px; --r-pill: 999px;
+
+  /* ---------- 깊이 ---------- */
+  --shadow-node:  0 1px 0 #fff inset, 0 2px 6px rgba(20,24,32,.06);
+  --shadow-panel: none;  /* v0.4: 카드 그림자 제거 (사용자 요청). 카드는 배경색 차이로만 구분 */
+  --glow-meaning: 0 0 0 3px rgba(88,86,214,.14), 0 0 14px rgba(88,86,214,.25);
+
+  /* ---------- 움직임 ---------- */
+  --motion-flow: 1.2s;  /* 칸 하나를 빛이 지나는 시간 */
+  --motion-rest: 2.6s;  /* 반복 사이 쉼 */
+  --motion-ui:   .2s;
+  --ease: cubic-bezier(.2,.8,.2,1);
+}
+
+/* =================== 컴포넌트 =================== */
+.ds{font-family:var(--font-sans);color:var(--text-1)}
+
+/* 흐름도 칸 */
+.ds-node{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:84px;min-height:42px;padding:var(--sp-2) var(--sp-3);
+  background:var(--surface-1);border:1px solid var(--border-1);border-radius:var(--r-node);box-shadow:var(--shadow-node);font-size:var(--fs-label);font-weight:var(--fw-medium)}
+.ds-node small{font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--text-2);font-weight:var(--fw-regular)}
+.ds-node.is-on{font-weight:var(--fw-bold);box-shadow:var(--shadow-node),var(--glow-meaning);border-color:transparent}
+.ds-node.is-on.is-hypo{box-shadow:var(--shadow-node);border:1.5px dashed var(--meaning)}
+.ds-node.is-interest{border:2px solid var(--interest)}
+.ds-node.is-interest::before{content:"● 관심사";position:absolute;top:-17px;left:2px;font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--interest-text)}
+.ds-node.is-next{background:transparent;box-shadow:none;border:1.5px dashed var(--border-2);color:var(--text-2)}
+.ds-node.is-idle{color:var(--text-3)}
+.ds-node .ds-dir{position:absolute;top:5px;right:7px}
+
+/* 미국|한국 슬롯 칸 */
+.ds-slots{display:flex;gap:6px;margin-top:4px}
+.ds-slot{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:38px}
+.ds-slot b{display:flex;align-items:center;justify-content:center;width:38px;height:20px;font-size:13px;color:var(--text-3);font-weight:var(--fw-regular)}
+.ds-slot span{font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--text-2)}
+
+/* 방향 표시: 채움 = 일어남, 빈 모양 = 가정 */
+.ds-dir{display:inline-block;font-size:12px;line-height:1}
+.ds-dir.up{color:var(--dir-up)} .ds-dir.down{color:var(--dir-down)} .ds-dir.flat{color:var(--dir-flat)}
+.ds-dir.up::before{content:"▲"} .ds-dir.down::before{content:"▼"} .ds-dir.flat::before{content:"–"}
+.ds-dir.hypo.up::before{content:"△"} .ds-dir.hypo.down::before{content:"▽"}
+
+/* 사건 칩 */
+.ds-chip{font:inherit;font-size:var(--fs-label);display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-pill);border:1px solid var(--border-2);background:var(--surface-1);color:var(--text-1);cursor:pointer;white-space:nowrap}
+.ds-chip small{font-size:var(--fs-caption);color:var(--text-2);font-weight:var(--fw-bold)}
+.ds-chip small.dday{color:var(--meaning)}
+.ds-chip.is-selected{border-color:var(--meaning);background:var(--meaning-soft);color:var(--meaning);font-weight:var(--fw-bold)}
+
+/* 관심사 규칙 세그먼트 */
+.ds-rule{display:inline-flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-label);color:var(--text-2)}
+.ds-rule .key{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--r-pill);background:var(--interest-soft);color:var(--interest-text);font-weight:var(--fw-bold)}
+.ds-rule .key::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--interest)}
+.ds-seg{display:inline-flex;background:var(--surface-sunken);border-radius:var(--r-pill);padding:3px;gap:2px}
+.ds-seg span{padding:4px 10px;border-radius:var(--r-pill);font-size:var(--fs-caption);color:var(--text-3);font-weight:var(--fw-medium)}
+.ds-seg span.is-on{background:var(--interest);color:#fff;font-weight:var(--fw-bold)}
+.ds-seg span.is-on.is-hypo{background:transparent;color:var(--interest-text);box-shadow:inset 0 0 0 1.5px var(--interest);outline:0}
+
+/* 시나리오 버튼 */
+.ds-scen{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2)}
+.ds-scen-label{font-size:var(--fs-caption);color:var(--text-2);margin-bottom:var(--sp-2)}
+.ds-scen button{font:inherit;font-size:var(--fs-label);font-weight:var(--fw-bold);min-height:48px;border-radius:var(--r-control);border:1.5px solid var(--border-2);background:var(--surface-1);color:var(--text-1);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.ds-scen button.is-selected{border-color:var(--meaning);background:var(--meaning-soft);color:var(--meaning)}
+.ds-scen button:disabled{color:var(--text-3);background:var(--surface-sunken);border-color:transparent;cursor:default}
+
+/* 쪽 태그 (의미) */
+.ds-side{display:inline-flex;align-items:center;padding:2px 9px;border-radius:var(--r-pill);font-size:var(--fs-caption);font-weight:var(--fw-bold);white-space:nowrap}
+.ds-side.bad{background:var(--meaning);color:#fff}
+.ds-side.good{background:var(--surface-1);color:var(--meaning);box-shadow:inset 0 0 0 1.5px var(--meaning)}
+.ds-side.none{background:var(--surface-sunken);color:var(--text-2)}
+.ds-side.hint::before{content:"보통";font-weight:var(--fw-medium);margin-right:3px}
+
+/* 힌트 카드 */
+.ds-hint{border-radius:var(--r-control);padding:var(--sp-3);background:var(--surface-1);border:1.5px dashed var(--meaning)}
+.ds-hint.is-actual{border-style:solid;background:var(--meaning-soft)}
+.ds-hint h4{margin:0 0 var(--sp-2);font-size:var(--fs-caption);color:var(--text-2);font-weight:var(--fw-medium)}
+.ds-cond{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:var(--fs-label)}
+.ds-cond .c{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:var(--r-tag);background:var(--surface-sunken)}
+
+/* 판단 재료 행 */
+.ds-row{display:grid;grid-template-columns:1fr auto;gap:2px var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border-1)}
+.ds-row .name{font-size:var(--fs-label);font-weight:var(--fw-bold)}
+.ds-row .val{grid-column:1;font-size:var(--fs-caption);color:var(--text-2);display:flex;gap:6px;align-items:center}
+.ds-row .ds-side{grid-column:2;grid-row:1 / span 2;align-self:center}
+.ds-row.is-interest{background:var(--interest-soft);border-radius:var(--r-tag);padding:var(--sp-3);border-bottom:0;margin-bottom:var(--sp-1)}
+.ds-row.is-interest .name::before{content:"● ";color:var(--interest)}
+
+/* 패널 / 섹션 */
+.ds-panel{background:var(--surface-1);border-radius:var(--r-panel);padding:var(--sp-5);  /* v0.5: 카드 기본 여백 24 (사용자 요청) */
+  box-shadow:var(--shadow-panel)}
+.ds-section-title{font-size:var(--fs-section);font-weight:var(--fw-bold);margin:var(--sp-5) 0 var(--sp-2)}
+.ds-stage{background:var(--surface-2);border-radius:var(--r-stage);padding:var(--sp-5)}
+
+/* 동작 줄이기 */
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+
+/* ===== v0.6 서비스 상태 컴포넌트 (2026-11-26) ===== */
+/* 휴장 슬롯: 방향 없이 모노 라벨 */
+.ds-slot.is-closed b{font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--text-3)}
+/* 상태 배너: 지연·오류·조용한 날. 오류도 빨강을 쓰지 않는다(빨강 = 오름) */
+.ds-banner{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-control);background:var(--surface-sunken);color:var(--text-2);font-size:var(--fs-label)}
+.ds-banner b{color:var(--text-1);font-weight:var(--fw-bold)}
+.ds-banner button{font:inherit;font-size:var(--fs-label);font-weight:var(--fw-bold);color:var(--meaning);background:none;border:0;padding:4px 0;cursor:pointer;white-space:nowrap}
+/* 관심사 변경 첫날 공지: 관심사 박스 안 맨 위 한 줄 */
+.ds-interest-change{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-caption);color:var(--interest-text);font-weight:var(--fw-bold);margin-bottom:var(--sp-2)}
+.ds-interest-change s{color:var(--text-3);font-weight:var(--fw-regular)}
+/* 두 단계 확인 */
+.ds-confirm{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;font-size:var(--fs-caption);color:var(--text-2)}
+.ds-confirm .step{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--r-pill);background:var(--surface-sunken)}
+.ds-confirm .step b{color:var(--text-1)}
+.ds-confirm .step.is-done{background:var(--meaning-soft);color:var(--meaning)}
+.ds-confirm .step.is-done::before{content:"✓";font-weight:var(--fw-bold)}
+.ds-confirm .arrow{color:var(--text-3)}
+
+/* ===== v0.7 관심사 셀렉트 (2026-11-26, 사용자 선택: A 셀렉트) ===== */
+.ds-interest-select{display:inline-flex;align-items:center;gap:var(--sp-2)}
+.ds-interest-select select{font:inherit;font-size:var(--fs-label);font-weight:var(--fw-bold);color:var(--interest-text);padding:8px 32px 8px 12px;border-radius:10px;border:1px solid var(--border-2);background:#fff;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px;background-repeat:no-repeat;min-height:40px}
+.ds-interest-select .count{font-size:var(--fs-caption);color:var(--text-2)}  /* "관심사 3개 · 바꿔볼 수 있어요" */
+/* 판정 뒤집힘 */
+@keyframes ds-flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+.ds-side.is-flipping{animation:ds-flip .55s var(--ease)}
+.ds-flip-note{font-size:var(--fs-caption);font-weight:var(--fw-bold);color:var(--meaning);background:var(--meaning-soft);border-radius:var(--r-tag);padding:var(--sp-2) 10px}

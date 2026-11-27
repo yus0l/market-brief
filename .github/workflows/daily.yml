@@ -1,0 +1,15 @@
+# 배포만 담당: Claude Code 예약 실행(pipeline/routine-prompt.md)이 web/today.json을 push하면 GitHub Pages로 공개.
+name: deploy-pages
+on:
+  push: { paths: ["web/**"] }
+  workflow_dispatch: {}
+permissions: { contents: read, pages: write, id-token: write }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: { name: github-pages }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: web }
+      - uses: actions/deploy-pages@v4

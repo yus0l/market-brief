@@ -1,0 +1,21 @@
+# 07:10 KST(= 22:10 UTC): FRED·ECOS 수집만 (키는 GitHub Secrets에만). AI 생성은 07:30 Claude Code 예약 실행이 이 파일을 읽어서 함.
+name: collect
+on:
+  schedule: [{ cron: "10 22 * * *" }]
+  workflow_dispatch: {}
+permissions: { contents: write }
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python3 pipeline/collect.py
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
+      - run: |
+          git config user.name "collect-bot" && git config user.email "actions@users.noreply.github.com"
+          git add data/facts-*.json && git commit -m "facts $(TZ=Asia/Seoul date +%F)" || exit 0
+          git push

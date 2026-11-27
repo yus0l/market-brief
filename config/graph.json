@@ -1,0 +1,19 @@
+{
+  "_doc": "기획 v4 §4 기본 관계 13개 + 칸 8개 + 관심사 후보 3개(v4.1). 화면 index.html의 E 목록과 같아야 한다. 13개를 넘기지 않는다.",
+  "nodes": {"oil": "유가", "job": "경기·고용", "cpi": "물가", "rate": "금리", "fx": "달러·환율", "gold": "금", "stock": "주식", "vix": "공포"},
+  "split": ["rate", "stock"],
+  "edges": [
+    ["oil", "cpi"], ["job", "cpi"], ["fx", "cpi"], ["job", "rate"], ["cpi", "rate"], ["rate", "cpi"],
+    ["rate", "gold"], ["rate", "stock"], ["rate", "fx"], ["fx", "stock"],
+    ["vix", "stock", "both"], ["job", "stock"], ["fx", "gold"]
+  ],
+  "interests": {
+    "cpi":  {"name": "물가", "node": "cpi",  "upSide": "bad",  "explain": [["cpi", "rate"], ["rate", "stock"]], "events": ["US_CPI", "US_PPI", "KR_CPI"],
+             "sentence": {"up": "지금 시장은 물가가 올라 주식에 악재가 될까 봐 걱정하고 있어요", "down": "지금 시장은 물가 오름세가 꺾여 주식에 호재가 될지 보고 있어요"}},
+    "job":  {"name": "경기", "node": "job",  "upSide": "good", "explain": [["job", "stock"]], "events": ["US_JOBS", "US_ISM"],
+             "sentence": {"down": "지금 시장은 경기가 식어 주식에 악재가 될까 봐 걱정하고 있어요", "up": "지금 시장은 경기가 살아나 주식에 호재가 될지 보고 있어요"}},
+    "rate": {"name": "금리", "node": "rate", "upSide": "bad",  "explain": [["rate", "stock"]], "events": ["FOMC", "BOK"],
+             "sentence": {"up": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요", "down": "지금 시장은 금리가 내려 주식에 호재가 될지 보고 있어요"}}
+  },
+  "event_types": ["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8"]
+}

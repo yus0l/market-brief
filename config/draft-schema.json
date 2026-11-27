@@ -1,0 +1,609 @@
+{
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "interests",
+  "events"
+ ],
+ "properties": {
+  "interests": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "key",
+     "mention",
+     "dir",
+     "sources"
+    ],
+    "properties": {
+     "key": {
+      "type": "string",
+      "enum": [
+       "cpi",
+       "job",
+       "rate"
+      ]
+     },
+     "mention": {
+      "type": "string",
+      "enum": [
+       "많음",
+       "보통",
+       "적음"
+      ]
+     },
+     "dir": {
+      "type": "string",
+      "enum": [
+       "up",
+       "down"
+      ]
+     },
+     "sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
+     }
+    }
+   }
+  },
+  "events": {
+   "type": "array",
+   "maxItems": 3,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "type",
+     "chip",
+     "head",
+     "kind",
+     "schedule_code",
+     "expect",
+     "actual_src",
+     "expect_src",
+     "spread",
+     "real",
+     "realPath",
+     "next",
+     "opts",
+     "judge_keys",
+     "confirm",
+     "sources"
+    ],
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "type": {
+      "type": "string",
+      "enum": [
+       "E1",
+       "E2",
+       "E3",
+       "E4",
+       "E5",
+       "E6",
+       "E7",
+       "E8"
+      ]
+     },
+     "chip": {
+      "type": "string"
+     },
+     "head": {
+      "type": "string"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "done",
+       "upcoming"
+      ]
+     },
+     "schedule_code": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "expect": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "enum": [
+       "예상보다 높음",
+       "예상대로",
+       "예상보다 낮음",
+       null
+      ]
+     },
+     "actual_src": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "expect_src": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "spread": {
+      "type": "boolean"
+     },
+     "real": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "node": {
+         "type": "string",
+         "enum": [
+          "oil",
+          "job",
+          "cpi",
+          "rate",
+          "fx",
+          "gold",
+          "stock",
+          "vix"
+         ]
+        },
+        "dir": {
+         "type": [
+          "string",
+          "null"
+         ],
+         "enum": [
+          "up",
+          "down",
+          null
+         ]
+        },
+        "us": {
+         "type": [
+          "string",
+          "null"
+         ],
+         "enum": [
+          "up",
+          "down",
+          null
+         ]
+        },
+        "kr": {
+         "type": [
+          "string",
+          "null"
+         ],
+         "enum": [
+          "up",
+          "down",
+          null
+         ]
+        }
+       },
+       "required": [
+        "node",
+        "dir",
+        "us",
+        "kr"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "realPath": {
+      "type": "array",
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "enum": [
+         "oil",
+         "job",
+         "cpi",
+         "rate",
+         "fx",
+         "gold",
+         "stock",
+         "vix"
+        ]
+       },
+       "minItems": 2,
+       "maxItems": 2
+      }
+     },
+     "next": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "oil",
+        "job",
+        "cpi",
+        "rate",
+        "fx",
+        "gold",
+        "stock",
+        "vix"
+       ]
+      }
+     },
+     "opts": {
+      "type": "object",
+      "properties": {
+       "a": {
+        "type": "object",
+        "properties": {
+         "label": {
+          "type": "string"
+         },
+         "path": {
+          "type": "array",
+          "items": {
+           "type": "array",
+           "items": {
+            "type": "string",
+            "enum": [
+             "oil",
+             "job",
+             "cpi",
+             "rate",
+             "fx",
+             "gold",
+             "stock",
+             "vix"
+            ]
+           },
+           "minItems": 2,
+           "maxItems": 2
+          }
+         },
+         "state": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "node": {
+             "type": "string",
+             "enum": [
+              "oil",
+              "job",
+              "cpi",
+              "rate",
+              "fx",
+              "gold",
+              "stock",
+              "vix"
+             ]
+            },
+            "dir": {
+             "type": [
+              "string",
+              "null"
+             ],
+             "enum": [
+              "up",
+              "down",
+              null
+             ]
+            },
+            "us": {
+             "type": [
+              "string",
+              "null"
+             ],
+             "enum": [
+              "up",
+              "down",
+              null
+             ]
+            },
+            "kr": {
+             "type": [
+              "string",
+              "null"
+             ],
+             "enum": [
+              "up",
+              "down",
+              null
+             ]
+            }
+           },
+           "required": [
+            "node",
+            "dir",
+            "us",
+            "kr"
+           ],
+           "additionalProperties": false
+          }
+         },
+         "cond": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "text": {
+             "type": "string"
+            },
+            "dir": {
+             "type": [
+              "string",
+              "null"
+             ],
+             "enum": [
+              "up",
+              "down",
+              null
+             ]
+            },
+            "done": {
+             "type": "boolean"
+            }
+           },
+           "required": [
+            "text",
+            "dir",
+            "done"
+           ],
+           "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 3
+         },
+         "out": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "label",
+         "path",
+         "state",
+         "cond",
+         "out"
+        ],
+        "additionalProperties": false
+       },
+       "b": {
+        "type": "object",
+        "properties": {
+         "label": {
+          "type": "string"
+         },
+         "path": {
+          "type": "array",
+          "items": {
+           "type": "array",
+           "items": {
+            "type": "string",
+            "enum": [
+             "oil",
+             "job",
+             "cpi",
+             "rate",
+             "fx",
+             "gold",
+             "stock",
+             "vix"
+            ]
+           },
+           "minItems": 2,
+           "maxItems": 2
+          }
+         },
+         "state": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "node": {
+             "type": "string",
+             "enum": [
+              "oil",
+              "job",
+              "cpi",
+              "rate",
+              "fx",
+              "gold",
+              "stock",
+              "vix"
+             ]
+            },
+            "dir": {
+             "type": [
+              "string",
+              "null"
+             ],
+             "enum": [
+              "up",
+              "down",
+              null
+             ]
+            },
+            "us": {
+             "type": [
+              "string",
+              "null"
+             ],
+             "enum": [
+              "up",
+              "down",
+              null
+             ]
+            },
+            "kr": {
+             "type": [
+              "string",
+              "null"
+             ],
+             "enum": [
+              "up",
+              "down",
+              null
+             ]
+            }
+           },
+           "required": [
+            "node",
+            "dir",
+            "us",
+            "kr"
+           ],
+           "additionalProperties": false
+          }
+         },
+         "cond": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "text": {
+             "type": "string"
+            },
+            "dir": {
+             "type": [
+              "string",
+              "null"
+             ],
+             "enum": [
+              "up",
+              "down",
+              null
+             ]
+            },
+            "done": {
+             "type": "boolean"
+            }
+           },
+           "required": [
+            "text",
+            "dir",
+            "done"
+           ],
+           "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 3
+         },
+         "out": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "label",
+         "path",
+         "state",
+         "cond",
+         "out"
+        ],
+        "additionalProperties": false
+       }
+      },
+      "required": [
+       "a",
+       "b"
+      ],
+      "additionalProperties": false
+     },
+     "judge_keys": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "key": {
+         "type": "string"
+        },
+        "side_if_up": {
+         "type": [
+          "string",
+          "null"
+         ],
+         "enum": [
+          "good",
+          "bad",
+          null
+         ]
+        }
+       },
+       "required": [
+        "key",
+        "side_if_up"
+       ],
+       "additionalProperties": false
+      },
+      "maxItems": 3
+     },
+     "confirm": {
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+       "type": "object",
+       "properties": {
+        "label": {
+         "type": "string",
+         "enum": [
+          "먼저",
+          "최종"
+         ]
+        },
+        "what": {
+         "type": "string"
+        },
+        "when": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "label",
+        "what",
+        "when"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
+     }
+    }
+   }
+  }
+ }
+}

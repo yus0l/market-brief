@@ -1,0 +1,20 @@
+{
+ "date": "2026-11-26",
+ "collected_at": "2026-11-26T16:53+09:00",
+ "series": {},
+ "errors": [
+  "us_cpi: 값 없음 (FRED_API_KEY 없음)",
+  "us_ppi: 값 없음 (FRED_API_KEY 없음)",
+  "us_jobs: 값 없음 (FRED_API_KEY 없음)",
+  "us_10y: 값 없음 (FRED_API_KEY 없음)",
+  "vix: 값 없음 (FRED_API_KEY 없음)",
+  "wti: 값 없음 (FRED_API_KEY 없음)",
+  "sp500: 값 없음 (FRED_API_KEY 없음)",
+  "kr_base: 값 없음 (ECOS_API_KEY 없음)",
+  "usdkrw: 값 없음 (ECOS_API_KEY 없음)",
+  "ktb3y: 값 없음 (ECOS_API_KEY 없음)",
+  "kospi: 값 없음 (ECOS_API_KEY 없음)",
+  "kr_cpi: 값 없음 (ECOS_API_KEY 없음)"
+ ],
+ "allowed_numbers": []
+}

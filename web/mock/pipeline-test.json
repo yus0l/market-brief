@@ -1,0 +1,264 @@
+{
+ "date": "2026-11-26",
+ "asof": "11/26 08:00",
+ "mock": false,
+ "status": {
+  "delayed": null,
+  "quiet": false,
+  "split": null,
+  "closed": {
+   "us": false,
+   "kr": false
+  },
+  "rankChange": null
+ },
+ "interests": [
+  {
+   "key": "cpi",
+   "node": "cpi",
+   "name": "물가",
+   "rank": 1,
+   "reason": {
+    "type": "mention",
+    "label": "가장 많이 언급"
+   },
+   "upSide": "bad",
+   "sentence": "지금 시장은 물가가 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+   "explain": [
+    [
+     "cpi",
+     "rate"
+    ],
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "a",
+     "url": "https://news.example/0"
+    },
+    {
+     "name": "a",
+     "url": "https://news.example/1"
+    },
+    {
+     "name": "a",
+     "url": "https://news.example/2"
+    }
+   ]
+  },
+  {
+   "key": "rate",
+   "node": "rate",
+   "name": "금리",
+   "rank": 2,
+   "reason": {
+    "type": "mention",
+    "label": "언급 보통"
+   },
+   "upSide": "bad",
+   "sentence": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+   "explain": [
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "a",
+     "url": "https://news.example/0"
+    },
+    {
+     "name": "a",
+     "url": "https://news.example/1"
+    },
+    {
+     "name": "a",
+     "url": "https://news.example/2"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "id": "bok",
+   "type": "E1",
+   "chip": "한국은행 금리",
+   "head": "한국은행 기준금리 인상",
+   "kind": "done",
+   "sub": "오늘",
+   "dday": false,
+   "real": {
+    "rate": {
+     "kr": "up"
+    }
+   },
+   "realPath": [],
+   "next": [
+    "fx",
+    "cpi"
+   ],
+   "actual": null,
+   "opts": {
+    "a": {
+     "label": "물가가 잡히면",
+     "path": [
+      [
+       "rate",
+       "fx"
+      ],
+      [
+       "fx",
+       "cpi"
+      ],
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "fx": {
+       "dir": "down"
+      },
+      "cpi": {
+       "dir": "down"
+      }
+     },
+     "cond": [
+      [
+       "금리",
+       "up",
+       1
+      ],
+      [
+       "원화 강세",
+       null,
+       0
+      ]
+     ],
+     "out": ""
+    },
+    "b": {
+     "label": "물가가 안 잡히면",
+     "path": [
+      [
+       "cpi",
+       "rate"
+      ],
+      [
+       "rate",
+       "stock"
+      ]
+     ],
+     "state": {
+      "cpi": {
+       "dir": "up"
+      },
+      "stock": {
+       "kr": "down"
+      }
+     },
+     "cond": [
+      [
+       "물가",
+       "up",
+       0
+      ],
+      [
+       "추가 인상",
+       null,
+       0
+      ]
+     ],
+     "out": ""
+    }
+   },
+   "judge": {
+    "interest": {},
+    "items": [
+     [
+      "코스피",
+      "up",
+      "4,711.21 · 전일보다 +0.29% (11/26 기준)",
+      "good"
+     ],
+     [
+      "원/달러 환율",
+      null,
+      null,
+      null
+     ]
+    ]
+   },
+   "lean": null,
+   "confirm": [
+    {
+     "label": "먼저",
+     "what": "원/달러 환율",
+     "when": "며칠~몇 주",
+     "done": false
+    },
+    {
+     "label": "최종",
+     "what": "1월 금통위",
+     "when": "1/14",
+     "done": false
+    }
+   ],
+   "sources": [
+    {
+     "name": "이투데이",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
+    },
+    {
+     "name": "서울신문",
+     "url": "https://www.seoul.co.kr/news/economy/finance/2026/11/26/20261126500036"
+    }
+   ],
+   "sectorTab": "us",
+   "sectors": {
+    "us": [
+     [
+      "더 크게",
+      [
+       "인터넷·성장주",
+       "유틸리티·리츠"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·금융"
+      ]
+     ]
+    ],
+    "kr": [
+     [
+      "더 크게",
+      [
+       "2차전지",
+       "인터넷·게임",
+       "건설"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·보험"
+      ]
+     ]
+    ]
+   },
+   "result": {
+    "dir": "up",
+    "text": "3.00% → 3.25% · 예상대로 · 전망이 갈렸어요",
+    "expect": "예상대로",
+    "actual_src": "https://www.etoday.co.kr/news/view/2652786",
+    "expect_src": "https://www.mt.co.kr/economy/2026/11/22/2026112009065366740"
+   }
+  }
+ ]
+}
