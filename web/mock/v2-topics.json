@@ -1,0 +1,259 @@
+[
+ {
+  "name": "엔비디아 실적",
+  "element": "company",
+  "country": "us",
+  "reason": "엔비디아 실적 발표",
+  "reason_sources": [
+   {
+    "name": "a",
+    "url": "https://a.com/a"
+   },
+   {
+    "name": "b",
+    "url": "https://b.com/a"
+   }
+  ],
+  "mentions": 4,
+  "boost": false,
+  "base": null,
+  "base_num": {
+   "value": "181.2달러",
+   "sources": [
+    {
+     "name": "a",
+     "url": "https://a.com/a"
+    },
+    {
+     "name": "b",
+     "url": "https://b.com/a"
+    }
+   ]
+  },
+  "compare": null,
+  "recent": null,
+  "recent_sources": [],
+  "path": [
+   {
+    "key": "co:엔비디아",
+    "name": "엔비디아 주가",
+    "value": null,
+    "num": {
+     "value": "181.2달러",
+     "sources": [
+      {
+       "name": "a",
+       "url": "https://a.com/a"
+      },
+      {
+       "name": "b",
+       "url": "https://b.com/a"
+      }
+     ]
+    },
+    "link": null,
+    "link_sources": [],
+    "why_rule": null,
+    "why": null,
+    "why_sources": [],
+    "link_prev": "unknown"
+   },
+   {
+    "key": "sector:반도체",
+    "name": "미국 반도체 업종",
+    "value": null,
+    "num": {
+     "value": "5,120",
+     "sources": [
+      {
+       "name": "c",
+       "url": "https://c.com/a"
+      },
+      {
+       "name": "d",
+       "url": "https://d.com/a"
+      }
+     ]
+    },
+    "link": "article",
+    "link_sources": [
+     {
+      "name": "a",
+      "url": "https://a.com/a"
+     },
+     {
+      "name": "c",
+      "url": "https://c.com/a"
+     }
+    ],
+    "why_rule": null,
+    "why": "엔비디아 실적 발표 때문이라고 봐요",
+    "why_sources": [
+     {
+      "name": "a",
+      "url": "https://a.com/a"
+     },
+     {
+      "name": "c",
+      "url": "https://c.com/a"
+     }
+    ],
+    "link_prev": "yes"
+   },
+   {
+    "key": "idx:나스닥",
+    "name": "나스닥",
+    "value": null,
+    "num": {
+     "value": "18,420",
+     "sources": [
+      {
+       "name": "b",
+       "url": "https://b.com/a"
+      },
+      {
+       "name": "d",
+       "url": "https://d.com/a"
+      }
+     ]
+    },
+    "link": "article",
+    "link_sources": [
+     {
+      "name": "b",
+      "url": "https://b.com/a"
+     },
+     {
+      "name": "d",
+      "url": "https://d.com/a"
+     }
+    ],
+    "why_rule": null,
+    "why": null,
+    "why_sources": [],
+    "link_prev": "unknown"
+   },
+   {
+    "key": "kospi",
+    "name": "코스피",
+    "value": {
+     "key": "kospi",
+     "value": 4711.21,
+     "prev": 4697.51,
+     "yoy": null,
+     "dir": "up",
+     "date": "20261126",
+     "source": {
+      "name": "한국은행 ECOS 802Y001",
+      "url": "https://ecos.bok.or.kr/"
+     }
+    },
+    "num": null,
+    "link": "basic",
+    "link_sources": [],
+    "why_rule": "미국 장이 끝난 뒤 한국 장이 열려 다음 날 이어지곤 해요",
+    "why": null,
+    "why_sources": [],
+    "link_prev": "unknown",
+    "next_day": true
+   }
+  ],
+  "read": {
+   "type": "k",
+   "k": "K11",
+   "sure": "good",
+   "conds": null,
+   "none": null
+  },
+  "actual": null,
+  "next": null,
+  "sources": [
+   {
+    "name": "a",
+    "url": "https://a.com/a"
+   },
+   {
+    "name": "b",
+    "url": "https://b.com/a"
+   },
+   {
+    "name": "c",
+    "url": "https://c.com/a"
+   },
+   {
+    "name": "d",
+    "url": "https://d.com/a"
+   }
+  ],
+  "rank": 1
+ },
+ {
+  "name": "관세",
+  "element": "policy",
+  "country": "us",
+  "reason": "관세 발표",
+  "reason_sources": [
+   {
+    "name": "a",
+    "url": "https://a.com/a"
+   },
+   {
+    "name": "b",
+    "url": "https://b.com/a"
+   }
+  ],
+  "mentions": 3,
+  "boost": false,
+  "base": null,
+  "base_num": null,
+  "compare": null,
+  "recent": "미국이 관세 인상안을 발표했어요",
+  "recent_sources": [
+   {
+    "name": "a",
+    "url": "https://a.com/a"
+   },
+   {
+    "name": "b",
+    "url": "https://b.com/a"
+   }
+  ],
+  "path": [],
+  "read": {
+   "type": "articles",
+   "items": [
+    {
+     "cond": null,
+     "side": "bad",
+     "sources": [
+      {
+       "name": "a",
+       "url": "https://a.com/a"
+      },
+      {
+       "name": "b",
+       "url": "https://b.com/a"
+      }
+     ]
+    }
+   ]
+  },
+  "actual": null,
+  "next": null,
+  "sources": [
+   {
+    "name": "a",
+    "url": "https://a.com/a"
+   },
+   {
+    "name": "b",
+    "url": "https://b.com/a"
+   },
+   {
+    "name": "c",
+    "url": "https://c.com/a"
+   }
+  ],
+  "rank": 2
+ }
+]

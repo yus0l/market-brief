@@ -597,6 +597,97 @@
    }
   }
  },
+ "sv": {
+  "us_cpi": {
+   "val": "전년 대비 4.1%",
+   "date": "10월",
+   "dir": "up",
+   "iso": "2026-10-01",
+   "stale": false
+  },
+  "us_ppi": {
+   "val": "전년 대비 12.8%",
+   "date": "10월",
+   "dir": "up",
+   "iso": "2026-10-01",
+   "stale": false
+  },
+  "us_jobs": {
+   "val": "+16.5만 명",
+   "date": "10월",
+   "dir": "up",
+   "iso": "2026-10-01",
+   "stale": false
+  },
+  "us_10y": {
+   "val": "4.91%",
+   "date": "11/24",
+   "dir": "down",
+   "iso": "2026-11-24",
+   "stale": false
+  },
+  "vix": {
+   "val": "26.36",
+   "date": "11/24",
+   "dir": "down",
+   "iso": "2026-11-24",
+   "stale": false
+  },
+  "wti": {
+   "val": "82.24",
+   "date": "11/24",
+   "dir": "up",
+   "iso": "2026-11-24",
+   "stale": false
+  },
+  "sp500": {
+   "val": "7,201.09",
+   "date": "11/24",
+   "dir": "down",
+   "iso": "2026-11-24",
+   "stale": false
+  },
+  "kr_base": {
+   "val": "3.25%",
+   "date": "11/26",
+   "dir": "up",
+   "iso": "2026-11-26",
+   "stale": false,
+   "chg": {
+    "from": "3.00%",
+    "md": "11/26",
+    "iso": "2026-11-26"
+   }
+  },
+  "usdkrw": {
+   "val": "1,343원",
+   "date": "11/27",
+   "dir": "down",
+   "iso": "2026-11-27",
+   "stale": false
+  },
+  "ktb3y": {
+   "val": "3.62%",
+   "date": "11/26",
+   "dir": "up",
+   "iso": "2026-11-26",
+   "stale": false
+  },
+  "kospi": {
+   "val": "4,711.21",
+   "date": "11/26",
+   "dir": "up",
+   "iso": "2026-11-26",
+   "stale": false
+  },
+  "kr_cpi": {
+   "val": "전년 대비 2.8%",
+   "date": "10월",
+   "dir": "down",
+   "iso": null,
+   "stale": false
+  }
+ },
  "ktags": {
   "K1": {
    "label": "물가 예상보다 높음",

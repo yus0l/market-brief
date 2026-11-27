@@ -1,0 +1,418 @@
+{
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "date",
+  "topics"
+ ],
+ "properties": {
+  "date": {
+   "type": "string"
+  },
+  "topics": {
+   "type": "array",
+   "maxItems": 5,
+   "description": "후보 관심사(코드가 순위 매겨 3개). 최근 3일 뉴스에서 주목받는 키워드",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "element",
+     "country",
+     "mention_sources",
+     "reason",
+     "reason_sources",
+     "base_key",
+     "base_num",
+     "expect",
+     "expect_sources",
+     "recent",
+     "recent_sources",
+     "path",
+     "ktype",
+     "read_articles"
+    ],
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "키워드. 나라가 있으면 붙임(예: '미국 물가', '데이터센터 규제', '엔비디아 실적')"
+     },
+     "element": {
+      "type": "string",
+      "enum": [
+       "econ",
+       "cb",
+       "company",
+       "policy",
+       "geo",
+       "fear"
+      ],
+      "description": "econ=경제 지표; cb=중앙은행; company=기업 소식; policy=정책·정치; geo=지정학; fear=공포·심리"
+     },
+     "country": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "enum": [
+       "us",
+       "kr",
+       null
+      ]
+     },
+     "mention_sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      },
+      "description": "최근 3일 이 키워드를 다룬 기사 URL(3개 이상이어야 인정)"
+     },
+     "reason": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "주목 이유 = 가장 많이 다뤄진 사건 이름(10자 안팎). 발표 때문이면 null(코드가 '발표 이름 날짜'로 채움)"
+     },
+     "reason_sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "base_key": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "enum": [
+       "us_cpi",
+       "kr_cpi",
+       "us_ppi",
+       "us_jobs",
+       "us_10y",
+       "ktb3y",
+       "us_base",
+       "kr_base",
+       "usdkrw",
+       "wti",
+       "vix",
+       "sp500",
+       "kospi",
+       null
+      ],
+      "description": "기준 지표 수집값 열쇠. econ=그 지표, cb=us_base/kr_base, fear=vix. 기업·정책·지정학은 null"
+     },
+     "base_num": {
+      "type": [
+       "object",
+       "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+       "value",
+       "sources"
+      ],
+      "properties": {
+       "value": {
+        "type": "string",
+        "description": "기사에 나온 숫자 그대로(단위 포함). 서로 다른 매체 2개가 같은 숫자일 때만"
+       },
+       "sources": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "url": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "name",
+          "url"
+         ],
+         "additionalProperties": false
+        }
+       }
+      },
+      "description": "기업 소식일 때 그 회사 주가(매체 2개 같은 숫자). 그 밖엔 null"
+     },
+     "expect": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "기준 지표 예상치(숫자, 서로 다른 매체 2개). 없으면 null"
+     },
+     "expect_sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "recent": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "기준 지표가 없는 요소(정책·정치·지정학)만: 최근 3일 일어난 일 한 줄, 과거형 사실, 예측 금지"
+     },
+     "recent_sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "path": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "key",
+        "name",
+        "num",
+        "link_sources",
+        "why",
+        "why_sources",
+        "link_prev"
+       ],
+       "properties": {
+        "key": {
+         "type": "string",
+         "description": "칸 열쇠. 기본 칸이면 oil/job/cpi/rate/fx/gold/stock/vix/kospi. 그 밖은 'co:회사', 'sector:업종', 'idx:지수', 'px:가격'(예: 'co:엔비디아', 'sector:반도체', 'idx:나스닥', 'px:구리')"
+        },
+        "name": {
+         "type": "string",
+         "description": "나라+종류 전체 이름(예: '미국 10년 국채 금리', '엔비디아 주가'). 기본 칸은 코드가 덮어씀"
+        },
+        "num": {
+         "type": [
+          "object",
+          "null"
+         ],
+         "additionalProperties": false,
+         "required": [
+          "value",
+          "sources"
+         ],
+         "properties": {
+          "value": {
+           "type": "string",
+           "description": "기사에 나온 숫자 그대로(단위 포함). 서로 다른 매체 2개가 같은 숫자일 때만"
+          },
+          "sources": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "name": {
+              "type": "string"
+             },
+             "url": {
+              "type": "string"
+             }
+            },
+            "required": [
+             "name",
+             "url"
+            ],
+            "additionalProperties": false
+           }
+          }
+         },
+         "description": "수집값이 없는 칸(co:·sector:·idx:·px:)의 값. 기본 칸은 null(코드가 수집값으로 채움)"
+        },
+        "link_sources": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "url": {
+            "type": "string"
+           }
+          },
+          "required": [
+           "name",
+           "url"
+          ],
+          "additionalProperties": false
+         },
+         "description": "위 칸 → 이 칸 연결 근거. 기본 관계 14개에 있는 연결이면 빈 배열. 없는 연결이면 서로 다른 매체 2개 기사"
+        },
+        "why": {
+         "type": [
+          "string",
+          "null"
+         ],
+         "description": "이번에 왜 움직였나: '[원인] 때문이라고 봐요'. 원인 = 사건·지표·발표 이름. 과거형, 예측 금지, 숫자 금지. 근거 없으면 null"
+        },
+        "why_sources": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "url": {
+            "type": "string"
+           }
+          },
+          "required": [
+           "name",
+           "url"
+          ],
+          "additionalProperties": false
+         }
+        },
+        "link_prev": {
+         "type": "string",
+         "enum": [
+          "yes",
+          "no",
+          "unknown"
+         ],
+         "description": "yes = 기사들이 위 칸 움직임 때문이라고 말함 / no = 다른 원인 / unknown = 근거 없음"
+        }
+       }
+      },
+      "description": "관심사 칸에서 시작해 시장 칸(주식·업종·금리·환율·지수)에서 끝나는 칸 목록. 미국 경로의 '다음 날 코스피'는 코드가 붙임"
+     },
+     "ktype": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "enum": [
+       "K1",
+       "K2",
+       "K3",
+       "K4",
+       "K5",
+       "K5-2",
+       "K6",
+       "K7",
+       "K8",
+       "K9",
+       "K10",
+       "K11",
+       "K12",
+       null
+      ],
+      "description": "명세 §3-11 K표 번호. 맞는 게 없으면 null"
+     },
+     "read_articles": {
+      "type": "array",
+      "maxItems": 2,
+      "description": "K표에 없을 때만: 기사들이 보는 쪽. 갈리면 갈래별 2개",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "cond",
+        "side",
+        "sources"
+       ],
+       "properties": {
+        "cond": {
+         "type": [
+          "string",
+          "null"
+         ],
+         "description": "갈릴 때 조건('[다른 소식]이랑 같이 나오면'). 하나면 null"
+        },
+        "side": {
+         "type": "string",
+         "enum": [
+          "good",
+          "bad"
+         ]
+        },
+        "sources": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "url": {
+            "type": "string"
+           }
+          },
+          "required": [
+           "name",
+           "url"
+          ],
+          "additionalProperties": false
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
