@@ -1,0 +1,20 @@
+{
+ "date": "2026-11-27",
+ "asof": "11/27 08:00",
+ "mock": false,
+ "status": {
+  "delayed": null,
+  "quiet": false,
+  "split": {
+   "us": "down",
+   "kr": "up"
+  },
+  "closed": {
+   "us": false,
+   "kr": false
+  },
+  "rankChange": null
+ },
+ "interests": [],
+ "events": []
+}
