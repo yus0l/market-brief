@@ -73,7 +73,7 @@ def assemble(today, facts, draft, upc, yesterday):
               "opts": {k: {"label": o["label"], "path": o["path"], "state": st_dict(o["state"]),
                            "cond": [[c["text"], c["dir"], 1 if c["done"] else 0] for c in o["cond"]], "out": o["out"]} for k, o in e["opts"].items()},
               "judge": {"interest": {}, "items": [judge_row(facts, j["key"], j["side_if_up"]) for j in e["judge_keys"]]},
-              "lean": None, "confirm": [dict(c, done=False) for c in e["confirm"]], "sources": e["sources"],
+              "lean": None, "confirm": [dict(c, done=False, when=md(c.get("when"))) for c in e["confirm"]], "sources": e["sources"],
               "sectorTab": "kr" if e["type"] in ("E4",) else "us", "sectors": SECT.get(e["type"])}
         if e["kind"] == "upcoming": ev["top"] = f"예상치 확인 전" if not e["expect_src"] else "예상치 출처 있음"
         if e["kind"] == "done":
@@ -96,6 +96,10 @@ def assemble(today, facts, draft, upc, yesterday):
         status["rankChange"] = {"from": yesterday["interests"][0]["name"], "to": ints[0]["name"]}
     return {"date": today.isoformat(), "asof": f"{today.month}/{today.day} 08:00", "mock": False,
             "status": status, "interests": ints, "events": events}
+
+def md(w):   # "2026-12-04" → "12/4" (화면 표기). 그 외 문구는 그대로
+    try: d = dt.date.fromisoformat(str(w)[:10]); return f"{d.month}/{d.day}"
+    except (ValueError, TypeError): return w
 
 def main():
     today = dt.datetime.now(KST).date()

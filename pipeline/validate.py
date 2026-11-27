@@ -8,6 +8,7 @@ NODES = set(CFG["nodes"])
 BANNED = ["매수", "매도", "사세요", "파세요", "될 거예요", "될 것", "유력", "확실", "반드시", "판정", "추천 종목"]
 TICKER_WORDS = ["삼성전자", "SK하이닉스", "엔비디아 주식", "테슬라 주식", "애플 주식"]   # 종목명 (사건 이름 "엔비디아 실적"은 허용)
 EXPECT = {"예상보다 높음", "예상대로", "예상보다 낮음"}
+ISO = re.compile(r"\d{4}-\d{2}-\d{2}(?:T[\d:+]+)?")   # 일정 날짜(YYYY-MM-DD)는 숫자 검사 제외
 NUM = re.compile(r"(?<![\d/])[-+−]?\d[\d,]*(?:\.\d+)?(?![\d/]|년|개월|월|일|순위|단계|명|개|위)")   # 날짜·기간·순서 표현은 제외
 
 def texts(obj):
@@ -26,7 +27,7 @@ def check_words(obj, where, errs):
 def check_numbers(obj, allowed, where, errs):
     """문장 속 숫자는 수집값(facts)·출처 있는 값 목록에 있어야 한다."""
     for t in texts(obj):
-        for n in NUM.findall(t):
+        for n in NUM.findall(ISO.sub("", t)):
             k = n.replace(",", "").replace("−", "-").lstrip("+")
             if len(k.strip("-.")) <= 1: continue          # 1자리(1순위, 2단계 등)는 제외
             if k not in allowed: errs.append(f"{where}: 출처 없는 숫자 {n} — {t[:40]}")
