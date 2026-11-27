@@ -86,6 +86,63 @@ def judge_row(f, key, side_if_up):
 
 WS = CFG.get("watch_series", {})
 
+def sdate(s):   # "20261126"·"2026-11-24" → date (월간 "202610"은 None)
+    d = s["date"]
+    if len(d) == 8: return dt.date(int(d[:4]), int(d[4:6]), int(d[6:]))
+    if len(d) == 10: return dt.date.fromisoformat(d)
+    return None
+def next_wd(d):
+    d += dt.timedelta(days=1)
+    while d.weekday() >= 5: d += dt.timedelta(days=1)
+    return d
+# 명세 §3-8 ② v2: 사건 뒤 "가격"만 센다. (key, 묶음, 오르면 쪽, 가중치)
+PRICE = {"kr": [("ktb3y", "rate", "bad", 1), ("kospi", "stock", "good", 1), ("usdkrw", "fx", "bad", .5)],
+         "us": [("us_10y", "rate", "bad", 1), ("sp500", "stock", "good", 1), ("vix", "stock", "bad", 1)]}
+def price_reaction(country, edate, facts, status, upcoming_ev):
+    """E10 행 + E12 막대. 기간 = 사건 당일 + 다음 1거래일. 변화 0·기간 밖·휴장은 안 셈."""
+    rows, g = [], {}
+    win = (edate, next_wd(edate))
+    closed = (status.get("closed") or {}).get(country)
+    for key, grp, up, wt in PRICE[country]:
+        s = facts["series"].get(key)
+        if not s: continue
+        r = judge_row(facts, key, up); d = sdate(s)
+        row = {"name": r[0], "dir": r[1], "value": r[2], "side": r[3], "weak": wt < 1, "counted": False, "note": None}
+        if upcoming_ev: row["note"] = None
+        elif closed: row["note"] = "휴장"
+        elif not d or not (win[0] <= d <= win[1]): row["note"] = "셈 안 함"
+        elif not r[1]: row["note"] = "셈 안 함"
+        elif grp == "stock" and key == "vix" and g.get("stock"): row["note"] = "셈 안 함"      # 주식+공포 합쳐서 1표, 주식이 0이면 VIX
+        else: row["counted"] = True; g[grp] = (r[3], wt)
+        rows.append(row)
+    if upcoming_ev: return rows, {"pos": None, "text": "발표 뒤 시장 움직임을 세서 보여드려요"}
+    if len(g) < 2: return rows, {"pos": None, "text": "아직 시장 반응이 충분하지 않아요"}
+    bad = sum(w for s_, w in g.values() if s_ == "bad"); good = sum(w for s_, w in g.values() if s_ == "good"); tot = bad + good
+    sc = (bad - good) / tot
+    side = "bad" if sc >= .34 else "good" if sc <= -.34 else None
+    weak = any(r["weak"] and r["counted"] for r in rows)
+    return rows, {"pos": round(50 + sc * 50), "side": side,
+                  "text": f"사건 뒤 시장 움직임은 {'악재 쪽' if side == 'bad' else '호재 쪽'}에 더 가까워요" if side else "사건 뒤 시장 반응이 엇갈려요",
+                  "basis": f"위 시장 움직임 {sum(1 for r in rows if r['counted'])}개를 셌어요" + (" · 약하게는 반만" if weak else "")}
+
+def doms(srcs):
+    from urllib.parse import urlparse
+    return {urlparse(x.get("url", "")).netloc.removeprefix("www.") for x in srcs or []} - {""}
+def t2_tally(t2):
+    """명세 §3-10 ② T2 E12: 갈래를 만든 기사는 빼고, 서로 다른 매체 3개+. 매체당 1개."""
+    made = {x.get("url") for k in ("a", "b") for x in (t2.get(k) or {}).get("view_sources", [])}
+    seen, items = set(), []
+    for x in t2.get("tally") or []:
+        dm = next(iter(doms([x])), None)
+        if not dm or x["url"] in made or dm in seen: continue
+        seen.add(dm); items.append(x)
+    if len(items) < 3: return {"items": [], "text": "아직 기사가 충분하지 않아요", "pos": None}
+    na = sum(1 for x in items if x["branch"] == "a"); n = len(items); nb = n - na
+    big = "a" if na > nb else "b" if nb > na else None
+    nm = lambda k: f"{k.upper()} 갈래"
+    text = f"기사들은 {nm(big)}를 더 많이 말해요 ({n}개 중 {max(na, nb)}개)" if big else f"기사들은 두 갈래를 비슷하게 말해요 ({n}개 중 {na}개씩)"
+    return {"items": items, "text": text, "pos": round(nb / n * 100), "basis": f"기사 {n}개 중 A {na}개 · 업종 가격은 아직 안 셈"}
+
 def watch_card(key, hi, lo, facts, today):
     """보는 지표 카드 (02-UX "지난 사건 → 다음에 볼 지표"): 값·방향·출처·다음 발표는 코드(수집값·일정표)만. 없으면 None → 화면 "값 확인 전"/"일정 확인 전"."""
     c = WS.get(key)
@@ -129,6 +186,16 @@ def assemble(today, facts, draft, upc, yesterday):
         w = e.get("watch") or {}
         ev["watch"] = watch_card(w.get("key"), w.get("high"), w.get("low"), facts, today) if w else None
         ev["question"] = e.get("question")
+        if ev["watch"] and w.get("expect") and len(doms(w.get("expect_sources"))) >= 2:
+            ev["watch"]["expect"] = {"value": w["expect"], "source": (w["expect_sources"] or [None])[0]}
+        # 유형(명세 §3-10 ①): 일정표 정기 발표·금리 결정은 무조건 T1
+        ev["etype"] = "T1" if e.get("schedule_code") or e.get("etype") != "T2" else "T2"
+        ev["t2"] = None
+        if ev["etype"] == "T2" and e.get("t2"):
+            t = e["t2"]; ev["t2"] = {"verify": dict(t["verify"], when=md(t["verify"].get("when")) if t["verify"].get("when") else None),
+                                     "a": t["a"], "b": t["b"], "actual": t.get("actual"), "tally": t2_tally(t)}
+            if t.get("actual") in ("a", "b"): ev["actual"] = t["actual"]
+        ev["outlook"] = e.get("outlook"); ev["size"] = (e.get("size") or [])[:2]
         if ev["watch"]:
             W = ev["watch"]
             jo = lambda w: w + ("이" if (ord(w[-1]) - 0xAC00) % 28 and 0xAC00 <= ord(w[-1]) <= 0xD7A3 else "가")
@@ -153,6 +220,7 @@ def assemble(today, facts, draft, upc, yesterday):
             ev["result"] = {"dir": d, "text": " · ".join(x for x in (nums, exp) if x) or None, "expect": e["expect"],
                             "actual_src": e["actual_src"], "expect_src": e["expect_src"]}
         ev["sub"] = sub_for(ev["date"], today.isoformat())
+        ev["country"] = "kr" if e.get("schedule_code") in ("BOK", "KR_CPI") or any(r.get("kr") and not r.get("us") for r in e["real"]) else "us"
         if e["kind"] == "done" and ev.get("result", {}).get("text"):
             sname = NAMES.get(EVENT_SERIES.get(e.get("schedule_code") or "", ""), "")
             ev["trigger"] = f"{md(ev['date'])} {sname} {ev['result']['text']}".replace("  ", " ")   # 계기 한 줄 "11/26 기준금리 3.00% → 3.25%"
@@ -163,7 +231,8 @@ def assemble(today, facts, draft, upc, yesterday):
         if y["id"] in have or y["kind"] != "done" or not y.get("date"): continue
         if any((c.get("date") or "") >= today.isoformat() for c in y.get("confirm", [])):
             y = dict(y, sub=sub_for(y["date"], today.isoformat()))
-            if y.get("watch"): y["watch"] = dict(watch_card(y["watch"]["key"], y["watch"]["high"], y["watch"]["low"], facts, today) or y["watch"])
+            if y.get("watch"): y["watch"] = dict(watch_card(y["watch"]["key"], y["watch"]["high"], y["watch"]["low"], facts, today) or y["watch"], expect=y["watch"].get("expect"))
+            y["_y"] = True
             events.append(y)
     # 결과 확인이 남은 지난 사건: 칩 = 다음에 볼 지표 + 발표 날짜, 같은 지표가 두 칩이면 하나로
     seen = set(); merged = []
@@ -176,6 +245,7 @@ def assemble(today, facts, draft, upc, yesterday):
     t0 = today.isoformat()
     events.sort(key=lambda x: (0, "") if x["kind"] == "done" and x["date"] == t0 else (1, "".join(chr(0x10FFFF - ord(ch)) for ch in x["date"])) if x["kind"] == "done" else (2, x["date"]))
     ints = rank_interests(draft["interests"], upc)
+    for x in events: x.pop("_y", None)
     status = {"delayed": None, "quiet": not any(e["kind"] == "done" for e in events), "split": None,
               "closed": {"us": False, "kr": False}, "rankChange": None}
     sp, ks = facts["series"].get("sp500"), facts["series"].get("kospi")
@@ -188,6 +258,23 @@ def assemble(today, facts, draft, upc, yesterday):
     if not daily or max(daily) < (today - dt.timedelta(days=4)).isoformat(): status["delayed"] = max(daily) if daily else "어제"
     if yesterday and yesterday.get("interests") and ints and yesterday["interests"][0]["key"] != ints[0]["key"]:
         status["rankChange"] = {"from": yesterday["interests"][0]["name"], "to": ints[0]["name"]}
+    # E10 근거 행 + E12 가격 반응 (명세 §3-8). 이어 온 지난 사건은 기간이 지나면 어제 집계를 그대로 둠
+    ylean = {y["id"]: y for y in (yesterday or {}).get("events", [])}
+    for x in events:
+        if x.get("etype") == "T2": x["lean"] = None; x["prices"] = []; continue
+        up = x["kind"] != "done" or x["date"] > t0
+        rows, lean = price_reaction(x.get("country", "us"), dt.date.fromisoformat(x["date"]), facts, status, up)
+        yv = ylean.get(x["id"])
+        if lean["pos"] is None and not up and yv and (yv.get("lean") or {}).get("pos") is not None: rows, lean = yv["prices"], yv["lean"]
+        x["prices"], x["lean"] = rows, lean
+        # 흐름도: 실제 경로 도착 칸이 가격 칸이면 센 방향을 실제 상태로 (보통과 반대 표시용, 명세 §3-9)
+        if not up:
+            node_of = {"ktb3y": "rate", "kospi": "stock", "usdkrw": "fx", "us_10y": "rate", "sp500": "stock"}
+            for key, grp, _, _ in PRICE[x.get("country", "us")]:
+                r = next((r for r in rows if r["name"] == NAMES.get(key, key) and r["counted"]), None)
+                n = node_of.get(key)
+                if not r or not n or n in x["real"] or not any(b == n for a, b in x["realPath"]): continue
+                m = x.get("country", "us"); x["real"][n] = {m: r["dir"]}
     up_codes = {u["code"] for u in upc}
     return {"judge_keys_all": sorted({k for e in events for k in e.get("judgeKeys", [])}),
             "upcoming_keys": sorted(k for k, c in WS.items() if c.get("sched") in up_codes),
@@ -226,7 +313,11 @@ def main():
     ARCH.mkdir(parents=True, exist_ok=True)
     (ARCH / f"draft-{today}.json").write_text(json.dumps(draft, ensure_ascii=False, indent=1), encoding="utf-8")
     yp = ARCH / f"today-{today - dt.timedelta(days=1)}.json"
+    tp = ARCH / f"today-{today}.json"
+    prev = json.loads(tp.read_text(encoding="utf-8")) if tp.exists() else None
     out = assemble(today, facts, draft, upc, json.loads(yp.read_text(encoding="utf-8")) if yp.exists() else None)
+    if not draft.get("events") and prev and prev.get("events"):   # 같은 날 다시 생성에서 사건이 0개면 앞 실행의 통과 사건 유지
+        out["events"] = prev["events"]; out["status"]["quiet"] = not any(e["kind"] == "done" for e in out["events"])
     final, errs = validate(out, facts)
     done = [e for e in out["events"] if e["kind"] == "done"]
     stats = {"date": today.isoformat(), "events": len(out["events"]), "passed": len(final["events"]), "errors": errs,

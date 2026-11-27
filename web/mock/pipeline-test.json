@@ -188,7 +188,10 @@
      ]
     ]
    },
-   "lean": null,
+   "lean": {
+    "pos": null,
+    "text": "아직 시장 반응이 충분하지 않아요"
+   },
    "confirm": [
     {
      "label": "먼저",
@@ -251,6 +254,10 @@
    },
    "watch": null,
    "question": null,
+   "etype": "T1",
+   "t2": null,
+   "outlook": null,
+   "size": [],
    "result": {
     "dir": "up",
     "text": "3.00% → 3.25% · 예상대로 · 전망이 갈렸어요",
@@ -259,7 +266,19 @@
     "expect_src": "https://www.mt.co.kr/economy/2026/11/22/2026112009065366740"
    },
    "sub": "11/26",
-   "trigger": "11/26 기준금리 3.00% → 3.25% · 예상대로 · 전망이 갈렸어요"
+   "country": "kr",
+   "trigger": "11/26 기준금리 3.00% → 3.25% · 예상대로 · 전망이 갈렸어요",
+   "prices": [
+    {
+     "name": "코스피",
+     "dir": "up",
+     "value": "4,711.21 · 전일보다 +0.29% (11/26 기준)",
+     "side": "good",
+     "weak": false,
+     "counted": true,
+     "note": null
+    }
+   ]
   }
  ]
 }

@@ -20,6 +20,9 @@ RULES = """규칙 (서비스 원칙 — 어기면 그 항목은 화면에 안 �
 - '물가 ▼'는 '물가 오름세 둔화'로 쓴다.
 - 문장 기준(명세 §3-6): 문장은 두 칸 = [사실: 무슨 일이 있었다/있다] + [시장: 시장은 그걸 어떻게 하고 있다]. 관심사 박스 = 사실(S1/S3) + 시장(M2 근거 있으면 M2, 없으면 M1, M3 금지). 시점은 날짜 'M/D'로('어제·이번 주·최근·N일 뒤·곧' 금지). 두 문장이 같은 지표를 반복하지 않음. 해요체, 한 문장 40자 안쪽, 주어를 숨기지 않음. 근거가 없으면 시장 칸은 null(사실 한 문장만).
 - 지난 사건 질문형 제목(question) = '[M/D] [다음 지표]가 [방향]할까요?' 지표 이름 필수, 날짜는 일정표 공식만(없으면 뺌). 방향 말은 최근 값 기준: 최근 ▼면 '다시 오를까요?', ▲면 '더 오를까요?'. 예: '12/2 한국 소비자물가가 다시 오를까요?'
+- 사건 유형(명세 §3-10): 일정표 정기 발표·금리 결정·실적 = T1(숫자 1개로 갈림, 시나리오 a/b = 그 숫자가 예상보다 높으면/낮으면). 일정표 밖 사건 중 기사들이 결과를 두 갈래로 나눠 보는 것 = T2(하루 1개, 시나리오 a/b label = 확인할 수 있는 내용 조건, t2에 갈래 이름·기사 견해·확인할 일·집계 기사). 어느 쪽에도 안 맞으면 고르지 않는다.
+- 기사 N개 = 서로 다른 매체 N개(통신사 기사를 옮겨 실은 건 1개).
+- outlook(앞으로 한 줄)은 금리 결정이 예상대로일 때만. size(크기를 바꾸는 것)는 최대 2개, '다만…/게다가…' 틀.
 - ▲▼는 실제 움직임에만. 가정·시나리오 문장은 '오름 쪽/내림 쪽' 글자로. watch.high/low는 화면에 안 나오지만 시나리오 방향 확인용으로 짧게.
 - 사건마다 watch(다음에 볼 지표) 하나: 사건과 같은 나라 지표. 시나리오 a = watch가 예상보다 높을 때, b = 낮을 때. 시나리오 조건 첫 칸·결과 확인 첫 단계는 그 지표(시스템이 채움). 시나리오 state는 그 지표가 말하는 칸만 바꾸고, 이미 일어난 사실(real)의 방향을 뒤집지 않는다.
 - 관심사 박스 둘째 문장(watch)의 지표는 사건 watch 지표나 '판단할 때 같이 볼 것' 지표 중에서만.
@@ -69,6 +72,10 @@ OPT = {"type": "object", "properties": {"label": {"type": "string"}, "path": {"t
        "cond": {"type": "array", "items": COND, "minItems": 1, "maxItems": 3}, "out": {"type": "string"}},
        "required": ["label", "path", "state", "cond", "out"], "additionalProperties": False}
 SRC = {"type": "array", "items": {"type": "object", "properties": {"name": {"type": "string"}, "url": {"type": "string"}}, "required": ["name", "url"], "additionalProperties": False}}
+BR = {"type": "object", "additionalProperties": False, "required": ["short", "view", "view_sources"], "properties": {
+      "short": {"type": "string", "description": "갈래 짧은 이름(정책·결과 내용, 후보 이름 금지). 예: '건설 제한'"},
+      "view": {"type": "string", "description": "기사들은 이렇게 봐요: 한두 문장, 주어 = 기사('기사들은 …로 봐요'). 쪽 말 금지"},
+      "view_sources": SRC}}
 SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interests", "events", "extra_numbers"], "properties": {
   "extra_numbers": {"type": "array", "description": "수집값에 없는데 문장에 쓴 숫자. 서로 다른 매체 2개에 같은 숫자가 있을 때만", "items": {"type": "object", "additionalProperties": False,
       "required": ["value", "sources"], "properties": {"value": {"type": "string"}, "sources": SRC}}},
@@ -83,13 +90,25 @@ SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interes
       "market_type": {"type": ["string", "null"], "enum": ["M1", "M2", None]},
       "market_sources": SRC}}},
   "events": {"type": "array", "maxItems": 3, "items": {"type": "object", "additionalProperties": False,
-      "required": ["id", "date", "question", "watch", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
+      "required": ["id", "date", "etype", "t2", "outlook", "size", "question", "watch", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
       "properties": {
         "question": {"type": ["string", "null"], "description": "지난 사건 패널 제목 = 열린 질문, '…까요?'로 끝남. 예: '금리를 올린 뒤, 물가 부담이 이어질까요?'"},
-        "watch": {"type": ["object", "null"], "additionalProperties": False, "required": ["key", "high", "low"], "description": "다음에 볼 지표 하나. 사건과 같은 나라 지표(한국 사건 → 한국 지표). 시나리오 a = high, b = low",
+        "etype": {"type": "string", "enum": ["T1", "T2"], "description": "T1 숫자로 갈림(일정표 정기 발표·금리 결정·실적은 무조건 T1) / T2 내용으로 갈림(일정표 밖, 기사들이 결과를 2갈래 이상으로 나눠 봄: 규제·관세·선거). T2는 하루 1개만"},
+        "t2": {"type": ["object", "null"], "additionalProperties": False, "required": ["verify", "a", "b", "tally", "actual"], "description": "T2일 때만. T1이면 null",
+               "properties": {"verify": {"type": "object", "additionalProperties": False, "required": ["what", "when", "source"], "properties": {"what": {"type": "string", "description": "확인할 일: 법안 발표·표결 등"}, "when": {"type": ["string", "null"], "description": "YYYY-MM-DD, 모르면 null"}, "source": {"type": ["object", "null"], "additionalProperties": False, "required": ["name", "url"], "properties": {"name": {"type": "string"}, "url": {"type": "string"}}}}},
+                              "a": BR, "b": BR,
+                              "tally": {"type": "array", "description": "갈래를 만든 기사(view_sources) 말고, 이 사건 결과를 어느 갈래로 보는지 말한 기사. 서로 다른 매체, 매체당 1개", "items": {"type": "object", "additionalProperties": False, "required": ["name", "url", "date", "branch"], "properties": {"name": {"type": "string"}, "url": {"type": "string"}, "date": {"type": "string", "description": "YYYY-MM-DD"}, "branch": {"type": "string", "enum": ["a", "b"]}}}},
+                              "actual": {"type": ["string", "null"], "enum": ["a", "b", None], "description": "결과가 나왔으면 실제 갈래"}}},
+        "outlook": {"type": ["object", "null"], "additionalProperties": False, "required": ["text", "sources"], "description": "금리 결정이 '예상대로'일 때만: 앞으로 방향 한 문장(점도표·소수 의견 등). 쪽 말·▲▼ 금지. 서로 다른 매체 2개. 예: '점도표는 내년 인하 2번을 가리켜요'",
+                    "properties": {"text": {"type": "string"}, "sources": SRC}},
+        "size": {"type": "array", "maxItems": 2, "description": "크기를 바꾸는 것: 그 사건 자체에 붙은 요인만(이미 반영된 기대·다음 전망·경영진 이슈). 같은 날 다른 뉴스 금지. 줄이는 틀 '다만 [요인] 때문에 크게 [오르기/내리기] 어려울 수 있다고 봐요' / 키우는 틀 '게다가 [요인] 때문에 더 크게 [오를/내릴] 수 있다고 봐요'. 숫자 크기·쪽 말·▲▼ 금지, 서로 다른 매체 2개",
+                 "items": {"type": "object", "additionalProperties": False, "required": ["text", "sources"], "properties": {"text": {"type": "string"}, "sources": SRC}}},
+        "watch": {"type": ["object", "null"], "additionalProperties": False, "required": ["key", "high", "low", "expect", "expect_sources"], "description": "다음에 볼 지표 하나. 사건과 같은 나라 지표(한국 사건 → 한국 지표). 시나리오 a = high, b = low",
                   "properties": {"key": {"type": "string", "enum": sorted({**json.loads((HERE.parent / 'config' / 'graph.json').read_text(encoding='utf-8')).get('watch_series', {})})},
                                  "high": {"type": "string", "description": "예상보다 높게 나오면 → 어떤 방향인지 (쪽 말 금지). 예: '물가 부담이 이어지는 쪽'"},
-                                 "low": {"type": "string", "description": "낮게 나오면 → 예: '오름세가 둔화되는 쪽'"}}},
+                                 "low": {"type": "string", "description": "낮게 나오면 → 예: '오름세가 둔화되는 쪽'"},
+                                 "expect": {"type": ["string", "null"], "description": "다음 발표 예상치(예: '2.6%'). 서로 다른 매체 2개에 같은 값일 때만, 없으면 null"},
+                                 "expect_sources": SRC}},
         "id": {"type": "string"}, "date": {"type": "string", "description": "사건 날짜, 한국 날짜 YYYY-MM-DD (발표·결정이 있었던/있을 날)"}, "type": {"type": "string", "enum": CFG["event_types"]}, "chip": {"type": "string"}, "head": {"type": "string"},
         "kind": {"type": "string", "enum": ["done", "upcoming"]}, "schedule_code": {"type": ["string", "null"]},
         "expect": {"type": ["string", "null"], "enum": ["예상보다 높음", "예상대로", "예상보다 낮음", None]},

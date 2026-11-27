@@ -184,6 +184,35 @@ def code_m1(x, today, facts):
         return m
     return None
 
+def ndoms(srcs):
+    from urllib.parse import urlparse
+    return len({urlparse(x.get("url", "")).netloc.removeprefix("www.") for x in srcs or []} - {""})
+SIDEWORD = re.compile(r"호재|악재|쪽|▲|▼")
+def check_types(e, allowed, errs):
+    """명세 §3-10: T2 갈래 근거, 앞으로 한 줄, 크기 요인. 틀리면 그 칸만 빼고, T2 갈래 근거가 없으면 사건을 고르지 않음."""
+    i = e.get("id")
+    if e.get("etype") == "T2":
+        t = e.get("t2") or {}
+        if not t or any(ndoms((t.get(k) or {}).get("view_sources")) < 2 for k in ("a", "b")):
+            errs.append(f"{i}: T2인데 갈래별 서로 다른 매체 2개 미만 → 사건 고르지 않음"); return False
+        for k in ("a", "b"):
+            if SIDEWORD.search(t[k].get("short", "") + t[k].get("view", "")) or re.search(r"^시장은", t[k].get("view", "")):
+                errs.append(f"{i}: T2 갈래 {k} 이름·기사 견해에 쪽 말·'시장은' → 사건 고르지 않음"); return False
+    o = e.get("outlook")
+    if o:
+        why = ("금리 결정 예상대로가 아님" if not (e.get("result") or {}).get("expect") == "예상대로" else "서로 다른 매체 2개 미만" if ndoms(o.get("sources")) < 2
+               else "쪽 말·▲▼" if SIDEWORD.search(o.get("text", "")) else "출처 없는 숫자" if not nums_ok(o.get("text", ""), allowed) else "")
+        if why: errs.append(f"{i}: 앞으로 한 줄 빠짐({why})"); e["outlook"] = None
+    keep = []
+    for z in e.get("size") or []:
+        t = z.get("text", "")
+        why = ("'다만/게다가'로 시작 안 함" if not re.match(r"^(다만|게다가) ", t) else "틀 밖(…수 있다고 봐요)" if not t.rstrip(". ").endswith("수 있다고 봐요")
+               else "숫자 크기 금지" if NUM.search(ISO.sub("", t)) else "쪽 말·▲▼" if SIDEWORD.search(t) else "서로 다른 매체 2개 미만" if ndoms(z.get("sources")) < 2 else "")
+        if why: errs.append(f"{i}: 크기 요인 빠짐({why}) — {t}")
+        else: keep.append(dict(z, n=ndoms(z.get("sources"))))
+    e["size"] = keep[:2]
+    return True
+
 def validate(today, facts):
     """today(생성본)를 검사해서 통과한 것만 남긴 사본과 오류 목록을 돌려준다."""
     errs = []
@@ -196,6 +225,9 @@ def validate(today, facts):
     out = dict(today)
     out["interests"] = check_interests(today.get("interests", []), errs, allowed)
     out["events"] = [e for e in today.get("events", []) if (e.get("watchChip") or check_sub(e, today.get("date"), errs)) and check_watch(e, errs) and check_event(e, allowed, today.get("date"), errs)][:3]
+    out["events"] = [e for e in out["events"] if check_types(e, allowed, errs)]
+    t2 = [e for e in out["events"] if e.get("etype") == "T2"]
+    if len(t2) > 1: out["events"] = [e for e in out["events"] if e.get("etype") != "T2" or e is t2[0]]; errs.append("T2 사건은 하루 1개만 — 나머지 뺌")
     # 관심사 둘째 문장 지표 ⊂ 사건 watch·같이 볼 것·7일 안 발표 (02-UX)
     ok_keys = {e["watch"]["key"] for e in out["events"] if e.get("watch")} | set(today.get("judge_keys_all", [])) | set(today.get("upcoming_keys", []))
     keep = []

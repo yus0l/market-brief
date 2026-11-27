@@ -204,6 +204,12 @@
     "rate": {
      "dir": "up",
      "kr": "up"
+    },
+    "stock": {
+     "kr": "up"
+    },
+    "fx": {
+     "kr": "down"
     }
    },
    "realPath": [
@@ -297,7 +303,12 @@
      ]
     ]
    },
-   "lean": null,
+   "lean": {
+    "pos": 40,
+    "side": null,
+    "text": "사건 뒤 시장 반응이 엇갈려요",
+    "basis": "위 시장 움직임 3개를 셌어요 · 약하게는 반만"
+   },
    "confirm": [
     {
      "label": "먼저",
@@ -379,6 +390,10 @@
     "hit": null
    },
    "question": "12/2 한국 소비자물가가 다시 오를까요?",
+   "etype": "T1",
+   "t2": null,
+   "outlook": null,
+   "size": [],
    "result": {
     "dir": "up",
     "text": "3.00% → 3.25%",
@@ -387,8 +402,38 @@
     "expect_src": null
    },
    "sub": "12/2",
+   "country": "kr",
    "trigger": "11/26 기준금리 3.00% → 3.25%",
-   "watchChip": true
+   "watchChip": true,
+   "prices": [
+    {
+     "name": "국고채 3년",
+     "dir": "up",
+     "value": "3.62% · 전일보다 +0.04%p (11/26 기준)",
+     "side": "bad",
+     "weak": false,
+     "counted": true,
+     "note": null
+    },
+    {
+     "name": "코스피",
+     "dir": "up",
+     "value": "4,711.21 · 전일보다 +0.29% (11/26 기준)",
+     "side": "good",
+     "weak": false,
+     "counted": true,
+     "note": null
+    },
+    {
+     "name": "원/달러 환율",
+     "dir": "down",
+     "value": "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
+     "side": "good",
+     "weak": true,
+     "counted": true,
+     "note": null
+    }
+   ]
   }
  ]
 }

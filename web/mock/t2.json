@@ -1,0 +1,685 @@
+{
+ "judge_keys_all": [
+  "kr_base",
+  "ktb3y",
+  "usdkrw"
+ ],
+ "upcoming_keys": [
+  "kr_cpi",
+  "us_jobs"
+ ],
+ "date": "2026-11-27",
+ "asof": "11/27 13:29",
+ "mock": true,
+ "status": {
+  "delayed": null,
+  "quiet": false,
+  "split": null,
+  "closed": {
+   "us": false,
+   "kr": false
+  },
+  "rankChange": null
+ },
+ "interests": [
+  {
+   "key": "cpi",
+   "node": "cpi",
+   "name": "물가",
+   "rank": 1,
+   "reason": {
+    "type": "mention",
+    "label": null
+   },
+   "upSide": "bad",
+   "fact": "11/10 미국 10월 소비자물가가 전월보다 0.4% 올랐어요.",
+   "watch": "시장은 12/10 미국 CPI가 더 오를지 지켜보고 있어요",
+   "market_type": "M1",
+   "market_sources": [
+    {
+     "name": "BLS 발표일정",
+     "url": "https://www.bls.gov/schedule/"
+    }
+   ],
+   "sentence": "11/10 미국 10월 소비자물가가 전월보다 0.4% 올랐어요. 시장은 12/10 미국 CPI가 더 오를지 지켜보고 있어요",
+   "fact_sources": [
+    {
+     "name": "StockAnalysis",
+     "url": "https://stockanalysis.com/news/us-cpi-rises-october-2026/"
+    },
+    {
+     "name": "XTB",
+     "url": "https://www.xtb.com/int/market-analysis/news-and-research/breaking-us-cpi-data-higher-than-expected-wall-street-reacts"
+    }
+   ],
+   "trigger_sources": [],
+   "explain": [
+    [
+     "cpi",
+     "rate"
+    ],
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "Axios",
+     "url": "https://www.axios.com/2026/11/09/stocks-inflation-fed"
+    },
+    {
+     "name": "247WallSt",
+     "url": "https://247wallst.com/investing/2026/11/10/stock-market-today-hotter-cpi-reading-hasnt-deterred-stocks-from-rising/"
+    },
+    {
+     "name": "StockAnalysis",
+     "url": "https://stockanalysis.com/news/us-cpi-rises-october-2026/"
+    },
+    {
+     "name": "MarketPulse",
+     "url": "https://www.marketpulse.com/markets/us-inflation-keeps-pressure-on-the-fed-as-nvidias-selloff-spreads/"
+    }
+   ]
+  },
+  {
+   "key": "job",
+   "node": "job",
+   "name": "경기",
+   "rank": 2,
+   "reason": {
+    "type": "event",
+    "label": "미국 고용 12/4"
+   },
+   "upSide": "good",
+   "fact": "11/6 미국 10월 실업률이 4.1%로 내렸어요.",
+   "watch": "시장은 12/4 미국 고용이 더 늘지 지켜보고 있어요",
+   "market_type": "M1",
+   "market_sources": [
+    {
+     "name": "BLS 발표일정",
+     "url": "https://www.bls.gov/schedule/"
+    }
+   ],
+   "sentence": "11/6 미국 10월 실업률이 4.1%로 내렸어요. 시장은 12/4 미국 고용이 더 늘지 지켜보고 있어요",
+   "fact_sources": [
+    {
+     "name": "ABC7",
+     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
+    },
+    {
+     "name": "TheStreet",
+     "url": "https://pro.thestreet.com/market-commentary/october-payrolls-top-every-forecast-as-unemployment-falls-back-to-4-1"
+    }
+   ],
+   "trigger_sources": [],
+   "explain": [
+    [
+     "job",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "ABC7",
+     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
+    },
+    {
+     "name": "TheStreet",
+     "url": "https://pro.thestreet.com/market-commentary/october-payrolls-top-every-forecast-as-unemployment-falls-back-to-4-1"
+    },
+    {
+     "name": "FoxBusiness",
+     "url": "https://www.foxbusiness.com/economy/us-jobs-report-october-2026"
+    },
+    {
+     "name": "ABC11",
+     "url": "https://abc11.com/story/us-continues-generate-jobs-inflation-is-eroding-spending-power-millions-americans/20024536/"
+    }
+   ]
+  },
+  {
+   "key": "rate",
+   "node": "rate",
+   "name": "금리",
+   "rank": 3,
+   "reason": {
+    "type": "mention",
+    "label": null
+   },
+   "upSide": "bad",
+   "fact": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요.",
+   "watch": "시장은 12/10 FOMC 금리 결정을 지켜보고 있어요",
+   "market_type": "M1",
+   "market_sources": [
+    {
+     "name": "Fed FOMC 일정",
+     "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    }
+   ],
+   "sentence": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요. 시장은 12/10 FOMC 금리 결정을 지켜보고 있어요",
+   "fact_sources": [
+    {
+     "name": "한국은행 ECOS",
+     "url": "https://ecos.bok.or.kr/"
+    }
+   ],
+   "trigger_sources": [],
+   "explain": [
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "Devdiscourse",
+     "url": "https://www.devdiscourse.com/article/international/3997937-analysis-bond-investors-are-thinking-less-about-the-fed-and-more-about-ai-deficits"
+    },
+    {
+     "name": "InvestingLive",
+     "url": "https://investinglive.com/education/what-could-stop-the-fed-raising-rates-in-december/"
+    },
+    {
+     "name": "Bizwatch",
+     "url": "https://news.bizwatch.co.kr/article/finance/2026/11/06/0021"
+    },
+    {
+     "name": "MTN",
+     "url": "https://news.mtn.co.kr/news-detail/2026082711001767395"
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "id": "2026-11-26-bok",
+   "type": "E1",
+   "chip": "한국 물가",
+   "head": "한국은행이 기준금리를 올렸어요",
+   "kind": "done",
+   "date": "2026-11-26",
+   "dday": false,
+   "real": {
+    "rate": {
+     "dir": "up",
+     "kr": "up"
+    },
+    "stock": {
+     "kr": "up"
+    },
+    "fx": {
+     "kr": "down"
+    }
+   },
+   "realPath": [
+    [
+     "rate",
+     "fx"
+    ],
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "next": [
+    "fx",
+    "stock"
+   ],
+   "actual": null,
+   "opts": {
+    "a": {
+     "label": "한국 물가가 예상보다 높으면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "rate": {
+       "dir": "up",
+       "kr": "up"
+      }
+     },
+     "cond": [
+      [
+       "한국 소비자물가",
+       "up",
+       0
+      ]
+     ],
+     "out": "금리 부담이 이어지는 쪽으로 볼 수 있어요"
+    },
+    "b": {
+     "label": "한국 물가가 예상보다 낮으면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "rate": {
+       "dir": "up",
+       "kr": "up"
+      }
+     },
+     "cond": [
+      [
+       "한국 소비자물가",
+       "down",
+       0
+      ]
+     ],
+     "out": "금리 부담이 줄어드는 쪽으로 볼 수 있어요"
+    }
+   },
+   "judgeKeys": [
+    "kr_base",
+    "ktb3y",
+    "usdkrw"
+   ],
+   "judge": {
+    "interest": {},
+    "items": [
+     [
+      "기준금리",
+      "up",
+      "3.25% · 직전보다 +0.25%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "국고채 3년",
+      "up",
+      "3.62% · 전일보다 +0.04%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "원/달러 환율",
+      "down",
+      "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
+      "good"
+     ]
+    ]
+   },
+   "lean": {
+    "pos": 40,
+    "side": null,
+    "text": "사건 뒤 시장 반응이 엇갈려요",
+    "basis": "위 시장 움직임 3개를 셌어요 · 약하게는 반만"
+   },
+   "confirm": [
+    {
+     "label": "먼저",
+     "what": "한국 소비자물가 발표",
+     "when": "12/2",
+     "date": "2026-12-02",
+     "done": false
+    },
+    {
+     "label": "최종",
+     "what": "금통위 금리 결정",
+     "when": "1/14",
+     "date": "2027-01-14",
+     "done": false
+    }
+   ],
+   "sources": [
+    {
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
+    },
+    {
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
+    },
+    {
+     "name": "네이트 한은 소수의견",
+     "url": "https://m.news.nate.com/view/20261126n13055"
+    }
+   ],
+   "sectorTab": "us",
+   "sectors": {
+    "us": [
+     [
+      "더 크게",
+      [
+       "인터넷·성장주",
+       "유틸리티·리츠"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·금융"
+      ]
+     ]
+    ],
+    "kr": [
+     [
+      "더 크게",
+      [
+       "2차전지",
+       "인터넷·게임",
+       "건설"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·보험"
+      ]
+     ]
+    ]
+   },
+   "watch": {
+    "key": "kr_cpi",
+    "short": "한국 물가",
+    "name": "한국 소비자물가",
+    "value": "10월 전년 대비 2.8%",
+    "dir": "down",
+    "source": {
+     "name": "한국은행 ECOS",
+     "url": "https://ecos.bok.or.kr/"
+    },
+    "next": "12/2",
+    "next_date": "2026-12-02",
+    "high": "물가 부담이 이어지는 쪽",
+    "low": "오름세가 둔화되는 쪽",
+    "hit": null
+   },
+   "question": "12/2 한국 소비자물가가 다시 오를까요?",
+   "etype": "T1",
+   "t2": null,
+   "outlook": null,
+   "size": [
+    {
+     "text": "다만 이미 인상 기대가 주가에 반영돼 크게 내리기 어려울 수 있다고 봐요",
+     "sources": [
+      {
+       "name": "샘플 매체 가",
+       "url": "https://a.example.com/1"
+      },
+      {
+       "name": "샘플 매체 나",
+       "url": "https://b.example.com/2"
+      }
+     ],
+     "n": 2
+    }
+   ],
+   "result": {
+    "dir": "up",
+    "text": "3.00% → 3.25%",
+    "expect": null,
+    "actual_src": "https://ecos.bok.or.kr/",
+    "expect_src": null
+   },
+   "sub": "12/2",
+   "country": "kr",
+   "trigger": "11/26 기준금리 3.00% → 3.25%",
+   "watchChip": true,
+   "prices": [
+    {
+     "name": "국고채 3년",
+     "dir": "up",
+     "value": "3.62% · 전일보다 +0.04%p (11/26 기준)",
+     "side": "bad",
+     "weak": false,
+     "counted": true,
+     "note": null
+    },
+    {
+     "name": "코스피",
+     "dir": "up",
+     "value": "4,711.21 · 전일보다 +0.29% (11/26 기준)",
+     "side": "good",
+     "weak": false,
+     "counted": true,
+     "note": null
+    },
+    {
+     "name": "원/달러 환율",
+     "dir": "down",
+     "value": "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
+     "side": "good",
+     "weak": true,
+     "counted": true,
+     "note": null
+    }
+   ]
+  },
+  {
+   "id": "t2-sample",
+   "type": "E1",
+   "chip": "전력 규제",
+   "head": "데이터센터 전력 규제안 발표",
+   "kind": "upcoming",
+   "date": "2026-12-03",
+   "dday": true,
+   "real": {},
+   "realPath": [],
+   "next": [],
+   "actual": null,
+   "opts": {
+    "a": {
+     "label": "신규 건설을 제한하면",
+     "path": [
+      [
+       "rate",
+       "stock"
+      ]
+     ],
+     "state": {},
+     "cond": [
+      [
+       "신규 건설 제한",
+       "up",
+       0
+      ]
+     ],
+     "out": ""
+    },
+    "b": {
+     "label": "허가제·비용 부과로 가면",
+     "path": [
+      [
+       "rate",
+       "stock"
+      ]
+     ],
+     "state": {},
+     "cond": [
+      [
+       "허가제·비용",
+       "up",
+       0
+      ]
+     ],
+     "out": ""
+    }
+   },
+   "judgeKeys": [
+    "kr_base",
+    "ktb3y",
+    "usdkrw"
+   ],
+   "judge": {
+    "interest": {},
+    "items": [
+     [
+      "기준금리",
+      "up",
+      "3.25% · 직전보다 +0.25%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "국고채 3년",
+      "up",
+      "3.62% · 전일보다 +0.04%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "원/달러 환율",
+      "down",
+      "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
+      "good"
+     ]
+    ]
+   },
+   "lean": null,
+   "confirm": [],
+   "sources": [
+    {
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
+    },
+    {
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
+    },
+    {
+     "name": "네이트 한은 소수의견",
+     "url": "https://m.news.nate.com/view/20261126n13055"
+    }
+   ],
+   "sectorTab": "us",
+   "sectors": {
+    "us": [
+     [
+      "더 크게",
+      [
+       "인터넷·성장주",
+       "유틸리티·리츠"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·금융"
+      ]
+     ]
+    ],
+    "kr": [
+     [
+      "더 크게",
+      [
+       "2차전지",
+       "인터넷·게임",
+       "건설"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·보험"
+      ]
+     ]
+    ]
+   },
+   "watch": null,
+   "question": null,
+   "etype": "T2",
+   "t2": {
+    "verify": {
+     "what": "전력 규제안 세부 내용 발표",
+     "when": "12/3",
+     "source": {
+      "name": "샘플 기관",
+      "url": "https://gov.example.com"
+     }
+    },
+    "a": {
+     "short": "건설 제한",
+     "view": "기사들은 신규 건설이 막히면 투자 계획이 미뤄진다고 봐요",
+     "view_sources": [
+      {
+       "name": "샘플 매체 가",
+       "url": "https://a.example.com/5"
+      },
+      {
+       "name": "샘플 매체 나",
+       "url": "https://b.example.com/6"
+      }
+     ]
+    },
+    "b": {
+     "short": "허가제·비용",
+     "view": "기사들은 비용이 늘어도 건설은 이어진다고 봐요",
+     "view_sources": [
+      {
+       "name": "샘플 매체 다",
+       "url": "https://c.example.com/7"
+      },
+      {
+       "name": "샘플 매체 라",
+       "url": "https://d.example.com/8"
+      }
+     ]
+    },
+    "actual": null,
+    "tally": {
+     "items": [
+      {
+       "name": "샘플 매체 마",
+       "url": "https://e.example.com/9",
+       "date": "2026-11-26",
+       "branch": "a"
+      },
+      {
+       "name": "샘플 매체 바",
+       "url": "https://f.example.com/10",
+       "date": "2026-11-26",
+       "branch": "a"
+      },
+      {
+       "name": "샘플 매체 사",
+       "url": "https://g.example.com/11",
+       "date": "2026-11-27",
+       "branch": "b"
+      },
+      {
+       "name": "샘플 매체 아",
+       "url": "https://h.example.com/12",
+       "date": "2026-11-27",
+       "branch": "a"
+      },
+      {
+       "name": "샘플 매체 자",
+       "url": "https://i.example.com/13",
+       "date": "2026-11-27",
+       "branch": "b"
+      }
+     ],
+     "text": "기사들은 A 갈래를 더 많이 말해요 (5개 중 3개)",
+     "pos": 40,
+     "basis": "기사 5개 중 A 3개 · 업종 가격은 아직 안 셈"
+    }
+   },
+   "outlook": null,
+   "size": [
+    {
+     "text": "게다가 연말 투자 계획 발표가 겹쳐 더 크게 움직일 수 있다고 봐요",
+     "sources": [
+      {
+       "name": "샘플 매체 다",
+       "url": "https://c.example.com/3"
+      },
+      {
+       "name": "샘플 매체 라",
+       "url": "https://d.example.com/4"
+      }
+     ],
+     "n": 2
+    }
+   ],
+   "result": null,
+   "sub": "12/2",
+   "country": "kr",
+   "trigger": null,
+   "watchChip": false,
+   "prices": []
+  }
+ ]
+}

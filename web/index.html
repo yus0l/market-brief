@@ -395,6 +395,27 @@
     .jrow .jv { font-size: var(--fs-label); color: var(--text-1); }
   }
   .jrow:last-child { border-bottom: 0; }
+  .jrow .side.cnt0 { background: none; box-shadow: none; color: var(--text-3); font-weight: 400; }
+  .contra { margin-top: 8px; font-size: var(--fs-caption); color: var(--text-2); display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+  .outl { margin-top: 6px; font-size: var(--fs-label); color: var(--text-1); }
+  .outl .k { font-size: var(--fs-caption); color: var(--text-2); margin-right: 6px; }
+  .wthen { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--faint); font-size: var(--fs-caption); color: var(--text-2); }
+  .wthen b { color: var(--text-1); }
+  .scen-top { margin-top: 14px; font-size: var(--fs-caption); color: var(--text-2); }
+  .scen .ab, .abt { font-family: var(--font-mono, ui-monospace, monospace); font-weight: 700; }
+  .scen .ab { margin-right: 2px; white-space: nowrap; flex: none; }
+  .views { margin-top: 10px; padding-left: 10px; border-left: 2px solid var(--border-2); font-size: var(--fs-caption); color: var(--text-1); }
+  .views .vs2 { margin-top: 4px; } .views .vs2 a { color: var(--text-2); margin-right: 10px; }
+  .szh { margin-top: 16px; font-size: var(--fs-caption); color: var(--text-2); }
+  .szrow { font-size: var(--fs-label); padding: 9px 0; border-bottom: 1px solid var(--faint); word-break: keep-all; }
+  .szrow:last-child { border-bottom: 0; }
+  details.ref { display: inline; } details.ref summary { display: inline; cursor: pointer; list-style: none; color: var(--text-2); font-size: var(--fs-caption); white-space: nowrap; }
+  details.ref summary::-webkit-details-marker { display: none; }
+  details.ref a { display: block; margin-top: 4px; font-size: var(--fs-caption); color: var(--meaning); word-break: break-all; }
+  .leanbar.gray { background: var(--surface-sunken); } .leanbar.gray i { background: var(--text-2); }
+  .tl { margin-top: 10px; }
+  .tl a { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: var(--fs-caption); color: var(--text-1); border-bottom: 1px solid var(--faint); text-decoration: none; }
+  .abt { background: var(--surface-sunken); color: var(--text-2); border-radius: 4px; padding: 0 6px; font-size: 11px; }
   .jrow.int { background: var(--interest-soft); border-radius: 8px; padding: 7px 8px; margin: 0 -8px; border-bottom: 0; }
   .jn { display: flex; align-items: center; gap: 6px; font-weight: var(--fw-bold); min-width: 0; }
   .jv { display: flex; align-items: center; gap: 6px; color: var(--text-1); min-width: 0; }
@@ -500,6 +521,21 @@ const E = [   // 기획 v4 §4 기본 관계 13개. graph.json과 같은 목록�
   ["job","stock",[[58,136],[58,232],[349,232],[349,124],[340,124]]],                // 12 경기 → 주식: 아래로 돌아가서 교차 0
   ["fx","gold",[[216,202],[254,202]]]                                               // 13 환율 → 금
 ];
+// 보통 관계 방향: +1 같이 움직임, −1 반대로 움직임. 실선 = 두 칸이 실제로 움직였다(원인 뜻 아님)
+const SIGN = { "oil>cpi":1, "job>cpi":1, "fx>cpi":1, "job>rate":1, "cpi>rate":1, "rate>gold":-1, "rate>stock":-1, "rate>fx":1, "fx>stock":-1, "vix>stock":-1, "job>stock":1 };
+const SIGN_C = { kr: { "rate>fx": -1 } };   // 한국 금리 ▲ → 원화 강세 → 원/달러 ▼ 가 보통
+const LPOS = { "rate>stock": [235, 76] };      // 짧은 선은 라벨을 선 밖 빈 곳에
+const CNAME = { stock:{ kr:"코스피", us:"S&P 500" }, rate:{ kr:"금리", us:"금리" }, fx:{ kr:"환율", us:"환율" } };
+const WNODE = { kr_cpi:"cpi", us_cpi:"cpi", us_ppi:"cpi", kr_base:"rate", ktb3y:"rate", us_10y:"rate", usdkrw:"fx", kospi:"stock", us_jobs:"job" };
+function contras(v) {   // 실제 경로 중 두 칸의 실제 방향이 보통 관계와 반대인 선
+  const m = v.country || "us", dirOf = k => { const o = (v.real || {})[k]; return o && (o[m] || o.dir); };
+  return (v.realPath || []).map(([a, b]) => {
+    const sg = ((SIGN_C[m] || {})[a + ">" + b]) || SIGN[a + ">" + b], dA = dirOf(a), dB = dirOf(b);
+    if (!sg || !dA || !dB || (dA === dB) === (sg > 0)) return null;
+    const nm = k => (CNAME[k] && CNAME[k][m]) || (NG[k] && NG[k].t) || k;
+    return { a, b, dA, dB, na: nm(a), nb: nm(b) };
+  }).filter(Boolean);
+}
 const WEAK = [["fx","stock"]];          // 미국 → 한국 쪽은 한 단계 더 껴서 약한 연결
 const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const C = { up:tok("--dir-up"), down:tok("--dir-down"), acc:tok("--meaning"), edge:tok("--edge-idle"), ink:tok("--text-1"), sub:tok("--text-2"),
@@ -541,7 +577,7 @@ function mergeState(v) {
 /* layers: real / hypo / next(다음에 영향받을 수 있는 칸) */
 function flowSVG(v) {
   const N = Object.fromEntries(Object.entries(NG).map(([k, n]) => [k, Object.assign({}, n, { x: mx(n.x) })]));
-  const st = mergeState(v);
+  const st = mergeState(v), CT = contras(v);
   // 칸의 방향색 (미|한 칸은 환율 쪽 연결이면 한국, 아니면 미국 우선)
   const colorOf = (k, side) => {
     const s = st[k] || {}, m = s.dir || s[side] || s.us || s.kr;
@@ -552,7 +588,7 @@ function flowSVG(v) {
     const pts = pts0.map(([x, y]) => [mx(x), y]), lab = lab0 && Object.assign({}, lab0, { x: mx(lab0.x) });
     const both = !!(o5 && o5.both), hit = l => has(l, a, b) || (both && has(l, b, a));
     const real = hit(v.realPath), hyp = !real && hit(v.hypoPath);
-    return { a, b, pts, lab, i, real, hyp, both, on: real || hyp, weak: has(WEAK, a, b) };
+    return { a, b, pts, lab, i, real, hyp, both, on: real || hyp, weak: has(WEAK, a, b), contra: real && CT.some(c => c.a === a && c.b === b) };
   });
   const on = lit.filter(e => e.on);
   const depth = (e, seen = new Set()) => {
@@ -600,13 +636,19 @@ function flowSVG(v) {
     body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="url(#g${e.i})" stroke-width="7" filter="url(#blur)" opacity="${e.hyp?.45:.7}" stroke-dasharray="0.22 2" stroke-dashoffset="0.22"/>`;
     body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="1.6" opacity="${e.hyp?.6:.9}" stroke-dasharray="0.12 2" stroke-dashoffset="0.12"/>`;
   });
-  // 선 위 작은 라벨 (몇 달 뒤 / 수입 물가)
-  lit.filter(e => e.lab).forEach(e => {
+  // 선 위 작은 라벨 (몇 달 뒤 / 수입 물가): 그 선이 켜졌을 때만 (02-UX 요소 점검 2)
+  lit.filter(e => e.lab && e.on && !e.contra).forEach(e => {
     const lw = e.lab.t.length * 10 + 12;
     body += `<rect x="${e.lab.x-lw/2}" y="${e.lab.y-8.5}" width="${lw}" height="17" rx="8.5" fill="${C.surf}" stroke="${C.b2}"/>`;
     body += `<text x="${e.lab.x}" y="${e.lab.y+3.5}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.label}">${e.lab.t}</text>`;
   });
 
+  // "보통과 반대" 라벨: 선 가운데, 흰 바탕 pill + border-2, text-1 (색 새로 안 씀)
+  lit.filter(e => e.contra).forEach(e => {
+    const P = e.pts, k = Math.max(1, Math.floor(P.length / 2)), o = LPOS[e.a + ">" + e.b], x = o ? mx(o[0]) : (P[k - 1][0] + P[k][0]) / 2, y = o ? o[1] : (P[k - 1][1] + P[k][1]) / 2, t = "보통과 반대", lw = t.length * 10 + 14;
+    body += `<rect x="${x-lw/2}" y="${y-9}" width="${lw}" height="18" rx="9" fill="${C.surf}" stroke="${C.b2}"/>`;
+    body += `<text x="${x}" y="${y+4}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.ink}">${t}</text>`;
+  });
   // 칸
   Object.entries(N).forEach(([k, n]) => {
     const s = st[k] || {}, next = !s.on && (v.next || []).includes(k);
@@ -720,7 +762,7 @@ function saveURL() {
 }
 function layers(e, I, st) {
   const real = !!e.actual, o = e.actual || S.opt, op = o ? e.opts[o] : null;
-  const v = { real:Object.assign({}, e.real), realPath:[...(e.realPath || [])], next:e.next, hypo:{}, hypoPath:[], closed:st.closed, split:!!st.split };
+  const v = { real:Object.assign({}, e.real), realPath:[...(e.realPath || [])], next: e.watch && WNODE[e.watch.key] ? [WNODE[e.watch.key]] : [], hypo:{}, hypoPath:[], closed:st.closed, split:!!st.split, country:e.country };   // 점선 테두리 = 다음에 볼 지표 칸 하나
   if (op && real) { Object.assign(v.real, op.state); v.realPath.push(...op.path); }
   if (op && !real) { Object.assign(v.hypo, op.state); v.hypoPath.push(...op.path); }
   if (st.split) { v.real.fx = v.real.fx || { dir:"up" }; v.real.stock = Object.assign({}, v.real.stock, st.split); delete v.hypo.stock; }
@@ -743,6 +785,9 @@ const triI = (d, hypo) => !d ? "" : !hypo ? `<i class="tri ${d}"></i>`
 const dirText = d => !d ? "" : ` ${d === "up" ? "오름" : "내림"} 쪽`;   // ▲▼는 실제 움직임에만, 가정은 글자 (명세 §3-6 ④-7)
 const leanText = p => p >= 58 ? "지금 시장은 악재 쪽에 더 가까워요" : p <= 42 ? "지금 시장은 호재 쪽에 더 가까워요" : "지금 시장은 어느 쪽에도 크게 치우치지 않았어요";
 // "물가 ▼"는 떨어짐으로 읽혀서, 물가가 관심사일 때 ▼는 "오름세 둔화"
+const mdj = s => s && s.length >= 10 ? `${+s.slice(5, 7)}/${+s.slice(8, 10)}` : (s || "");
+const domN = srcs => new Set((srcs || []).map(x => { try { return new URL(x.url).hostname.replace(/^www\./, ""); } catch (_) { return x.url; } })).size;
+const refs = srcs => !(srcs && srcs.length) ? "" : `<details class="ref"><summary>기사 ${domN(srcs)}개 ›</summary>${srcs.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;   // 기사 N개 = 서로 다른 매체 수
 const dirWord = (I, d) => d === "down" && I.key === "cpi" ? `${h(I.name)} 오름세 둔화` : h(I.name);
 
 function skeleton() {
@@ -772,19 +817,19 @@ function home() {
 
   // 관심사 박스 (스크롤하면 사라짐) + 박스 아래 사건 상황 줄
   const sent = h(I.sentence);   // 문장 강조 없음, 전부 text-1 (주황은 흐름도 관심사 칸·설명 경로에만)
-  const chg = st.rankChange && I.rank === 1 ? `<div class="ds-interest-change">1순위 관심사가 바뀌었어요 · <s>${h(st.rankChange.from)}</s> → ${h(st.rankChange.to)}</div>` : "";
+  const chg = "";   // B4 1순위 변경 줄 삭제 (02-UX 요소 점검 2)
   const ints = D.interests || [];
   // 관심사 고르기 = 버튼 + 펼침 목록 (02-UX "되돌림: 칩 → 셀렉트"): "1 금리 · 한은 금리 인상", 1은 빨강·2·3 검정
   const iitem = x => `<span class="rk ${x.rank === 1 ? "r1" : ""}">${x.rank}</span><b>${h(x.name)}</b>${x.reason && x.reason.label ? `<span class="l2"> · ${h(x.reason.label)}</span>` : ""}`;
   const pick = ints.length > 1
     ? `<div class="isel"><button class="isel-btn" data-iopen aria-haspopup="listbox" aria-expanded="${!!S.iopen}" aria-label="요즘 시장의 관심사 고르기">${iitem(I)}<span class="car" aria-hidden="true">▾</span></button>${S.iopen
       ? `<ul class="isel-list" role="listbox" aria-label="요즘 시장의 관심사">${ints.map(x => `<li role="option" tabindex="-1" aria-selected="${x.key === I.key}" class="${x.key === I.key ? "on" : ""}" data-ichip="${h(x.key)}">${iitem(x)}</li>`).join("")}</ul>` : ""}</div>`
-    : "";
-  const ibox = `<section class="icard"><div class="ibox">${chg}${pick}<div class="big">${sent}</div>${ints.length > 1 ? "" : `<div class="small">요즘 시장의 관심사 · ${h(I.name)}${I.reason ? " · " + h(I.reason.label) : ""}</div>`}</div></section>`;
+    : `<div class="isel"><div class="isel-btn">${iitem(I)}</div></div>`;   // 관심사 1개: 같은 모양, ▾ 없음
+  const ibox = `<section class="icard"><div class="ibox">${chg}${pick}<div class="big">${sent}</div></div></section>`;
 
   // 범례: 그 순간 화면에 있는 표시만 (02-UX 정보 정리)
   const hasNext = (v.next || []).some(k => !v.real[k] && !v.hypo[k]);
-  const lg = (v.hypoPath.length ? `<span><i class="sw dash"></i>점선 = 가정</span>` : "") + (hasNext ? `<span><i class="hol"></i>점선 테두리 = 다음 영향</span>` : "");
+  const lg = (v.hypoPath.length ? `<span><i class="sw dash"></i>점선 = 가정</span>` : "") + (hasNext ? `<span><i class="hol"></i>점선 테두리 = 다음에 볼 지표</span>` : "") + (contras(v).length ? `<span>보통과 반대 = 평소 관계와 다르게 움직임</span>` : "");
   const flow = `<div class="flow">${flowSVG(v)}${lg ? `<div class="legend">${lg}</div>` : ""}</div>`;
 
   // 사건 칩: 오늘 → 곧 발표
@@ -792,58 +837,69 @@ function home() {
     `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}<small class="${x.dday ? "dday" : ""}"> · ${h(x.sub)}</small></button>`).join("") + `</div></div>`;
 
   r += `<section class="panel"><div class="row"><span class="ttl">${h(past && e.question ? e.question : e.head)}</span></div>`;
-  if (past && e.trigger) r += `<div class="trig">${h(e.trigger)}</div>`;   // 지난 사건: 결과 줄 → 계기 한 줄
+  if (past && e.trigger) r += `<div class="trig">${h(e.trigger)}</div>`;   // 지난 사건: 계기 한 줄
   else if (e.result && e.result.text) r += `<div class="res">${triI(e.result.dir)}${h(e.result.text)}</div>`;
-  // 보는 지표 카드 (값·다음 발표는 수집값·일정표만, 없으면 "값 확인 전"/"일정 확인 전")
-  if (e.watch) { const w = e.watch;
+  if (e.outlook) r += `<div class="outl"><span class="k">앞으로</span>${h(e.outlook.text)} · ${refs(e.outlook.sources)}</div>`;   // 금리 예상대로일 때 (명세 §3-10)
+  const CT = contras(v), T2 = e.etype === "T2" && e.t2;
+  const ctLine = CT.length ? `<div class="contra">이번엔 보통과 다르게 움직였어요 · ${CT.map(c => `${h(c.na)} ${triI(c.dA)}인데 ${h(c.nb)} ${triI(c.dB)}`).join(" · ")}</div>` : "";
+  if (!real) r += ctLine;
+  // E3 확인할 것: T1 "다음에 볼 지표" / T2 "확인할 일". 결과 확인 다음 단계는 카드 아래 "그다음" 한 줄로 합침
+  const later = (e.confirm || []).slice(e.watch ? 1 : 0);
+  const then = later.length ? `<div class="wthen">그다음 · <b>${later.map(c => `${h((c.what || "").replace(/ 금리 결정$/, ""))} ${h(c.when || "")}`).join(" → ")}</b></div>` : "";
+  const lnk = x => x ? `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>` : "";
+  if (T2) { const vf = e.t2.verify || {};
+    r += `<div class="wcard"><div class="wl">확인할 일</div><div class="wn"><b>${h(vf.what)}</b></div>
+      <div class="wx">${vf.when ? `<b>${h(vf.when)}</b>` : "일정 확인 전"}${vf.source ? " · " + lnk(vf.source) : ""}</div></div>`; }
+  else if (e.watch) { const w = e.watch;
     r += `<div class="wcard"><div class="wl">다음에 볼 지표</div>
       <div class="wn"><b>${h(w.name)}</b><span class="wv">${w.value ? `${h(w.value)} ${triI(w.dir)}` : "값 확인 전"}</span></div>
-      <div class="wx">${w.next ? `다음 발표 <b>${h(w.next)}</b>` : "일정 확인 전"}${w.source ? ` · <a href="${h(w.source.url)}" target="_blank" rel="noopener">${h(w.source.name)}</a>` : ""}</div></div>`; }   // E3: 이름·최근 값·다음 발표·출처만 (명세 §3-6)
-  // 결과 확인: 두 단계면 .ds-confirm, 아니면 한 줄 라벨
-  if (e.confirm && e.confirm.length) r += `<div class="ds-confirm" style="margin-top:12px">결과 확인 ${e.confirm.map(c =>
-      `<span class="step ${c.done ? "is-done" : ""}">${h(c.label)} <b>${h(c.what)}</b>${c.when && !c.done ? " · " + h(c.when) : ""}</span>`).join(`<span class="arrow">→</span>`)}</div>`;
-  else if (e.top) r += `<div class="scen-l">${h(e.top)}</div>`;
+      <div class="wx">${w.next ? `다음 발표 <b>${h(w.next)}</b>` : "일정 확인 전"} · ${w.expect ? `예상 <b>${h(w.expect.value)}</b>${w.expect.source ? ` (${lnk(w.expect.source)})` : ""}` : "예상 확인 전"}${w.source ? " · " + lnk(w.source) : ""}</div>${then}</div>`; }
+  else if (later.length) r += `<div class="wcard"><div class="wl">결과 확인</div><div class="wx">${later.map(c => `${h(c.what)} ${h(c.when || "")}`).join(" → ")}</div></div>`;
+  r += `<div class="scen-top">${T2 ? "발표 내용이 어느 쪽인지로 갈려요" : "발표 숫자가 예상보다 높은지 낮은지로 갈려요"}</div>`;
   r += `<div class="scen" style="margin-top:8px">
-    <button data-opt="a" class="${o === "a" ? "on" : ""}" ${real ? "disabled" : ""} aria-pressed="${o === "a"}">${h(e.opts.a.label)}</button>
-    <button data-opt="b" class="${o === "b" ? "on" : ""}" ${real ? "disabled" : ""} aria-pressed="${o === "b"}">${h(e.opts.b.label)}</button></div>`;
+    <button data-opt="a" class="${o === "a" ? "on" : ""}" ${real ? "disabled" : ""} aria-pressed="${o === "a"}">${T2 ? `<span class="ab">A ·</span>` : ""}${h(e.opts.a.label)}</button>
+    <button data-opt="b" class="${o === "b" ? "on" : ""}" ${real ? "disabled" : ""} aria-pressed="${o === "b"}">${T2 ? `<span class="ab">B ·</span>` : ""}${h(e.opts.b.label)}</button></div>`;
 
   if (!op && !S.tried) r += `<div class="hint">한쪽을 누르면 위 흐름도에서 어디로 번지는지 보여요</div>`;
   if (!via) r += `<div class="icond none" style="margin-top:12px">이 사건은 ${h(I.name)}와 직접 이어지지 않아요</div>`;
   if (op) {
     if (flipped) { const P = D.interests.find(x => x.key === S.flip), ps = layers(e, P, st).opSide; r += `<div class="ds-flip-note" style="margin-top:12px">관심사를 ${h(I.name)}로 바꾸니 힌트가 ${SIDE[ps]} → ${SIDE[opSide]}으로 뒤집혔어요</div>`; }
-    r += `<div class="hintcard ${real ? "real" : ""}">${real ? `<span class="hitTag">실제 반응</span>` : ""}
+    r += `<div class="hintcard ${real ? "real" : ""}">
       <div class="hc-t">${real ? "이번엔 이렇게 됐어요" : "보통 이렇게 읽어요"}</div>
-      <div class="hc-row">${real && via && idir ? `<span class="cond">${dirWord(I, idir)}${triI(idir)}${I.market_type === "M2" && I.watch && (opSide === "bad" ? I.watch.includes("걱정하고") : I.watch.includes("기대하고")) ? ` 시장이 ${opSide === "bad" ? "걱정" : "기대"}하던 쪽` : ""}</span><span class="arrow">→</span>` : ""}${op.cond.map(([t, d, done, suf]) => `<span class="cond">${h(t)}${!real && !done ? dirText(d) : triI(d)}${suf ? " " + h(suf) : ""}</span>`).join(op.seq ? `<span class="arrow">→</span>` : `<span class="plus">+</span>`)}
+      <div class="hc-row">${real && via && idir ? `<span class="cond">${dirWord(I, idir)}${triI(idir)}${I.market_type === "M2" && I.watch && (opSide === "bad" ? I.watch.includes("걱정하고") : I.watch.includes("기대하고")) ? ` 시장이 ${opSide === "bad" ? "걱정" : "기대"}하던 쪽` : ""}</span><span class="arrow">→</span>` : ""}${op.cond.map(([t, d, done, suf]) => `<span class="cond">${h(t)}${!real && !done ? (T2 ? "" : dirText(d)) : triI(d)}${suf ? " " + h(suf) : ""}</span>`).join(op.seq ? `<span class="arrow">→</span>` : `<span class="plus">+</span>`)}
         ${op.mid ? `<span class="arrow">→</span><span class="cond">${h(op.mid[0])}${real ? triI(op.mid[1]) : dirText(op.mid[1])}</span>` : ""}
-        ${opSide ? `<span class="arrow">→</span><span class="out"><b class="${flipped ? "ds-side is-flipping" : ""}" style="${flipped ? "background:none;padding:0" : ""}">${SIDE[opSide]}</b>${op.out ? " · " + h(op.out) : ""}</span>` : ""}</div></div>`;
+        ${opSide ? `<span class="arrow">→</span><span class="out"><b class="${flipped ? "ds-side is-flipping" : ""}" style="${flipped ? "background:none;padding:0" : ""}">${SIDE[opSide]}</b>${op.out ? " · " + h(op.out) : ""}</span>` : ""}</div>${real ? ctLine : ""}${T2 && e.t2[o] ? `<div class="views">${h(e.t2[o].view)}<div class="vs2">${(e.t2[o].view_sources || []).map(lnk).join("")}</div></div>` : ""}</div>`;
   }
 
-  // 판단할 때 같이 볼 것: 관심사 행 + 지표 행. 값이 없으면 "값 확인 전", 쪽 태그 없음
-  const ir = e.judge && e.judge.interest && e.judge.interest[I.key];
-  const rows = (ir ? [[`${I.name} · 관심사`].concat(ir)] : []).concat((e.judge && e.judge.items) || []);
-  const sides = rows.map(x => x[3]).filter(Boolean), same = sides.length > 1 && sides.every(x => x === sides[0]);   // 쪽이 2개 이상 있어야 같은 쪽/엇갈림을 말함
-  if (rows.length) r += `<div class="judge"><div class="jh"><h4>판단할 때 같이 볼 것</h4>
-      ${sides.length > 1 ? `<span class="side ${same ? sides[0] : "none"}">${same ? `같은 쪽 · ${SIDE[sides[0]]}` : "엇갈려요"}</span>` : ""}</div>
-    ${rows.map((x, i) => `<div class="jrow ${i === 0 && ir ? "int" : ""}"><span class="jn">${h(x[0])}</span>
-      <span class="side ${x[3] || "none"}">${x[3] ? SIDE[x[3]] : "—"}</span><span class="jv">${triI(x[1], x[4])}${x[2] == null ? "값 확인 전" : h(x[2])}</span></div>`).join("")}</div>`;
+  // E10 판단할 때 같이 볼 것 = E12 근거 전부(가격 반응 행만, 명세 §3-8) + 크기를 바꾸는 것(§3-10 ③)
+  const PR = e.prices || [], SZ = e.size || [];
+  if (PR.length || SZ.length) {
+    r += `<div class="judge"><div class="jh"><h4>판단할 때 같이 볼 것</h4></div>` + PR.map(x => `<div class="jrow"><span class="jn">${h(x.name)}</span>
+      <span class="side ${x.note ? "none cnt0" : x.side || "none"}">${x.note ? h(x.note) : x.side ? SIDE[x.side] + (x.weak ? " · 약하게" : "") : "—"}</span><span class="jv">${triI(x.dir)}${x.value == null ? "값 확인 전" : h(x.value)}</span></div>`).join("");
+    if (SZ.length) r += `<div class="szh">크기를 바꾸는 것</div>` + SZ.map(z => `<div class="szrow">${h(z.text)} · ${refs(z.sources)}</div>`).join("");
+    r += `</div>`;
+  }
 
   // 내 판단 (기기에 저장) → 고르면 시장 쪽 (데이터 있을 때만)
   const p = S.pick[e.id];
+  const PK = T2 ? [["a", `A · ${e.t2.a.short} 쪽`], ["b", `B · ${e.t2.b.short} 쪽`]] : [["good", "호재 쪽"], ["bad", "악재 쪽"]];
+  const pickName = k => (PK.find(x => x[0] === k) || [0, SIDE[k] || ""])[1];
   if (!real) {
-    r += `<div class="mine"><h4>내 판단은?</h4><div class="btns">
-      <button data-pick="good" class="${p === "good" ? "sel" : ""}" aria-pressed="${p === "good"}">호재 쪽</button>
-      <button data-pick="bad" class="${p === "bad" ? "sel" : ""}" aria-pressed="${p === "bad"}">악재 쪽</button></div>`;
-    if (!p) r += `<div class="hint">고르면 지금 시장이 어느 쪽에 더 가까운지 보여드려요</div>`;
-    else {
-      r += (!e.lean || e.lean.pos == null
-        ? `<div class="basis nodata">시장 쪽은 데이터가 들어오면 보여드려요</div>`
-        : `<div class="lean-t">${leanText(e.lean.pos)}</div><div class="leanbar"><i style="left:${+e.lean.pos}%"></i></div>
-           <div class="leanlbl"><span>호재 쪽</span><span>악재 쪽</span></div><div class="basis">${h(e.lean.basis)}</div>`);
+    r += `<div class="mine"><h4>내 판단은?</h4><div class="btns">${PK.map(([k, t]) => `<button data-pick="${k}" class="${p === k ? "sel" : ""}" aria-pressed="${p === k}">${h(t)}</button>`).join("")}</div>`;
+    if (!PK.some(x => x[0] === p)) r += `<div class="hint">${T2 ? "고르면 기사들이 어느 갈래를 더 많이 말하는지 보여드려요" : "고르면 사건 뒤 시장 움직임을 세서 보여드려요"}</div>`;
+    else if (T2) { const t = e.t2.tally || {};   // T2 E12: 주어 = 기사, 회색 점, 근거 기사 전부
+      r += `<div class="lean-t">${h(t.text || "아직 기사가 충분하지 않아요")}</div>` + (t.pos == null ? "" : `<div class="leanbar gray"><i style="left:${+t.pos}%"></i></div>
+        <div class="leanlbl"><span>A · ${h(e.t2.a.short)}</span><span>B · ${h(e.t2.b.short)}</span></div><div class="basis">${h(t.basis)}</div>
+        <div class="tl">${t.items.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener"><span class="abt">${h(x.branch.toUpperCase())}</span>${h(x.name)} · ${h(mdj(x.date))}</a>`).join("")}</div>`);
+    } else { const Ln = e.lean || {};   // T1 E12: 사건 뒤 가격 반응, 근거는 위 E10
+      r += `<div class="lean-t">${h(Ln.text || "시장 쪽은 데이터가 들어오면 보여드려요")}</div>` + (Ln.pos == null ? "" : `<div class="leanbar"><i style="left:${+Ln.pos}%"></i></div>
+        <div class="leanlbl"><span>호재 쪽</span><span>악재 쪽</span></div><div class="basis">${h(Ln.basis)}</div>`);
     }
     r += `</div>`;
-  } else if (opSide) {
-    r += `<div class="mine"><div class="vs">${p ? `내 판단: ${SIDE[p]}<span class="arr">→</span>` : ""}<span class="act">실제 시장 반응: ${SIDE[opSide]}</span></div>
-      ${e.reason ? `<div class="hint">${h(e.reason)}</div>` : ""}</div>`;
+  } else {   // E13 결과 뒤 비교
+    const Ln = e.lean || {};
+    const act = T2 ? `실제로는 ${e.actual.toUpperCase()} 갈래였어요` : Ln.pos != null ? (Ln.side ? `사건 뒤 시장 움직임: ${SIDE[Ln.side]}` : "사건 뒤 시장 반응: 엇갈려요") : opSide ? `실제 시장 반응: ${SIDE[opSide]}` : "";
+    if (act) r += `<div class="mine"><div class="vs">${p ? `내 판단: ${h(pickName(p))}<span class="arr">→</span>` : ""}<span class="act">${h(act)}</span></div>${e.reason ? `<div class="hint">${h(e.reason)}</div>` : ""}</div>`;
   }
   if (e.sources && e.sources.length) r += `<details class="src"><summary>출처</summary>${e.sources.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;
   if (SHOW_SECTORS && e.sectors) r += `<button class="linkbtn" data-sector>업종별 영향 보기 ›</button>`;
@@ -867,7 +923,7 @@ function sheetHTML() {
 }
 
 // 개발용 바 (?dev=1): 샘플 상태 파일 바꿔 보기
-const MOCKS = [["today.json","오늘"],["mock/quiet.json","조용한 날"],["mock/release.json","발표 당일"],["mock/split.json","미·한 갈라짐"],["mock/delayed.json","데이터 지연"],["mock/closed.json","휴장"],["mock/interest-change.json","관심사 변경"],["mock/one-interest.json","관심사 1개"],["mock/missing.json","오류"]];
+const MOCKS = [["today.json","오늘"],["mock/quiet.json","조용한 날"],["mock/release.json","발표 당일"],["mock/split.json","미·한 갈라짐"],["mock/delayed.json","데이터 지연"],["mock/closed.json","휴장"],["mock/interest-change.json","관심사 변경"],["mock/one-interest.json","관심사 1개"],["mock/missing.json","오류"],["mock/t2.json","T2 샘플"]];
 function buildDebug() {
   const d = document.getElementById("debug");
   if (Q.get("dev") !== "1") { document.documentElement.classList.add("debug-off", "no-dev"); return; }
