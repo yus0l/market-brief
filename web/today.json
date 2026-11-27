@@ -63,7 +63,7 @@
    },
    "upSide": "bad",
    "fact": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요.",
-   "watch": null,
+   "watch": "시장은 12/10 FOMC 금리 결정을 지켜보고 있어요",
    "market_type": "M1",
    "market_sources": [
     {
@@ -71,7 +71,7 @@
      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     }
    ],
-   "sentence": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요.",
+   "sentence": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요. 시장은 12/10 FOMC 금리 결정을 지켜보고 있어요",
    "fact_sources": [
     {
      "name": "이투데이 한은 3.25% 인상",

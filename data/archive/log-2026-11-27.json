@@ -3,8 +3,7 @@
  "events": 1,
  "passed": 1,
  "errors": [
-  "관심사 cpi: 남은 문장이 없어 뺌",
-  "관심사 rate: 둘째 문장 지표 ['us_10y']가 화면의 보는 지표·같이 볼 것에 없음"
+  "관심사 cpi: 남은 문장이 없어 뺌"
  ],
  "expect_found": 0,
  "expect_total": 1,

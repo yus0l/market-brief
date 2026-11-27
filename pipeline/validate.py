@@ -155,6 +155,34 @@ def watch_terms(t):
     """문장에 나온 지표 키 (별칭 기준)."""
     return {k for k, c in WS.items() for a in c.get("alias", []) if a in t}
 
+SER_OF = {"US_CPI": "us_cpi", "US_PPI": "us_ppi", "KR_CPI": "kr_cpi", "US_JOBS": "us_jobs"}   # 지표형 발표 → 수집 시리즈
+def code_m1(x, today, facts):
+    """관심사 관련 발표 중 가장 가까운 공식(verified) 발표 30일 안 → "시장은 [M/D] [발표]를 지켜보고 있어요".
+    지표면 최근 값 기준 "다시/더 오를지"(고용은 늘지). 사실 칸과 같은 지표면 다음 후보. 없으면 None."""
+    import datetime as _d
+    t = _d.date.fromisoformat(today[:10]); rows = []
+    for p in (pathlib.Path(__file__).resolve().parent.parent / "config").glob("schedule-*.json"):
+        rows += json.loads(p.read_text(encoding="utf-8"))["events"]
+    codes = CFG["interests"][x["key"]].get("events", [])
+    cand = sorted((r for r in rows if r["code"] in codes and r.get("verified")), key=lambda r: (r.get("kst") or r["date"])[:10])
+    for r in cand:
+        d = _d.date.fromisoformat((r.get("kst") or r["date"])[:10]); n = (d - t).days
+        if n < 0: continue
+        if n > 30: break
+        nm = {"BOK": "금통위 금리 결정", "FOMC": "FOMC 금리 결정"}.get(r["code"], r["name"])
+        sk = SER_OF.get(r["code"]); s = (facts.get("series") or {}).get(sk) if sk else None
+        if s:
+            ch = (s["yoy"] - s["yoy_prev"]) if "yoy" in s else (s["value"] - s["prev"])
+            verb = ("늘지" if sk == "us_jobs" else "오를지"); adv = "다시 " if ch < 0 else "더 " if ch > 0 else ""
+            jo = "이" if (ord(nm[-1]) - 0xAC00) % 28 and 0xAC00 <= ord(nm[-1]) <= 0xD7A3 else "가"
+            m = f"시장은 {d.month}/{d.day} {nm}{jo} {adv}{verb} 지켜보고 있어요"
+        else:
+            jo = "을" if (ord(nm[-1]) - 0xAC00) % 28 and 0xAC00 <= ord(nm[-1]) <= 0xD7A3 else "를"
+            m = f"시장은 {d.month}/{d.day} {nm}{jo} 지켜보고 있어요"
+        if watch_terms(x.get("fact") or "") & watch_terms(m) or nm in (x.get("fact") or ""): continue   # 두 문장 같은 지표 반복 금지
+        return m
+    return None
+
 def validate(today, facts):
     """today(생성본)를 검사해서 통과한 것만 남긴 사본과 오류 목록을 돌려준다."""
     errs = []
@@ -166,8 +194,14 @@ def validate(today, facts):
     ok_keys = {e["watch"]["key"] for e in out["events"] if e.get("watch")} | set(today.get("judge_keys_all", [])) | set(today.get("upcoming_keys", []))
     keep = []
     for x in out["interests"]:
-        bad = watch_terms(x.get("watch") or "") - ok_keys
-        if bad: errs.append(f"관심사 {x['key']}: 둘째 문장 지표 {sorted(bad)}가 화면의 보는 지표·같이 볼 것에 없음"); x = dict(x, sentence=x.get("fact") or "", watch=None)
+        if x.get("watch") and x.get("market_type") == "M2":
+            bad = watch_terms(x["watch"]) - ok_keys
+            if bad: errs.append(f"관심사 {x['key']}: 시장 칸(M2) 지표 {sorted(bad)}가 화면의 보는 지표·같이 볼 것에 없음"); x = dict(x, watch=None)
+        else: x = dict(x, watch=None)                       # AI M1은 쓰지 않음 → 아래에서 코드가 채움
+        if x.get("fact") and not x.get("watch"):              # M2가 없거나 빠지면 코드 M1 (명세 §3-6 ② PM 11/27)
+            m1 = code_m1(x, today.get("date"), facts)
+            x = dict(x, watch=m1, market_type="M1" if m1 else None)
+        x["sentence"] = " ".join(t for t in (x.get("fact"), x.get("watch")) if t)
         if x.get("sentence"): keep.append(x)
     for i, x in enumerate(keep): x["rank"] = i + 1   # 빠진 관심사가 있으면 순위 다시 매김
     out["interests"] = keep
