@@ -1,0 +1,962 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>요즘 시장의 관심사</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style id="tokens">
+/* ⬇ tokens.css v0.7 복사본 — 직접 고치지 말고 02-UX-시안/design-system/tokens.css를 다시 복사 */
+/* =========================================================
+   my-service 디자인 시스템 v0.7 (2026-11-26) — 기본 색·글꼴은 Apple HIG 시스템 값 기반
+   개발은 이 파일을 그대로 불러 쓰고, 값은 여기서만 바꾼다.
+   ========================================================= */
+:root{
+  /* ---------- 색: 바탕 ---------- */
+  --color-bg:            #F2F2F7;  /* Apple systemGroupedBackground (= systemGray6) */
+  --surface-1:           #FFFFFF;  /* Apple secondarySystemGroupedBackground */
+  --surface-2:           #FFFFFF;  /* 흐름도 무대 (칸은 테두리+그림자로 띄움) */
+  --surface-sunken:      #EEEEF0;  /* 세그먼트 바탕 (Apple tertiarySystemFill 근사 #767680 12%) */
+  --border-1:            #E5E5EA;  /* Apple systemGray5 */
+  --border-2:            #D1D1D6;  /* Apple systemGray4 */
+
+  /* ---------- 색: 글자 ---------- */
+  --text-1:              #000000;  /* Apple label */
+  --text-2:              #6C6C70;  /* Apple systemGray (접근성 고대비 값). secondaryLabel(60%)은 작은 글자 대비 4.5:1 미달이라 이 값 사용 */
+  --text-3:              #AEAEB2;  /* Apple systemGray2 — 비활성·자리표시 전용 */
+
+  /* ---------- 색: 의미 (섞지 않는다) ---------- */
+  /* 1) 방향 = 사실. 오름/내림, 예상보다 높음/낮음 */
+  --dir-up:              #FF3B30;  /* Apple systemRed */
+  --dir-down:            #007AFF;  /* Apple systemBlue */
+  --dir-flat:            #C7C7CC;  /* Apple systemGray3 */
+  /* 2) 의미 = 해석. 호재 쪽/악재 쪽, 선택됨 */
+  --meaning:             #5856D6;  /* Apple systemIndigo */
+  --meaning-soft:        #EEEEFB;  /* systemIndigo 10% on white */
+  /* 3) 관심사 = 판단 기준 칸 */
+  --interest:            #FF9500;  /* Apple systemOrange */
+  --interest-soft:       #FFF4E5;  /* systemOrange 10% on white */
+  --interest-text:       #C93400;  /* Apple systemOrange 접근성 고대비 값 (글자용) */
+
+  /* ---------- 선 ---------- */
+  --edge-idle:           #C7C7CC;  /* Apple systemGray3 */
+  --edge-w-idle:         1.5px;
+  --edge-w-on:           2.5px;
+  --edge-dash:           6 4;      /* 가정 */
+  --edge-hypo-opacity:   .6;
+
+  /* ---------- 글자 ---------- */
+  --font-sans: "Pretendard", "Pretendard Variable", "Apple SD Gothic Neo", -apple-system, sans-serif;  /* 사용자 지정: Pretendard 우선, 없으면 Apple SD Gothic Neo */
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;  /* Apple SF Mono */
+  --fs-display: 20px;   /* Apple Title3 */
+  --fs-title:   17px;   /* Apple Headline (semibold) */
+  --fs-section: 15px;   /* Apple Subheadline semibold — 섹션 제목 */
+  --fs-body:    15px;   /* Apple Subheadline — 본문, 버튼 */
+  --fs-label:   13px;   /* Apple Footnote — 칸 이름, 행 */
+  --fs-caption: 12px;   /* Apple Caption1 — 보조 설명 */
+  --fs-mono:    11px;   /* Apple Caption2 — 구역·슬롯·보조 라벨 */
+  --fw-regular: 400; --fw-medium: 500; --fw-bold: 600;  /* Apple은 강조에 semibold */
+  --lh-tight: 1.3; --lh-body: 1.55;
+
+  /* ---------- 간격 (4 배수) ---------- */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+
+  /* ---------- 모서리 ---------- */
+  --r-tag: 8px; --r-control: 12px; --r-node: 12px; --r-panel: 16px; --r-stage: 28px; --r-pill: 999px;
+
+  /* ---------- 깊이 ---------- */
+  --shadow-node:  0 1px 0 #fff inset, 0 2px 6px rgba(20,24,32,.06);
+  --shadow-panel: none;  /* v0.4: 카드 그림자 제거 (사용자 요청). 카드는 배경색 차이로만 구분 */
+  --glow-meaning: 0 0 0 3px rgba(88,86,214,.14), 0 0 14px rgba(88,86,214,.25);
+
+  /* ---------- 움직임 ---------- */
+  --motion-flow: 1.2s;  /* 칸 하나를 빛이 지나는 시간 */
+  --motion-rest: 2.6s;  /* 반복 사이 쉼 */
+  --motion-ui:   .2s;
+  --ease: cubic-bezier(.2,.8,.2,1);
+}
+
+/* =================== 컴포넌트 =================== */
+.ds{font-family:var(--font-sans);color:var(--text-1)}
+
+/* 흐름도 칸 */
+.ds-node{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:84px;min-height:42px;padding:var(--sp-2) var(--sp-3);
+  background:var(--surface-1);border:1px solid var(--border-1);border-radius:var(--r-node);box-shadow:var(--shadow-node);font-size:var(--fs-label);font-weight:var(--fw-medium)}
+.ds-node small{font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--text-2);font-weight:var(--fw-regular)}
+.ds-node.is-on{font-weight:var(--fw-bold);box-shadow:var(--shadow-node),var(--glow-meaning);border-color:transparent}
+.ds-node.is-on.is-hypo{box-shadow:var(--shadow-node);border:1.5px dashed var(--meaning)}
+.ds-node.is-interest{border:2px solid var(--interest)}
+.ds-node.is-interest::before{content:"관심사";position:absolute;top:-17px;left:2px;font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--interest-text)}
+.ds-node.is-next{background:transparent;box-shadow:none;border:1.5px dashed var(--border-2);color:var(--text-2)}
+.ds-node.is-idle{color:var(--text-3)}
+.ds-node .ds-dir{position:absolute;top:5px;right:7px}
+
+/* 미국|한국 슬롯 칸 */
+.ds-slots{display:flex;gap:6px;margin-top:4px}
+.ds-slot{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:38px}
+.ds-slot b{display:flex;align-items:center;justify-content:center;width:38px;height:20px;font-size:13px;color:var(--text-3);font-weight:var(--fw-regular)}
+.ds-slot span{font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--text-2)}
+
+/* 방향 표시: 채움 = 일어남, 빈 모양 = 가정 */
+.ds-dir{display:inline-block;font-size:12px;line-height:1}
+.ds-dir.up{color:var(--dir-up)} .ds-dir.down{color:var(--dir-down)} .ds-dir.flat{color:var(--dir-flat)}
+.ds-dir.up::before{content:"▲"} .ds-dir.down::before{content:"▼"} .ds-dir.flat::before{content:"–"}
+.ds-dir.hypo.up::before{content:"△"} .ds-dir.hypo.down::before{content:"▽"}
+
+/* 사건 칩 */
+.ds-chip{font:inherit;font-size:var(--fs-label);display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-pill);border:1px solid var(--border-2);background:var(--surface-1);color:var(--text-1);cursor:pointer;white-space:nowrap}
+.ds-chip small{font-size:var(--fs-caption);color:var(--text-2);font-weight:var(--fw-bold)}
+.ds-chip small.dday{color:var(--meaning)}
+.ds-chip.is-selected{border-color:var(--meaning);background:var(--meaning-soft);color:var(--meaning);font-weight:var(--fw-bold)}
+
+/* 관심사 규칙 세그먼트 */
+.ds-rule{display:inline-flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-label);color:var(--text-2)}
+.ds-rule .key{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--r-pill);background:var(--interest-soft);color:var(--interest-text);font-weight:var(--fw-bold)}
+.ds-rule .key::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--interest)}
+.ds-seg{display:inline-flex;background:var(--surface-sunken);border-radius:var(--r-pill);padding:3px;gap:2px}
+.ds-seg span{padding:4px 10px;border-radius:var(--r-pill);font-size:var(--fs-caption);color:var(--text-3);font-weight:var(--fw-medium)}
+.ds-seg span.is-on{background:var(--interest);color:#fff;font-weight:var(--fw-bold)}
+.ds-seg span.is-on.is-hypo{background:transparent;color:var(--interest-text);box-shadow:inset 0 0 0 1.5px var(--interest);outline:0}
+
+/* 시나리오 버튼 */
+.ds-scen{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2)}
+.ds-scen-label{font-size:var(--fs-caption);color:var(--text-2);margin-bottom:var(--sp-2)}
+.ds-scen button{font:inherit;font-size:var(--fs-label);font-weight:var(--fw-bold);min-height:48px;border-radius:var(--r-control);border:1.5px solid var(--border-2);background:var(--surface-1);color:var(--text-1);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.ds-scen button.is-selected{border-color:var(--meaning);background:var(--meaning-soft);color:var(--meaning)}
+.ds-scen button:disabled{color:var(--text-3);background:var(--surface-sunken);border-color:transparent;cursor:default}
+
+/* 쪽 태그 (의미) */
+.ds-side{display:inline-flex;align-items:center;padding:2px 9px;border-radius:var(--r-pill);font-size:var(--fs-caption);font-weight:var(--fw-bold);white-space:nowrap}
+.ds-side.bad{background:var(--meaning);color:#fff}
+.ds-side.good{background:var(--surface-1);color:var(--meaning);box-shadow:inset 0 0 0 1.5px var(--meaning)}
+.ds-side.none{background:var(--surface-sunken);color:var(--text-2)}
+.ds-side.hint::before{content:"보통";font-weight:var(--fw-medium);margin-right:3px}
+
+/* 힌트 카드 */
+.ds-hint{border-radius:var(--r-control);padding:var(--sp-3);background:var(--surface-1);border:1.5px dashed var(--meaning)}
+.ds-hint.is-actual{border-style:solid;background:var(--meaning-soft)}
+.ds-hint h4{margin:0 0 var(--sp-2);font-size:var(--fs-caption);color:var(--text-2);font-weight:var(--fw-medium)}
+.ds-cond{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:var(--fs-label)}
+.ds-cond .c{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:var(--r-tag);background:var(--surface-sunken)}
+
+/* 판단 재료 행 */
+.ds-row{display:grid;grid-template-columns:1fr auto;gap:2px var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--border-1)}
+.ds-row .name{font-size:var(--fs-label);font-weight:var(--fw-bold)}
+.ds-row .val{grid-column:1;font-size:var(--fs-caption);color:var(--text-2);display:flex;gap:6px;align-items:center}
+.ds-row .ds-side{grid-column:2;grid-row:1 / span 2;align-self:center}
+.ds-row.is-interest{background:var(--interest-soft);border-radius:var(--r-tag);padding:var(--sp-3);border-bottom:0;margin-bottom:var(--sp-1)}
+
+
+/* 패널 / 섹션 */
+.ds-panel{background:var(--surface-1);border-radius:var(--r-panel);padding:var(--sp-5);  /* v0.5: 카드 기본 여백 24 (사용자 요청) */
+  box-shadow:var(--shadow-panel)}
+.ds-section-title{font-size:var(--fs-section);font-weight:var(--fw-bold);margin:var(--sp-5) 0 var(--sp-2)}
+.ds-stage{background:var(--surface-2);border-radius:var(--r-stage);padding:var(--sp-5)}
+
+/* 동작 줄이기 */
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+
+/* ===== v0.6 서비스 상태 컴포넌트 (2026-11-26) ===== */
+/* 휴장 슬롯: 방향 없이 모노 라벨 */
+.ds-slot.is-closed b{font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--text-3)}
+/* 상태 배너: 지연·오류·조용한 날. 오류도 빨강을 쓰지 않는다(빨강 = 오름) */
+.ds-banner{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-control);background:var(--surface-sunken);color:var(--text-2);font-size:var(--fs-label)}
+.ds-banner b{color:var(--text-1);font-weight:var(--fw-bold)}
+.ds-banner button{font:inherit;font-size:var(--fs-label);font-weight:var(--fw-bold);color:var(--meaning);background:none;border:0;padding:4px 0;cursor:pointer;white-space:nowrap}
+/* 관심사 변경 첫날 공지: 관심사 박스 안 맨 위 한 줄 */
+.ds-interest-change{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-caption);color:var(--interest-text);font-weight:var(--fw-bold);margin-bottom:var(--sp-2)}
+.ds-interest-change s{color:var(--text-3);font-weight:var(--fw-regular)}
+/* 두 단계 확인 */
+.ds-confirm{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;font-size:var(--fs-caption);color:var(--text-2)}
+.ds-confirm .step{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--r-pill);background:var(--surface-sunken)}
+.ds-confirm .step b{color:var(--text-1)}
+.ds-confirm .step.is-done{background:var(--meaning-soft);color:var(--meaning)}
+.ds-confirm .step.is-done::before{content:"✓";font-weight:var(--fw-bold)}
+.ds-confirm .arrow{color:var(--text-3)}
+
+/* ===== v0.7 관심사 셀렉트 (2026-11-26, 사용자 선택: A 셀렉트) ===== */
+.ds-interest-select{display:inline-flex;align-items:center;gap:var(--sp-2)}
+.ds-interest-select select{font:inherit;font-size:var(--fs-label);font-weight:var(--fw-bold);color:var(--interest-text);padding:8px 32px 8px 12px;border-radius:10px;border:1px solid var(--border-2);background:#fff;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--text-2) 50%),linear-gradient(135deg,var(--text-2) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px;background-repeat:no-repeat;min-height:40px}
+.ds-interest-select .count{font-size:var(--fs-caption);color:var(--text-2)}  /* "관심사 3개 · 바꿔볼 수 있어요" */
+/* 판정 뒤집힘 */
+@keyframes ds-flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+.ds-side.is-flipping{animation:ds-flip .55s var(--ease)}
+.ds-flip-note{font-size:var(--fs-caption);font-weight:var(--fw-bold);color:var(--meaning);background:var(--meaning-soft);border-radius:var(--r-tag);padding:var(--sp-2) 10px}
+
+/* ⬆ tokens.css 끝 */
+</style>
+<style>
+  /* v3.1: 흐름도 하나(위 고정) + 사건 칩 + 시나리오 패널. 모바일 세로 흐름, PC는 640px 칼럼 */
+  :root {   /* 화면 안 별칭 → 디자인 시스템 토큰 */
+    --bg: var(--color-bg); --card: var(--surface-1); --line: var(--border-2); --ink: var(--text-1); --sub: var(--text-2); --faint: var(--border-1);
+    --up: var(--dir-up); --down: var(--dir-down);                 /* 방향(사실) */
+    --accent: var(--meaning); --accent-soft: var(--meaning-soft); /* 의미(호재/악재 쪽) */
+    --amber: var(--interest);                                     /* 요즘 시장의 관심사 */
+    --edge: var(--edge-idle); --debug: #1F2329;                   /* debug = 테스트 바(참가자 화면 밖) */
+    --dbg-h: 0px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg); color: var(--ink);
+    -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  svg text:not([font-family]) { font-family: var(--font-sans); }
+
+  /* ── 테스트 진행용 바 (참가자 화면 밖) ── */
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--debug); }
+  .debug {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
+    background: var(--debug); color: #fff; font-size: var(--fs-caption);
+    padding: 8px max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px));
+    display: flex; gap: 4px; align-items: center;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+  }
+  .debug::-webkit-scrollbar { display: none; }
+  .debug > span { color: #8B95A1; margin-right: 4px; flex-shrink: 0; }
+  .debug button { flex-shrink: 0; border: 0; border-radius: 6px; padding: 5px 9px; font-size: var(--fs-caption); background: #3A3F47; color: #D1D6DB; }
+  .debug button.on { background: var(--accent); color: #fff; }
+  .debug .sep { width: 8px; flex-shrink: 0; }
+  .debug .hide { margin-left: auto; background: transparent; color: #8B95A1; }
+  .debug-off .debug, .debug-off body::before { display: none; }
+  .debug-dot {
+    display: none; position: fixed; z-index: 30;
+    right: calc(8px + env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    width: 28px; height: 28px; border-radius: 50%; border: 0;
+    background: rgba(31,35,41,.12); color: var(--sub); font-size: var(--fs-caption);
+  }
+  .debug-off .debug-dot { display: block; }
+
+  /* ── 페이지 ── */
+  .page {
+    max-width: 640px; margin: 0 auto;
+    padding-block: 12px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  @media (min-width: 768px) { .page { padding-block: 28px 64px; } }
+
+  /* 흐름도 머리: 요즘 시장의 관심사 + 규칙 (흐름도와 같이 고정) */
+  .basis.nodata { font-size: var(--fs-caption); color: var(--text-2); margin-top: 8px; }
+  .sgrp { display: grid; grid-template-columns: 56px 1fr; gap: 8px; align-items: start; margin: 12px 0; font-size: var(--fs-body); }
+  .sgrp b { font-size: var(--fs-label); color: var(--text-2); padding-top: 5px; }
+  .schip { display: inline-block; margin: 0 6px 6px 0; padding: 5px 10px; border-radius: var(--r-pill); background: var(--surface-sunken); font-size: var(--fs-label); }
+  .schip.hl { background: var(--meaning-soft); color: var(--meaning); font-weight: var(--fw-bold); }
+  .ipick { margin-bottom: var(--sp-3); }
+  .icard { background: var(--surface-1); border-radius: var(--r-panel); padding: var(--sp-4); margin-top: 10px; }
+  @media (min-width: 640px) { .icard { padding: var(--sp-5); } }
+  .src { margin-top: 16px; font-size: var(--fs-caption); color: var(--text-2); }
+  .src summary { cursor: pointer; }
+  .src a { display: block; margin-top: 6px; color: var(--meaning); word-break: break-all; }
+  .no-dev .debug-dot { display: none !important; }
+  .asof { font-size: var(--fs-caption); color: var(--text-2); margin: 12px 2px 0; }   /* 기준 시각 (02-UX) */
+  .ibox { padding: 0; }
+  .trig { margin-top: 6px; font-size: var(--fs-caption); color: var(--text-2); }
+  .wcard { margin-top: 12px; padding: var(--sp-4); border-radius: var(--r-control); background: var(--surface-sunken); }
+  .wcard .wl { font-size: var(--fs-caption); color: var(--text-2); }
+  .wcard .wn { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin-top: 4px; font-size: var(--fs-body); }
+  .wcard .wv { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-label); }
+  .wcard .wx { margin-top: 2px; font-size: var(--fs-caption); color: var(--text-2); }
+  .wcard .wx b { color: var(--text-1); }
+  .wcard .wx a { color: var(--text-2); }
+  .wcard .wr { margin-top: 10px; display: grid; gap: 4px; font-size: var(--fs-label); }
+  .wcard .wr .hit { font-weight: var(--fw-bold); }
+  .wcard .wr .dim { color: var(--text-3); }   /* 배경 없앰 (사용자 11/27) */
+  .isel { position: relative; width: fit-content; max-width: 100%; margin-bottom: 12px; }   /* 내용·패딩에 맞는 너비 (사용자 11/27) */
+  .isel-btn { display: flex; width: 100%; max-width: 100%; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-2); border-radius: var(--r-control); background: var(--surface-1); font-size: var(--fs-label); color: var(--text-1); }
+  .isel-btn .car { color: var(--text-2); margin-left: auto; padding-left: 6px; flex: none; }   /* ▾는 내용 바로 뒤 */
+  .isel .rk { flex: none; width: 16px; text-align: center; font-size: 13px; font-weight: var(--fw-bold); color: var(--text-1); }
+  .isel .rk.r1 { color: var(--dir-up); }
+  .isel b { font-weight: var(--fw-bold); white-space: nowrap; }
+  .isel .l2 { min-width: 0; color: var(--text-2); font-weight: var(--fw-regular); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* 넘치면 계기만 말줄임 */
+  .isel .rk, .isel b { flex: none; }
+  .isel-list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content; max-width: calc(100vw - 64px); box-sizing: border-box; margin: 0; padding: 4px; list-style: none; background: var(--surface-1); border: 1px solid var(--border-2); border-radius: var(--r-control); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .isel-list li { min-width: 0; display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 8px; border-radius: 8px; font-size: var(--fs-label); cursor: pointer; white-space: nowrap; }
+  .isel-list li.on { background: var(--surface-sunken); }   /* 셀렉트 안 주황 없음 (보완 3) */
+  .isel-list li:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .ibox .big { font-size: var(--fs-title); font-weight: var(--fw-bold); line-height: 1.4; word-break: keep-all; }
+  .ibox .big em { font-style: normal; color: var(--interest-text); white-space: nowrap; }
+  .ibox .big .idot { width: 9px; height: 9px; margin: 0 4px 2px 1px; vertical-align: middle; }
+  .ibox .small { font-size: var(--fs-caption); color: var(--text-2); margin-top: 4px; }
+  .icond { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; padding: 8px 12px; border: 1.5px dashed var(--border-2); border-radius: var(--r-control); font-size: var(--fs-label); font-weight: var(--fw-medium); }
+  .icond.real { border-style: solid; border-color: var(--interest); }
+  .icond.none { border-style: solid; border-color: transparent; background: var(--surface-sunken); color: var(--text-2); }
+  .icond .arw { color: var(--text-2); }
+  .side.hintside.bad { background: var(--surface-1); color: var(--meaning); box-shadow: inset 0 0 0 1.5px var(--meaning); }
+  @media (min-width: 640px) { .flow { padding: var(--sp-5); } }   /* 640 이상 24 */
+  .flow-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: var(--fs-body); font-weight: var(--fw-bold); padding: 0 0 8px; line-height: 1.5; }
+  .flow-head .ih { color: var(--sub); font-weight: var(--fw-bold); }
+  .ichip { display: inline-flex; align-items: center; gap: 5px; color: var(--interest-text); background: var(--interest-soft); border-radius: var(--r-pill); padding: 3px 10px; font-size: var(--fs-label); font-weight: var(--fw-bold); }
+  .ichip i, .idot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex: none; }
+  .rule { color: var(--ink); }
+  .rule > span { border-radius: 6px; padding: 1px 3px; transition: background .2s; }
+  .rule > span.hl { background: #FDF1DE; box-shadow: inset 0 0 0 1.5px var(--amber); font-weight: var(--fw-bold); }
+  .rule b.u { color: var(--up); } .rule b.d { color: var(--down); }
+  .flow-head.dim .rule, .flow-head.dim .ichip { opacity: .4; }
+  .banner { margin-top: 8px; background: var(--accent-soft); color: var(--accent); border-radius: 12px; padding: 10px 12px; font-size: var(--fs-label); font-weight: var(--fw-bold); line-height: 1.45; }
+  .banner.gray { background: var(--surface-sunken); color: var(--text-2); }
+
+  /* 흐름도: 스크롤해도 위에 고정 */
+  .flow {
+    position: sticky; top: calc(var(--dbg-h) + env(safe-area-inset-top, 0px)); z-index: 10;
+    background: var(--surface-2); border-radius: var(--r-stage); padding: var(--sp-4);   /* 폰 16 */ margin-top: 10px;
+    box-shadow: var(--shadow-panel);
+  }
+  .flow > svg { display: block; width: 100%; max-width: 460px; height: auto; margin: 0 auto; }
+  .legend { display: flex; gap: 4px 12px; flex-wrap: wrap; justify-content: center; font-size: var(--fs-mono); color: var(--sub); margin-top: 2px; padding: 0 4px; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .sw { width: 20px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--down), var(--up)); }
+  .sw.dash { background: repeating-linear-gradient(90deg, var(--text-2) 0 5px, transparent 5px 8px); opacity: .8; }
+  .tri { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; }
+  .tri.up { border-bottom: 8px solid var(--up); }
+  .tri.down { border-top: 8px solid var(--down); }
+  .hol { width: 12px; height: 10px; border: 1.2px dashed var(--border-2); border-radius: 4px; }
+  .legend .idot { width: 8px; height: 8px; }
+  .lg-more { border: 0; background: none; font-size: var(--fs-mono); color: var(--sub); padding: 2px 4px; text-decoration: underline; text-underline-offset: 2px; }
+  /* 관심사 규칙 두 칸 */
+  .segs { display: inline-flex; background: var(--surface-sunken); border-radius: var(--r-pill); padding: 3px; gap: 2px; }
+  .seg { display: inline-flex; align-items: center; gap: 3px; padding: 3px 10px; border-radius: var(--r-pill); font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-2); }
+  .seg b.u { color: var(--up); } .seg b.d { color: var(--down); }
+  .seg.on { background: var(--interest); color: #fff; font-weight: var(--fw-bold); }
+  .seg.on b { color: #fff; }
+  .seg.hypo { color: var(--interest-text); box-shadow: inset 0 0 0 1.5px var(--interest); font-weight: var(--fw-bold); }
+  .seg.off { color: var(--text-3); } .seg.off b { color: var(--text-3); }
+  .flow-head.dim .segs, .flow-head.dim .ichip { opacity: .4; }
+  /* PC: 2열 (왼쪽 흐름도 고정, 오른쪽 사건) */
+  .layout { display: block; }
+  @media (min-width: 1024px) {
+    .page { max-width: 1200px; }
+    .layout { display: grid; grid-template-columns: 56fr 44fr; gap: 24px; align-items: start; margin-top: 10px; }
+    .col-l { position: sticky; top: calc(var(--dbg-h) + env(safe-area-inset-top, 0px) + 12px); }
+    .col-l .flow { position: static; margin-top: 10px; }
+    .col-l .flow > svg { max-width: none; }
+    .col-r .sect { margin-top: 2px; }
+  }
+
+  .sect { font-size: var(--fs-caption); color: var(--sub); font-weight: var(--fw-bold); margin: 16px 2px 8px; }
+  .chips-wrap { position: relative; margin-top: var(--sp-5); }   /* 흐름도 묶음 ↔ 사건 묶음 사이 (1023 이하) */
+  @media (min-width: 1024px) { .col-r .chips-wrap { margin-top: 0; } }
+  @media (max-width: 639px) { .chips-wrap::after { content: ""; position: absolute; right: 0; top: 0; bottom: 4px; width: 36px; background: linear-gradient(90deg, rgba(242,242,247,0), var(--bg)); pointer-events: none; } }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; font-size: var(--fs-label); border: 1px solid var(--border-2); border-radius: var(--r-pill); padding: 8px 14px; background: var(--surface-1); white-space: nowrap; }
+  .chip small { color: var(--sub); margin-left: 6px; font-size: var(--fs-caption); font-weight: var(--fw-bold); }
+  .chip small.dday { color: var(--accent); font-weight: var(--fw-bold); }
+  .chip.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: var(--fw-bold); }
+  .chip.on small { color: var(--accent); }
+
+  .panel { background: var(--card); border-radius: 16px; padding: var(--sp-5); margin-top: 8px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .ttl { font-size: var(--fs-title); font-weight: var(--fw-bold); }
+  .when { font-size: var(--fs-label); color: var(--sub); white-space: nowrap; }
+  .when.dday { color: var(--accent); font-weight: var(--fw-bold); }
+  .res { display: flex; align-items: center; gap: 6px; font-size: var(--fs-body); margin-top: 6px; }
+  .res .tri { flex: none; }
+
+  .scen-l { margin-top: 14px; font-size: var(--fs-caption); color: var(--sub); font-weight: var(--fw-bold); display: flex; align-items: center; gap: 5px; }
+  .scen { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .scen button { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .scen .ar { font-size: var(--fs-mono); opacity: .7; }
+  .scen button { font-size: var(--fs-label); font-weight: var(--fw-bold); min-height: 48px; border: 1.5px solid var(--border-2); background: var(--surface-1); border-radius: var(--r-control); padding: 8px 6px; line-height: var(--lh-tight); }
+  .scen button.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .scen button:disabled { cursor: default; color: var(--text-3); background: var(--surface-sunken); border-color: transparent; }
+  .scen button:disabled.on { color: var(--meaning); background: var(--meaning-soft); border-color: var(--meaning); }
+  .mid { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; font-size: var(--fs-mono); color: var(--sub); background: #E9EBEF; border-radius: 10px; padding: 6px 8px; min-width: 78px; text-align: center; line-height: 1.35; }
+  .mid b { font-size: var(--fs-caption); color: var(--ink); }
+  /* 발표일: 예상 범위 띠 + 실제 점 */
+  .band { position: relative; width: 64px; height: 8px; margin: 4px 0 2px; }
+  .band::before { content: ""; position: absolute; inset: 3px 0; background: #CDD1D8; border-radius: 2px; }
+  .band i { position: absolute; top: 0; bottom: 0; background: #8E96A3; border-radius: 3px; }
+  .band .tri { position: absolute; top: -1px; transform: translateX(-50%); }
+
+  .hint { font-size: var(--fs-label); color: var(--sub); margin-top: 10px; }
+  .nolink { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: var(--fs-label); color: var(--sub); }
+  .nolink .idot { opacity: .5; }
+  .hintcard { margin-top: 12px; border-radius: 12px; padding: 12px 14px; position: relative; background: #fff; border: 1.5px dashed var(--accent); }
+  .hintcard.real { background: var(--accent-soft); border-style: solid; }
+  .hc-t { font-size: var(--fs-caption); color: var(--sub); font-weight: var(--fw-bold); margin-bottom: 8px; }
+  .hc-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: var(--fs-label); }
+  .cond { display: inline-flex; align-items: center; gap: 4px; background: var(--surface-sunken); border-radius: var(--r-tag); padding: 4px 9px; font-weight: var(--fw-bold); }
+  .plus, .arrow { color: var(--sub); }
+  .out { color: var(--ink); } .out b { color: var(--accent); }
+  .judge { margin-top: 24px; }
+  .jh { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .jh h4, .mine h4 { font-size: var(--fs-section); font-weight: var(--fw-bold); }
+  .side { display: inline-flex; align-items: center; font-size: var(--fs-caption); font-weight: var(--fw-bold); border-radius: var(--r-pill); padding: 2px 9px; white-space: nowrap; }
+  .side.bad { background: var(--accent); color: #fff; }
+  .side.good { color: var(--meaning); background: var(--surface-1); box-shadow: inset 0 0 0 1.5px var(--meaning); }
+  .side.none { background: var(--surface-sunken); color: var(--text-2); }
+  /* 폰: 1줄 = 지표명 + 쪽 태그, 2줄 = ▲▼ + 값 */
+  .jrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "n s" "v v"; align-items: center; gap: 2px 8px; font-size: var(--fs-label); padding: 9px 0; border-bottom: 1px solid var(--faint); }
+  .jrow .jn { grid-area: n; } .jrow .side { grid-area: s; justify-self: end; } .jrow .jv { grid-area: v; font-size: var(--fs-caption); color: var(--sub); }
+  @media (min-width: 640px) {
+    .jrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) auto; grid-template-areas: "n v s"; }
+    .jrow .jv { font-size: var(--fs-label); color: var(--text-1); }
+  }
+  .jrow:last-child { border-bottom: 0; }
+  .jrow.int { background: var(--interest-soft); border-radius: 8px; padding: 7px 8px; margin: 0 -8px; border-bottom: 0; }
+  .jn { display: flex; align-items: center; gap: 6px; font-weight: var(--fw-bold); min-width: 0; }
+  .jv { display: flex; align-items: center; gap: 6px; color: var(--text-1); min-width: 0; }
+  .js { font-family: var(--font-mono); font-size: var(--fs-mono); color: var(--text-2); white-space: nowrap; }
+  .hitTag { position: absolute; top: -10px; right: 10px; background: var(--accent); color: #fff; font-size: var(--fs-mono); font-weight: var(--fw-bold); border-radius: 6px; padding: 2px 7px; }
+  .ifEco { margin-top: 10px; font-size: var(--fs-caption); color: var(--sub); }
+  .ifEco .chain { margin-top: 4px; opacity: .6; }
+  .chain { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: var(--fs-caption); color: var(--ink); }
+  .chain .n { border: 1px solid var(--line); border-radius: 8px; padding: 4px 7px; background: #fff; }
+  .chain .n.m { border-color: var(--accent); color: var(--accent); font-weight: var(--fw-bold); }
+
+  .mine { margin-top: 24px; }
+  .mine h4 { margin-bottom: 2px; }
+  .mine h4 { font-size: var(--fs-body); font-weight: var(--fw-bold); }
+  .btns { display: flex; gap: 8px; margin-top: 8px; }
+  .btns button { flex: 1; font-size: var(--fs-body); font-weight: var(--fw-bold); padding: 11px 8px; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+  .btns button.sel { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .picked { font-size: var(--fs-label); color: var(--accent); font-weight: var(--fw-bold); margin-top: 10px; }
+  .lean-t { font-size: var(--fs-body); font-weight: var(--fw-bold); margin-top: 12px; }
+  .leanbar { position: relative; height: 8px; border-radius: 8px; background: linear-gradient(90deg,var(--meaning-soft),var(--surface-sunken) 50%,var(--meaning-soft)); margin: 10px 0 4px; }
+  .leanbar i { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); transform: translate(-50%,-50%); border: 2px solid #fff; }
+  .leanlbl { display: flex; justify-content: space-between; font-size: var(--fs-mono); color: var(--sub); }
+  .basis { font-size: var(--fs-caption); color: var(--sub); margin-top: 6px; }
+  .vs { margin-top: 12px; font-size: var(--fs-body); font-weight: var(--fw-bold); }
+  .vs .arr { color: var(--sub); margin: 0 4px; }
+  .vs .act { color: var(--accent); }
+
+  .linkbtn { display: block; font-size: var(--fs-body); color: var(--accent); background: none; border: 0; padding: 0; margin-top: 14px; font-weight: var(--fw-bold); }
+
+  /* 스켈레톤 */
+  .sk { background: linear-gradient(90deg,var(--border-1) 25%,var(--surface-sunken) 50%,var(--border-1) 75%); background-size: 200% 100%; animation: sh 1.2s infinite; border-radius: 14px; }
+  @keyframes sh { to { background-position: -200% 0; } }
+
+  /* 업종 시트 */
+  .dimbg { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 40; display: none; }
+  .dimbg.open { display: block; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; max-width: 640px; margin: 0 auto;
+    background: #fff; border-radius: 20px 20px 0 0;
+    padding: 10px max(18px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+    transform: translateY(105%); transition: transform .25s ease; visibility: hidden;
+  }
+  .sheet.open { transform: none; visibility: visible; }
+  .sheet:focus { outline: none; }
+  .grab { width: 36px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto 12px; }
+  .sheet h3 { font-size: 16px; font-weight: var(--fw-bold); }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--faint); border-radius: 10px; padding: 3px; margin: 12px 0; }
+  .tabs button { font-size: var(--fs-body); border: 0; background: none; padding: 8px; border-radius: 8px; color: var(--sub); }
+  .tabs button.on { background: #fff; color: var(--ink); font-weight: var(--fw-bold); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .bar { display: grid; grid-template-columns: 76px 1fr 36px; align-items: center; gap: 8px; font-size: var(--fs-body); margin: 10px 0; }
+  .bar i { display: block; height: 10px; border-radius: 5px; background: var(--ink); }
+  .bar.hl { color: var(--accent); font-weight: var(--fw-bold); }
+  .bar.hl i { background: var(--accent); opacity: 1 !important; }
+  .bar span:last-child { font-size: var(--fs-caption); color: var(--sub); }
+
+  @media (prefers-reduced-motion: reduce) { .sk { animation: none; } .sheet { transition: none; } }
+</style>
+
+<div class="debug" id="debug"></div>
+<button class="debug-dot" id="debugDot" aria-label="테스트 바 열기">⚙</button>
+<main class="page" id="app"></main>
+<div class="dimbg" id="dimbg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="업종별 영향"></div>
+
+<script>
+/* ───────── 흐름도: 칸 8개, 배치·연결 고정 (모든 사건 공통) ───────── */
+const N = {   // 원인(왼: 유가·고용) → 전달(가운데: 물가·금리·환율) → 결과(오른: 금·주식·공포)
+  oil:{x:58,y:44,t:"유가"}, job:{x:58,y:116,t:"경기·고용",s:"ISM·고용"},
+  cpi:{x:176,y:44,t:"물가",s:"CPI"}, rate:{x:176,y:116,t:"금리",s:"10년물",split:true}, fx:{x:176,y:190,t:"달러·환율"},
+  vix:{x:294,y:44,t:"공포",s:"VIX"}, stock:{x:294,y:116,t:"주식",split:true}, gold:{x:294,y:196,t:"금"}
+};
+Object.values(N).forEach(n => { n.w = n.split ? 92 : 80; n.h = n.split ? 60 : 40; });
+const NG = N;
+// PC 2열에서만 열 사이를 벌려 SVG를 넓힘 (글자 배율은 그대로). FLOW_D = 열 하나당 늘린 간격
+let FLOW_D = 0;
+const COLS = [58,176,294], HALF = 46;
+function mx(x) {
+  const d = FLOW_D; if (!d || x <= COLS[0] + HALF) return x;
+  for (let i = 0; i < 2; i++) {
+    const a = COLS[i] + HALF, b = COLS[i+1] - HALF;
+    if (x < b) return x <= a ? x + i*d : a + i*d + (x - a) * (b - a + d) / (b - a);
+    if (x <= COLS[i+1] + HALF) return x + (i+1)*d;
+  }
+  return x + 2*d;
+}
+let INTEREST = "cpi";
+let EXPLAIN = [["cpi","rate"],["rate","stock"]];   // 왜 물가를 걱정하나: 물가 → 금리 → 주식                 // 요즘 시장의 관심사 = 물가
+const ZONES = [["원인",58],["전달",176],["결과",294]], ZONE_LINES = [4,117,235,356];
+// 기본 관계 (항상 표시). 직각 꺾임 경로 점 목록, 끝점은 도착 칸 테두리. 선에는 +/− 없음
+// 배열 순서 = 그리는 순서 (교차점에서 나중 선이 위)
+const E = [   // 기획 v4 §4 기본 관계 13개. graph.json과 같은 목록이어야 함 (checkGraph가 확인)
+  ["oil","cpi",[[98,38],[136,38]]],
+  ["job","cpi",[[98,108],[110,108],[110,50],[136,50]]],
+  ["fx","cpi",[[136,196],[122,196],[122,76],[150,76],[150,64]], { t:"수입 물가", x:122, y:158 }],
+  ["job","rate",[[98,122],[130,122]]],
+  ["cpi","rate",[[165,64],[165,86]]],
+  ["rate","cpi",[[187,86],[187,64]], { t:"몇 달 뒤", x:214, y:75 }],
+  ["rate","gold",[[222,130],[232,130],[232,186],[254,186]]],
+  ["rate","stock",[[222,112],[248,112]]],
+  ["rate","fx",[[176,146],[176,170]]],
+  ["fx","stock",[[216,178],[242,178],[242,138],[248,138]]],
+  ["vix","stock",[[294,64],[294,86]], null, { both:true }],                          // 11 공포 ↔ 주식 (양방향)
+  ["job","stock",[[58,136],[58,232],[349,232],[349,124],[340,124]]],                // 12 경기 → 주식: 아래로 돌아가서 교차 0
+  ["fx","gold",[[216,202],[254,202]]]                                               // 13 환율 → 금
+];
+const WEAK = [["fx","stock"]];          // 미국 → 한국 쪽은 한 단계 더 껴서 약한 연결
+const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = { up:tok("--dir-up"), down:tok("--dir-down"), acc:tok("--meaning"), edge:tok("--edge-idle"), ink:tok("--text-1"), sub:tok("--text-2"),
+            mute:tok("--text-3"), label:tok("--text-2"), amber:tok("--interest"), amberText:tok("--interest-text"),
+            stage:tok("--surface-2"), surf:tok("--surface-1"), sunk:tok("--surface-sunken"), b1:tok("--border-1"), b2:tok("--border-2") };
+const MONO = tok("--font-mono");
+const has = (list, a, b) => (list || []).some(p => p[0] === a && p[1] === b);
+
+// 방향 표시: 빨강 ▲ / 파랑 ▼ (색 + 모양). 가정이면 속이 빈 모양
+function tri(cx, cy, d, hypo, r = 5) {
+  const c = d === "up" ? C.up : C.down;
+  const pts = d === "up" ? `${cx},${cy-r} ${cx+r},${cy+r*.75} ${cx-r},${cy+r*.75}` : `${cx},${cy+r} ${cx+r},${cy-r*.75} ${cx-r},${cy-r*.75}`;
+  return hypo ? `<polygon points="${pts}" fill="#fff" stroke="${c}" stroke-width="1.6" stroke-linejoin="round"/>`
+              : `<polygon points="${pts}" fill="${c}"/>`;
+}
+// 둥근 모서리 직각 경로
+function roundPath(pts, R = 18) {
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [px,py] = pts[i-1], [cx,cy] = pts[i], [nx,ny] = pts[i+1];
+    const l1 = Math.hypot(cx-px, cy-py), l2 = Math.hypot(nx-cx, ny-cy), r = Math.min(R, l1/2, l2/2);
+    d += ` L${cx-(cx-px)/l1*r},${cy-(cy-py)/l1*r} Q${cx},${cy} ${cx+(nx-cx)/l2*r},${cy+(ny-cy)/l2*r}`;
+  }
+  const L = pts[pts.length-1]; return d + ` L${L[0]},${L[1]}`;
+}
+
+// 칸 상태 합치기: real(실제·확인됨) 위에 hypo(가정) 덮기
+function mergeState(v) {
+  const st = {};
+  const put = (src, hypo) => Object.entries(src || {}).forEach(([k, o]) => {
+    const s = st[k] || (st[k] = {});
+    s.on = true; if (hypo) s.h = true; else s.r = true;
+    ["dir","us","kr"].forEach(m => { if (!o[m]) return; if (hypo && s[m] && !s[m].h) s[m].x = o[m]; else s[m] = { d: o[m], h: hypo }; });
+  });
+  put(v.real, false); put(v.hypo, true);
+  return st;
+}
+
+/* layers: real / hypo / next(다음에 영향받을 수 있는 칸) */
+function flowSVG(v) {
+  const N = Object.fromEntries(Object.entries(NG).map(([k, n]) => [k, Object.assign({}, n, { x: mx(n.x) })]));
+  const st = mergeState(v);
+  // 칸의 방향색 (미|한 칸은 환율 쪽 연결이면 한국, 아니면 미국 우선)
+  const colorOf = (k, side) => {
+    const s = st[k] || {}, m = s.dir || s[side] || s.us || s.kr;
+    return m ? (m.d === "up" ? C.up : C.down) : C.mute;
+  };
+
+  const lit = E.map(([a, b, pts0, lab0, o5], i) => {
+    const pts = pts0.map(([x, y]) => [mx(x), y]), lab = lab0 && Object.assign({}, lab0, { x: mx(lab0.x) });
+    const both = !!(o5 && o5.both), hit = l => has(l, a, b) || (both && has(l, b, a));
+    const real = hit(v.realPath), hyp = !real && hit(v.hypoPath);
+    return { a, b, pts, lab, i, real, hyp, both, on: real || hyp, weak: has(WEAK, a, b) };
+  });
+  const on = lit.filter(e => e.on);
+  const depth = (e, seen = new Set()) => {
+    if (seen.has(e)) return 0; seen.add(e);
+    const inc = on.filter(x => x.b === e.a && !seen.has(x));
+    return inc.length ? 1 + Math.max(...inc.map(x => depth(x, new Set(seen)))) : 0;
+  };
+  on.forEach(e => e.depth = depth(e));
+
+  let defs = `<filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#141820" flood-opacity=".07"/></filter>
+    <filter id="blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${C.acc}" stop-opacity=".45"/><stop offset=".5" stop-color="${C.acc}"/><stop offset="1" stop-color="${C.acc}" stop-opacity=".35"/></linearGradient>
+    <marker id="mg" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="${C.edge}"/></marker>`;
+  let body = "";
+
+  // 구역: 세로 점선 + 모노 라벨
+  ZONE_LINES.map(mx).forEach(x => body += `<line x1="${x}" y1="18" x2="${x}" y2="242" stroke="${C.b2}" stroke-dasharray="2 4"/>`);
+  ZONES.forEach(([t, x0]) => { const x = mx(x0); body += `<text x="${x}" y="11" font-family='${MONO}' font-size="11" letter-spacing=".5" text-anchor="middle" fill="${C.label}">${t}</text>`; });
+  const zoneEnd = body.length;   // 구역 라벨 아래로 칸·선을 8 내림
+
+  // 기본 관계 (옅은 회색, 항상)
+  lit.filter(e => !e.on).forEach(e => {
+    body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.stage}" stroke-width="6"/>`;   // 교차점 틈
+    body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.edge}" stroke-width="${e.weak?1:1.5}" opacity="${e.weak?.55:1}" marker-end="url(#mg)" ${e.both?'marker-start="url(#mg)"':""}/>`;
+  });
+  // 관심사 설명 경로: 사실이 아니라 "왜 걱정하는지" 설명. 다른 게 켜지면 30%로 옅게
+  if (v.explain) {
+    defs += `<marker id="mi" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="${C.amber}"/></marker>`;
+    lit.filter(e => has(EXPLAIN, e.a, e.b)).forEach(e => {
+      body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.stage}" stroke-width="6"/>`;
+      body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.amber}" stroke-width="2" opacity="${v.explain}" marker-end="url(#mi)"/>`;
+    });
+  }
+  // 켜진 경로: 출발 칸 방향색 → 도착 칸 방향색 그라디언트
+  on.forEach(e => {
+    const side = (e.a === "fx" || e.b === "fx") ? "kr" : "us";
+    const c1 = colorOf(e.a, side), c2 = colorOf(e.b, side);
+    const [x1, y1] = e.pts[0], [x2, y2] = e.pts[e.pts.length-1];
+    defs += `<linearGradient id="g${e.i}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+      <marker id="m${e.i}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="${c2}"/></marker>`;
+    const d = roundPath(e.pts), op = e.hyp ? .6 : (e.weak ? .75 : 1);
+    body += `<path d="${d}" fill="none" stroke="${C.stage}" stroke-width="6"/>`;
+    body += `<path d="${d}" fill="none" stroke="url(#g${e.i})" stroke-width="${e.weak?2:2.5}" stroke-linecap="round" opacity="${op}" ${e.hyp?'stroke-dasharray="5 4"':''} marker-end="url(#m${e.i})" ${e.both?`marker-start="url(#m${e.i})"`:""}/>`;
+    // 흐르는 빛 (처음엔 선 밖에 숨어 있음 → 애니메이션이 안 돌아도 안 보임)
+    body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="url(#g${e.i})" stroke-width="7" filter="url(#blur)" opacity="${e.hyp?.45:.7}" stroke-dasharray="0.22 2" stroke-dashoffset="0.22"/>`;
+    body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="1.6" opacity="${e.hyp?.6:.9}" stroke-dasharray="0.12 2" stroke-dashoffset="0.12"/>`;
+  });
+  // 선 위 작은 라벨 (몇 달 뒤 / 수입 물가)
+  lit.filter(e => e.lab).forEach(e => {
+    const lw = e.lab.t.length * 10 + 12;
+    body += `<rect x="${e.lab.x-lw/2}" y="${e.lab.y-8.5}" width="${lw}" height="17" rx="8.5" fill="${C.surf}" stroke="${C.b2}"/>`;
+    body += `<text x="${e.lab.x}" y="${e.lab.y+3.5}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.label}">${e.lab.t}</text>`;
+  });
+
+  // 칸
+  Object.entries(N).forEach(([k, n]) => {
+    const s = st[k] || {}, next = !s.on && (v.next || []).includes(k);
+    const { x, y, w, h } = n, L = x - w/2, T = y - h/2, rx = n.split ? 16 : 13;
+    const isStock = k === "stock", isInt = k === INTEREST;
+    body += `<g ${isStock && SHOW_SECTORS ? 'class="tapstock" tabindex="0" role="button" aria-label="주식 칸: 업종별 영향 보기" style="cursor:pointer"' : ''}>`;
+    if (s.on) {   // 켜진 칸: 보라 그라디언트 글로우 링 (가정이면 점선·옅게)
+      body += `<rect x="${L-4}" y="${T-4}" width="${w+8}" height="${h+8}" rx="${rx+4}" fill="none" stroke="url(#ring)" stroke-width="5" opacity="${s.r?.35:.2}" filter="url(#blur)"/>`;
+      body += `<rect x="${L-3}" y="${T-3}" width="${w+6}" height="${h+6}" rx="${rx+3}" fill="none" stroke="url(#ring)" stroke-width="1.6" ${s.r?'':'stroke-dasharray="4 3" opacity=".6"'}/>`;
+    }
+    if (next) body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="none" stroke="${C.b2}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    else body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="${C.surf}" stroke="${isInt ? C.amber : C.b1}" stroke-width="${isInt ? 2 : 1}" filter="url(#sh)"/>`;
+    if (next && isInt) body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="none" stroke="${C.amber}" stroke-width="2" stroke-dasharray="4 3"/>`;
+    if (isInt) body += `<text x="${L+2}" y="${T-3.5}" font-family='${MONO}' font-size="11" fill="${C.amberText}">관심사</text>`;
+    const nameFill = next ? C.sub : C.ink;
+    if (n.split) {
+      body += `<text x="${x}" y="${T+16}" font-size="13" text-anchor="middle" font-weight="600" fill="${nameFill}">${n.t}${n.s?` <tspan font-family='${MONO}' font-size="11" font-weight="400" fill="${C.label}">${n.s}</tspan>`:""}</text>`;
+      [["us","미국",-23],["kr","한국",23]].forEach(([m, lab, dx]) => {
+        // 값 있을 때만 옅은 바탕 + ▲▼, 없으면 채움 없이 옅은 "–"
+        if (v.closed && v.closed[m]) body += `<text x="${x+dx}" y="${y+4}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.mute}">휴장</text>`;
+        else if (s[m]) body += `<rect x="${x+dx-19}" y="${y-9}" width="38" height="20" rx="10" fill="${C.sunk}"/>` + tri(x + dx, y + 1, s[m].d, s[m].h, 5) + (s[m].x ? tri(x + dx + 15, y - 9, s[m].x, true, 3.5) : "");
+        else body += `<text x="${x+dx}" y="${y+5}" font-size="13" text-anchor="middle" fill="${C.mute}">–</text>`;
+        body += `<text x="${x+dx}" y="${y+21.5}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.label}">${lab}</text>`;
+      });
+    } else {
+      body += `<text x="${x}" y="${y+(n.s?-2:4)}" font-size="13" text-anchor="middle" font-weight="${s.on?600:500}" fill="${nameFill}">${n.t}</text>`;
+      if (n.s) body += `<text x="${x}" y="${y+13}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.label}">${n.s}</text>`;
+      if (s.dir) body += tri(x + w/2 - 11, y - h/2 + 11, s.dir.d, s.dir.h, 4.5) + (s.dir.x ? tri(x + w/2 - 22, y - h/2 + 11, s.dir.x, true, 3.5) : "");
+    }
+    body += `</g>`;
+  });
+  const f = N.fx;
+  body += `<text x="${f.x}" y="${f.y+f.h/2+13}" font-size="11" text-anchor="middle" fill="${v.split?C.acc:C.label}" font-weight="${v.split?600:400}">${v.split?"여기서 갈라졌어요":"미국 → 한국 다리"}</text>`;
+  if (v.badge) {   // 주식 칸 아래 "보통 호재 쪽 / 보통 악재 쪽" 배지. 가정=점선 테두리, 실제=채움
+    const b = N.stock, tw = v.badge.text.length * 11.5 + 16, by = b.y + b.h/2 + 5;
+    body += `<rect x="${b.x-tw/2}" y="${by}" width="${tw}" height="20" rx="10" fill="${v.badge.real?C.acc:C.surf}" stroke="${C.acc}" stroke-width="1.4" ${v.badge.real?'':'stroke-dasharray="3 2"'}/>`;
+    body += `<text x="${b.x}" y="${by+14}" font-size="12" font-weight="600" text-anchor="middle" fill="${v.badge.real?'#fff':C.acc}">${v.badge.text}</text>`;
+  }
+  return `<svg viewBox="0 0 ${360 + 2*FLOW_D} 246" role="img" aria-label="돈의 흐름도"><defs>${defs}</defs>${body.slice(0, zoneEnd)}<g transform="translate(0,8)">${body.slice(zoneEnd)}</g></svg>`;
+}
+
+// 영향 흐름: 빛이 출발 → 도착으로 칸 순서대로 지나가고, 잠깐 쉬었다 반복
+function playFlow() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const gl = [...document.querySelectorAll(".flow .glint")];
+  if (!gl.length || !gl[0].animate) return;
+  const SEG = 1200, GAP = 2600;
+  const steps = 1 + Math.max(...gl.map(p => +p.dataset.depth));
+  const T = steps * SEG + GAP;
+  gl.forEach(p => {
+    const d = +p.dataset.depth, len = +p.getAttribute("stroke-dasharray").split(" ")[0];
+    const s = d * SEG / T, e = (d + 1) * SEG / T;
+    p.animate([
+      { offset:0, strokeDashoffset:len },
+      { offset:s, strokeDashoffset:len, easing:"ease-in-out" },
+      { offset:e, strokeDashoffset:-1 },
+      { offset:1, strokeDashoffset:-1 }
+    ], { duration:T, iterations:Infinity });
+  });
+}
+
+/* ───────── 데이터: today.json (매일 08:00 공개본). 화면은 이 파일만 읽는다 ───────── */
+const SIDE = { good:"호재 쪽", bad:"악재 쪽" };
+const SHOW_SECTORS = false;   // 업종 시트 v1 숨김 (PM 11/26). 업종 표 config/sectors.json은 보관
+const flip = s => s === "good" ? "bad" : "good";
+const h = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+let D = null, LOAD = "loading";   // loading | ok | error
+const S = { ev:null, int:null, iopen:false, flip:null, opt:null, legend:false, tab:"us", pick:{}, tried:(() => { try { return localStorage.getItem("mf-tried") === "1"; } catch (_) { return false; } })() };
+const Q = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(); } })();
+const DATA_URL = Q.get("data") || "today.json";       // 개발·테스트용: ?data=mock/quiet.json
+try { S.pick = JSON.parse(localStorage.getItem("mf-picks") || "{}"); } catch (e) {}
+const savePicks = () => { try { localStorage.setItem("mf-picks", JSON.stringify(S.pick)); } catch (e) {} };
+
+async function load() {
+  LOAD = "loading"; render();
+  try {
+    const r = await fetch(DATA_URL, { cache:"no-store" });
+    if (!r.ok) throw new Error(r.status);
+    D = await r.json(); checkGraph(D); subDates(D); LOAD = "ok";
+    const ints = D.interests || [];
+    S.int = ints.some(x => x.key === Q.get("int")) ? Q.get("int") : (ints[0] && ints[0].key);
+    S.ev = (D.events || []).some(e => e.id === Q.get("ev")) ? Q.get("ev") : (D.events[0] && D.events[0].id);
+  } catch (e) { LOAD = "error"; }
+  S.opt = null; render();
+}
+// 칩 날짜 글자는 저장된 sub 대신 사건 date와 today.json date로 매번 계산 + 정렬: 오늘 결과 → 확인 중인 지난 사건(최근 먼저) → 곧 발표(가까운 순)
+function subDates(d) {
+  const t = d.date && new Date(d.date + "T00:00:00");
+  if (!t || isNaN(t)) return;
+  (d.events || []).forEach(e => {
+    if (!e.date || e.watchChip) return;   // 지표 칩은 sub = 다음 발표 날짜 (build가 계산)
+    const x = new Date(e.date + "T00:00:00"), n = Math.round((x - t) / 864e5);
+    e.sub = `${x.getMonth() + 1}/${x.getDate()}`;   // 날짜만 (02-UX "사건 칩 시점: 상대 표현 → 날짜")
+    e.dday = n > 0;
+  });
+  const g = e => !e.date ? 1 : e.kind === "done" && e.date === d.date ? 0 : e.kind === "done" ? 1 : 2;
+  (d.events || []).sort((a, b) => g(a) - g(b) || (g(a) === 1 ? (b.date || "").localeCompare(a.date || "") : (a.date || "").localeCompare(b.date || "")));
+}
+// 경로가 기본 관계 목록 밖의 선을 쓰면 그 선은 그리지 않고 콘솔에 남김 (검사기를 통과했어야 하지만 화면도 한 번 더 막음)
+function checkGraph(d) {
+  const ok = (a, b) => E.some(([x, y, , , o]) => (x === a && y === b) || (o && o.both && x === b && y === a));
+  const clean = list => (list || []).filter(([a, b]) => ok(a, b) || (console.warn("기본 관계 밖의 선 제외:", a, b), false));
+  (d.events || []).forEach(e => { e.realPath = clean(e.realPath); Object.values(e.opts || {}).forEach(o => o.path = clean(o.path)); });
+}
+const cur = () => (D.events || []).find(e => e.id === S.ev) || D.events[0];
+const curInt = () => (D.interests || []).find(x => x.key === S.int) || D.interests[0];
+const sideOf = (I, dir) => !dir ? null : dir === "up" ? I.upSide : flip(I.upSide);
+const nodeDir = m => m && (m.dir || m.kr || m.us);
+function saveURL() {
+  try { const q = new URLSearchParams(location.search); q.set("ev", S.ev); q.delete("int"); history.replaceState(null, "", "?" + q); } catch (e) {}
+}
+function layers(e, I, st) {
+  const real = !!e.actual, o = e.actual || S.opt, op = o ? e.opts[o] : null;
+  const v = { real:Object.assign({}, e.real), realPath:[...(e.realPath || [])], next:e.next, hypo:{}, hypoPath:[], closed:st.closed, split:!!st.split };
+  if (op && real) { Object.assign(v.real, op.state); v.realPath.push(...op.path); }
+  if (op && !real) { Object.assign(v.hypo, op.state); v.hypoPath.push(...op.path); }
+  if (st.split) { v.real.fx = v.real.fx || { dir:"up" }; v.real.stock = Object.assign({}, v.real.stock, st.split); delete v.hypo.stock; }
+  ["us","kr"].forEach(m => { if (st.closed && st.closed[m]) ["rate","stock"].forEach(k => { [v.real, v.hypo].forEach(L => { if (L[k]) { L[k] = Object.assign({}, L[k]); delete L[k][m]; } }); }); });
+  const ms = mergeState(v), nd = nodeDir(ms[I.node]), idir = nd && nd.d;
+  const via = touches(e, I.node), opSide = op && via ? sideOf(I, idir) : null;   // 관심사를 지나야만 쪽이 생김
+  return { v, real, o, op, via, idir, opSide };
+}
+// 사건이 관심사 칸을 지나는지 (실제·시나리오 경로·칸 어디든)
+function touches(e, k) {
+  const nodes = new Set([...Object.keys(e.real || {}), ...(e.next || [])]);
+  (e.realPath || []).forEach(([a, b]) => { nodes.add(a); nodes.add(b); });
+  Object.values(e.opts || {}).forEach(o => { Object.keys(o.state || {}).forEach(n => nodes.add(n)); (o.path || []).forEach(([a, b]) => { nodes.add(a); nodes.add(b); }); });
+  return nodes.has(k);
+}
+
+/* ───────── 화면 ───────── */
+const triI = (d, hypo) => !d ? "" : !hypo ? `<i class="tri ${d}"></i>`
+  : `<svg width="11" height="10" viewBox="0 0 11 10" aria-hidden="true" style="flex:none"><polygon points="${d === "up" ? "5.5,1 10,9 1,9" : "5.5,9 10,1 1,1"}" fill="#fff" stroke="${d === "up" ? C.up : C.down}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+const dirText = d => !d ? "" : ` ${d === "up" ? "오름" : "내림"} 쪽`;   // ▲▼는 실제 움직임에만, 가정은 글자 (명세 §3-6 ④-7)
+const leanText = p => p >= 58 ? "지금 시장은 악재 쪽에 더 가까워요" : p <= 42 ? "지금 시장은 호재 쪽에 더 가까워요" : "지금 시장은 어느 쪽에도 크게 치우치지 않았어요";
+// "물가 ▼"는 떨어짐으로 읽혀서, 물가가 관심사일 때 ▼는 "오름세 둔화"
+const dirWord = (I, d) => d === "down" && I.key === "cpi" ? `${h(I.name)} 오름세 둔화` : h(I.name);
+
+function skeleton() {
+  return `<div class="layout"><div class="col-l"><div class="sk" style="height:96px;border-radius:16px;margin-top:10px"></div><div class="sk" style="height:290px;border-radius:28px;margin-top:10px"></div></div>
+    <div class="col-r"><div class="sk" style="height:40px;margin-top:16px;width:80%"></div><div class="sk" style="height:220px;margin-top:10px;border-radius:16px"></div></div></div>`;
+}
+function home() {
+  if (LOAD === "loading") return skeleton();
+  if (LOAD === "error") return `<div class="ds-banner" style="margin-top:12px"><span>지금 데이터를 불러오지 못했어요</span><button data-retry>다시 시도</button></div>`;
+  const st = D.status || {}, I = curInt();
+  INTEREST = I.node; EXPLAIN = I.explain || [];
+  const e = cur(), L = layers(e, I, st), { v, real, o, op, via, idir, opSide } = L;
+  const past = e.kind === "done" && e.date && D.date && e.date < D.date;   // 지난 사건 (결과 확인 남음)
+  // 관심사를 바꾼 직후: 같은 사건의 쪽이 뒤집혔으면 태그 뒤집힘 + 한 줄
+  let flipped = false;
+  if (S.flip) { const P = D.interests.find(x => x.key === S.flip); const ps = P && layers(e, P, st).opSide; flipped = !!(ps && opSide && ps !== opSide); }
+  const fc = flipped ? " is-flipping" : "";
+
+  v.explain = (Object.keys(v.real).length || Object.keys(v.hypo).length) ? .3 : 1;
+
+  // 위쪽 상태 배너
+  let top = "";
+  if (D.mock) top += `<div class="ds-banner" style="margin-top:8px"><span><b>샘플 데이터</b>예요. 매일 아침 실제 데이터로 바뀌어요</span></div>`;
+  if (st.delayed) top += `<div class="ds-banner" style="margin-top:8px"><span>아직 오늘 데이터가 안 들어왔어요. <b>어제 기준</b>이에요</span></div>`;
+  if (st.quiet) top += `<div class="ds-banner" style="margin-top:8px"><span>오늘은 새 사건이 없어요</span></div>`;
+  if (st.split) top += `<div class="ds-banner" style="margin-top:8px"><span>오늘 미국 주식은 ${st.split.us === "up" ? "오르고" : "내리고"} 한국 주식은 ${st.split.kr === "up" ? "올랐어요" : "내렸어요"}. 달러·환율에서 갈라졌어요</span></div>`;
+
+  // 관심사 박스 (스크롤하면 사라짐) + 박스 아래 사건 상황 줄
+  const sent = h(I.sentence);   // 문장 강조 없음, 전부 text-1 (주황은 흐름도 관심사 칸·설명 경로에만)
+  const chg = st.rankChange && I.rank === 1 ? `<div class="ds-interest-change">1순위 관심사가 바뀌었어요 · <s>${h(st.rankChange.from)}</s> → ${h(st.rankChange.to)}</div>` : "";
+  const ints = D.interests || [];
+  // 관심사 고르기 = 버튼 + 펼침 목록 (02-UX "되돌림: 칩 → 셀렉트"): "1 금리 · 한은 금리 인상", 1은 빨강·2·3 검정
+  const iitem = x => `<span class="rk ${x.rank === 1 ? "r1" : ""}">${x.rank}</span><b>${h(x.name)}</b>${x.reason && x.reason.label ? `<span class="l2"> · ${h(x.reason.label)}</span>` : ""}`;
+  const pick = ints.length > 1
+    ? `<div class="isel"><button class="isel-btn" data-iopen aria-haspopup="listbox" aria-expanded="${!!S.iopen}" aria-label="요즘 시장의 관심사 고르기">${iitem(I)}<span class="car" aria-hidden="true">▾</span></button>${S.iopen
+      ? `<ul class="isel-list" role="listbox" aria-label="요즘 시장의 관심사">${ints.map(x => `<li role="option" tabindex="-1" aria-selected="${x.key === I.key}" class="${x.key === I.key ? "on" : ""}" data-ichip="${h(x.key)}">${iitem(x)}</li>`).join("")}</ul>` : ""}</div>`
+    : "";
+  const ibox = `<section class="icard"><div class="ibox">${chg}${pick}<div class="big">${sent}</div>${ints.length > 1 ? "" : `<div class="small">요즘 시장의 관심사 · ${h(I.name)}${I.reason ? " · " + h(I.reason.label) : ""}</div>`}</div></section>`;
+
+  // 범례: 그 순간 화면에 있는 표시만 (02-UX 정보 정리)
+  const hasNext = (v.next || []).some(k => !v.real[k] && !v.hypo[k]);
+  const lg = (v.hypoPath.length ? `<span><i class="sw dash"></i>점선 = 가정</span>` : "") + (hasNext ? `<span><i class="hol"></i>점선 테두리 = 다음 영향</span>` : "");
+  const flow = `<div class="flow">${flowSVG(v)}${lg ? `<div class="legend">${lg}</div>` : ""}</div>`;
+
+  // 사건 칩: 오늘 → 곧 발표
+  let r = `<div class="chips-wrap"><div class="chips" role="tablist">` + D.events.map(x =>
+    `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}<small class="${x.dday ? "dday" : ""}"> · ${h(x.sub)}</small></button>`).join("") + `</div></div>`;
+
+  r += `<section class="panel"><div class="row"><span class="ttl">${h(past && e.question ? e.question : e.head)}</span></div>`;
+  if (past && e.trigger) r += `<div class="trig">${h(e.trigger)}</div>`;   // 지난 사건: 결과 줄 → 계기 한 줄
+  else if (e.result && e.result.text) r += `<div class="res">${triI(e.result.dir)}${h(e.result.text)}</div>`;
+  // 보는 지표 카드 (값·다음 발표는 수집값·일정표만, 없으면 "값 확인 전"/"일정 확인 전")
+  if (e.watch) { const w = e.watch;
+    r += `<div class="wcard"><div class="wl">다음에 볼 지표</div>
+      <div class="wn"><b>${h(w.name)}</b><span class="wv">${w.value ? `${h(w.value)} ${triI(w.dir)}` : "값 확인 전"}</span></div>
+      <div class="wx">${w.next ? `다음 발표 <b>${h(w.next)}</b>` : "일정 확인 전"}${w.source ? ` · <a href="${h(w.source.url)}" target="_blank" rel="noopener">${h(w.source.name)}</a>` : ""}</div></div>`; }   // E3: 이름·최근 값·다음 발표·출처만 (명세 §3-6)
+  // 결과 확인: 두 단계면 .ds-confirm, 아니면 한 줄 라벨
+  if (e.confirm && e.confirm.length) r += `<div class="ds-confirm" style="margin-top:12px">결과 확인 ${e.confirm.map(c =>
+      `<span class="step ${c.done ? "is-done" : ""}">${h(c.label)} <b>${h(c.what)}</b>${c.when && !c.done ? " · " + h(c.when) : ""}</span>`).join(`<span class="arrow">→</span>`)}</div>`;
+  else if (e.top) r += `<div class="scen-l">${h(e.top)}</div>`;
+  r += `<div class="scen" style="margin-top:8px">
+    <button data-opt="a" class="${o === "a" ? "on" : ""}" ${real ? "disabled" : ""} aria-pressed="${o === "a"}">${h(e.opts.a.label)}</button>
+    <button data-opt="b" class="${o === "b" ? "on" : ""}" ${real ? "disabled" : ""} aria-pressed="${o === "b"}">${h(e.opts.b.label)}</button></div>`;
+
+  if (!op && !S.tried) r += `<div class="hint">한쪽을 누르면 위 흐름도에서 어디로 번지는지 보여요</div>`;
+  if (!via) r += `<div class="icond none" style="margin-top:12px">이 사건은 ${h(I.name)}와 직접 이어지지 않아요</div>`;
+  if (op) {
+    if (flipped) { const P = D.interests.find(x => x.key === S.flip), ps = layers(e, P, st).opSide; r += `<div class="ds-flip-note" style="margin-top:12px">관심사를 ${h(I.name)}로 바꾸니 힌트가 ${SIDE[ps]} → ${SIDE[opSide]}으로 뒤집혔어요</div>`; }
+    r += `<div class="hintcard ${real ? "real" : ""}">${real ? `<span class="hitTag">실제 반응</span>` : ""}
+      <div class="hc-t">${real ? "이번엔 이렇게 됐어요" : "보통 이렇게 읽어요"}</div>
+      <div class="hc-row">${real && via && idir ? `<span class="cond">${dirWord(I, idir)}${triI(idir)}${I.market_type === "M2" && I.watch && (opSide === "bad" ? I.watch.includes("걱정하고") : I.watch.includes("기대하고")) ? ` 시장이 ${opSide === "bad" ? "걱정" : "기대"}하던 쪽` : ""}</span><span class="arrow">→</span>` : ""}${op.cond.map(([t, d, done, suf]) => `<span class="cond">${h(t)}${!real && !done ? dirText(d) : triI(d)}${suf ? " " + h(suf) : ""}</span>`).join(op.seq ? `<span class="arrow">→</span>` : `<span class="plus">+</span>`)}
+        ${op.mid ? `<span class="arrow">→</span><span class="cond">${h(op.mid[0])}${real ? triI(op.mid[1]) : dirText(op.mid[1])}</span>` : ""}
+        ${opSide ? `<span class="arrow">→</span><span class="out"><b class="${flipped ? "ds-side is-flipping" : ""}" style="${flipped ? "background:none;padding:0" : ""}">${SIDE[opSide]}</b>${op.out ? " · " + h(op.out) : ""}</span>` : ""}</div></div>`;
+  }
+
+  // 판단할 때 같이 볼 것: 관심사 행 + 지표 행. 값이 없으면 "값 확인 전", 쪽 태그 없음
+  const ir = e.judge && e.judge.interest && e.judge.interest[I.key];
+  const rows = (ir ? [[`${I.name} · 관심사`].concat(ir)] : []).concat((e.judge && e.judge.items) || []);
+  const sides = rows.map(x => x[3]).filter(Boolean), same = sides.length > 1 && sides.every(x => x === sides[0]);   // 쪽이 2개 이상 있어야 같은 쪽/엇갈림을 말함
+  if (rows.length) r += `<div class="judge"><div class="jh"><h4>판단할 때 같이 볼 것</h4>
+      ${sides.length > 1 ? `<span class="side ${same ? sides[0] : "none"}">${same ? `같은 쪽 · ${SIDE[sides[0]]}` : "엇갈려요"}</span>` : ""}</div>
+    ${rows.map((x, i) => `<div class="jrow ${i === 0 && ir ? "int" : ""}"><span class="jn">${h(x[0])}</span>
+      <span class="side ${x[3] || "none"}">${x[3] ? SIDE[x[3]] : "—"}</span><span class="jv">${triI(x[1], x[4])}${x[2] == null ? "값 확인 전" : h(x[2])}</span></div>`).join("")}</div>`;
+
+  // 내 판단 (기기에 저장) → 고르면 시장 쪽 (데이터 있을 때만)
+  const p = S.pick[e.id];
+  if (!real) {
+    r += `<div class="mine"><h4>내 판단은?</h4><div class="btns">
+      <button data-pick="good" class="${p === "good" ? "sel" : ""}" aria-pressed="${p === "good"}">호재 쪽</button>
+      <button data-pick="bad" class="${p === "bad" ? "sel" : ""}" aria-pressed="${p === "bad"}">악재 쪽</button></div>`;
+    if (!p) r += `<div class="hint">고르면 지금 시장이 어느 쪽에 더 가까운지 보여드려요</div>`;
+    else {
+      r += (!e.lean || e.lean.pos == null
+        ? `<div class="basis nodata">시장 쪽은 데이터가 들어오면 보여드려요</div>`
+        : `<div class="lean-t">${leanText(e.lean.pos)}</div><div class="leanbar"><i style="left:${+e.lean.pos}%"></i></div>
+           <div class="leanlbl"><span>호재 쪽</span><span>악재 쪽</span></div><div class="basis">${h(e.lean.basis)}</div>`);
+    }
+    r += `</div>`;
+  } else if (opSide) {
+    r += `<div class="mine"><div class="vs">${p ? `내 판단: ${SIDE[p]}<span class="arr">→</span>` : ""}<span class="act">실제 시장 반응: ${SIDE[opSide]}</span></div>
+      ${e.reason ? `<div class="hint">${h(e.reason)}</div>` : ""}</div>`;
+  }
+  if (e.sources && e.sources.length) r += `<details class="src"><summary>출처</summary>${e.sources.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;
+  if (SHOW_SECTORS && e.sectors) r += `<button class="linkbtn" data-sector>업종별 영향 보기 ›</button>`;
+  r += `</section>`;
+  // 기준 시각 한 줄 (데이터 기준, 화면 연 시각 아님): "11/27(금) 08:00 기준"
+  // 기준 시각 = 실제 수집 시각(asof "11/27 13:29"), 날짜도 asof 기준
+  const am = (D.asof || "").match(/^(\d{1,2})\/(\d{1,2})/), tm = ((D.asof || "").match(/\d{1,2}:\d{2}/) || [""])[0];
+  const dd = am && D.date ? new Date(+D.date.slice(0, 4), am[1] - 1, +am[2]) : D.date && new Date(D.date + "T00:00:00");
+  const asof = dd && !isNaN(dd) ? `<div class="asof">${dd.getMonth() + 1}/${dd.getDate()}(${"일월화수목금토"[dd.getDay()]})${tm ? " " + tm : ""} 기준</div>` : "";
+  return top + `<div class="layout"><div class="col-l">${asof}${ibox}${flow}</div><div class="col-r">${r}</div></div>`;
+}
+
+function sheetHTML() {
+  const e = cur(), groups = (e.sectors && e.sectors[S.tab]) || [];
+  return `<div class="grab"></div><h3>이 사건에 더 크게 / 덜 영향받는 업종</h3>
+    <div class="hint" style="margin-top:4px">오른다·내린다가 아니라 흔들리는 크기예요</div>
+    <div class="tabs" role="tablist"><button data-tab="us" class="${S.tab === "us" ? "on" : ""}">미국</button><button data-tab="kr" class="${S.tab === "kr" ? "on" : ""}">한국</button></div>
+    ${groups.length ? groups.map(([g, list]) => `<div class="sgrp"><b>${h(g)}</b><div>${list.map(n => `<span class="schip ${e.highlight === n ? "hl" : ""}">${h(n)}</span>`).join("")}</div></div>`).join("")
+      : `<div class="hint">해당 업종이 없어요</div>`}
+    ${S.tab === "kr" ? `<div class="hint">한국 업종은 환율·외국인 수급을 한 번 더 거쳐서 연결이 약해요</div>` : ""}`;
+}
+
+// 개발용 바 (?dev=1): 샘플 상태 파일 바꿔 보기
+const MOCKS = [["today.json","오늘"],["mock/quiet.json","조용한 날"],["mock/release.json","발표 당일"],["mock/split.json","미·한 갈라짐"],["mock/delayed.json","데이터 지연"],["mock/closed.json","휴장"],["mock/interest-change.json","관심사 변경"],["mock/one-interest.json","관심사 1개"],["mock/missing.json","오류"]];
+function buildDebug() {
+  const d = document.getElementById("debug");
+  if (Q.get("dev") !== "1") { document.documentElement.classList.add("debug-off", "no-dev"); return; }
+  d.innerHTML = `<span>데이터</span>` + MOCKS.map(([f, t]) => `<button data-file="${f}" class="${DATA_URL === f ? "on" : ""}">${t}</button>`).join("") +
+    `<i class="sep"></i><button data-reset>내 판단 초기화</button><button class="hide" data-hide>숨기기 ✕</button>`;
+}
+function syncDbgH() {
+  const d = document.getElementById("debug");
+  const hgt = document.documentElement.classList.contains("debug-off") ? 0 : d.offsetHeight;
+  document.documentElement.style.setProperty("--dbg-h", hgt + "px");
+}
+function render() {
+  buildDebug();
+  document.getElementById("app").innerHTML = home();
+  syncDbgH(); if (LOAD === "ok") { saveURL(); playFlow(); fitFlow(); }
+}
+
+/* ───────── 업종 시트 ───────── */
+let lastFocus = null;
+function openSheet() {
+  lastFocus = document.activeElement;
+  S.tab = cur().sectorTab || "us";
+  const sh = document.getElementById("sheet");
+  sh.innerHTML = sheetHTML(); sh.classList.add("open");
+  document.getElementById("dimbg").classList.add("open");
+  sh.setAttribute("tabindex", "-1"); sh.focus();
+}
+function closeSheet() {
+  document.getElementById("sheet").classList.remove("open");
+  document.getElementById("dimbg").classList.remove("open");
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+
+document.addEventListener("click", ev => {
+  const ic = ev.target.closest("[data-ichip]");
+  if (ic) { pickInt(ic.dataset.ichip); return; }
+  if (ev.target.closest("[data-iopen]")) { S.iopen = !S.iopen; render(); if (S.iopen) focusOpt(); return; }
+  if (S.iopen && !ev.target.closest(".isel")) { S.iopen = false; render(); }   // 바깥 누르면 닫힘
+  const t = ev.target.closest("[data-legend],[data-file],[data-retry],[data-reset],[data-hide],#debugDot,[data-ev],[data-opt],[data-pick],[data-sector],[data-tab],.tapstock,#dimbg");
+  if (!t) return;
+  const d = t.dataset; S.flip = null;
+  if (d.opt && !S.tried) { S.tried = true; try { localStorage.setItem("mf-tried", "1"); } catch (_) {} }
+  if (d.legend !== undefined) S.legend = !S.legend;
+  else if (d.file) { const q = new URLSearchParams(location.search); q.set("data", d.file); q.delete("ev"); location.search = q; return; }
+  else if (d.retry !== undefined) { load(); return; }
+  else if (d.reset !== undefined) { S.pick = {}; savePicks(); }
+  else if (d.hide !== undefined) { document.documentElement.classList.add("debug-off"); syncDbgH(); return; }
+  else if (t.id === "debugDot") { document.documentElement.classList.remove("debug-off"); syncDbgH(); return; }
+  else if (LOAD !== "ok") return;
+  else if (d.ev) { S.ev = d.ev; S.opt = null; }
+  else if (d.opt) S.opt = S.opt === d.opt ? null : d.opt;               // 다시 누르면 해제
+  else if (d.pick) { S.pick[S.ev] = d.pick; savePicks(); }
+  else if (d.sector !== undefined || t.classList.contains("tapstock")) { if (SHOW_SECTORS && cur().sectors) openSheet(); return; }
+  else if (d.tab) { S.tab = d.tab; document.getElementById("sheet").innerHTML = sheetHTML(); return; }
+  else if (t.id === "dimbg") { closeSheet(); return; }
+  render();
+});
+document.addEventListener("change", ev => {
+  if (ev.target.matches("[data-int]")) { S.flip = S.int; S.int = ev.target.value; render(); const sel = document.querySelector("[data-int]"); if (sel) sel.focus(); }
+});
+function pickInt(k) {
+  S.iopen = false;
+  if (k !== S.int) { S.flip = S.int; S.int = k; }
+  render(); const b = document.querySelector("[data-iopen]"); if (b) b.focus();
+}
+function focusOpt(k) {
+  const o = [...document.querySelectorAll(".isel-list [role=option]")];
+  const i = k != null ? k : Math.max(0, o.findIndex(x => x.getAttribute("aria-selected") === "true"));
+  if (o[i]) o[i].focus();
+}
+document.addEventListener("keydown", ev => {
+  // 관심사 목록 키보드: ↑↓ 이동, Enter·Space 고르기, Esc 닫기
+  const op = ev.target.closest && ev.target.closest(".isel-list [role=option]");
+  if (S.iopen && (op || ev.target.closest && ev.target.closest("[data-iopen]"))) {
+    const o = [...document.querySelectorAll(".isel-list [role=option]")], i = o.indexOf(op);
+    if (ev.key === "ArrowDown") { ev.preventDefault(); focusOpt(Math.min(o.length - 1, i + 1)); return; }
+    if (ev.key === "ArrowUp") { ev.preventDefault(); focusOpt(Math.max(0, i - 1)); return; }
+    if ((ev.key === "Enter" || ev.key === " ") && op) { ev.preventDefault(); pickInt(op.dataset.ichip); return; }
+    if (ev.key === "Escape") { S.iopen = false; render(); const b = document.querySelector("[data-iopen]"); if (b) b.focus(); return; }
+  }
+  if (ev.key === "Escape") closeSheet();
+  if ((ev.key === "Enter" || ev.key === " ") && ev.target.classList && ev.target.classList.contains("tapstock")) { ev.preventDefault(); if (SHOW_SECTORS && cur().sectors) openSheet(); }
+});
+addEventListener("resize", () => { syncDbgH(); if (LOAD === "ok") fitFlow(); });
+// PC에서 칸 이름이 화면에서 약 14px로 보이게 viewBox 폭을 맞춤 (폰은 그대로)
+function fitFlow() {
+  const f = document.querySelector(".flow");
+  const want = f && matchMedia("(min-width: 1024px)").matches ? Math.max(0, Math.round(((f.clientWidth - 2 * parseFloat(getComputedStyle(f).paddingLeft)) * 13 / 14 - 360) / 2)) : 0;
+  if (Math.abs(want - FLOW_D) > 2) { FLOW_D = want; render(); }
+}
+load();
+</script>

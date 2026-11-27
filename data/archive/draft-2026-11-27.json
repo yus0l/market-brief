@@ -27,7 +27,128 @@
    ]
   }
  ],
- "events": [],
+ "events": [
+  {
+   "id": "2026-11-26-bok",
+   "type": "E1",
+   "chip": "한국 기준금리 결정",
+   "head": "한국은행이 기준금리를 올렸어요",
+   "kind": "done",
+   "schedule_code": null,
+   "expect": null,
+   "actual_src": "https://ecos.bok.or.kr/",
+   "expect_src": null,
+   "spread": false,
+   "real": [
+    {
+     "node": "rate",
+     "dir": "up",
+     "us": null,
+     "kr": "up"
+    }
+   ],
+   "realPath": [
+    [
+     "rate",
+     "fx"
+    ],
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "next": [
+    "fx",
+    "stock"
+   ],
+   "opts": {
+    "a": {
+     "label": "물가 부담이 이어지면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": [
+      {
+       "node": "rate",
+       "dir": "up",
+       "us": null,
+       "kr": "up"
+      }
+     ],
+     "cond": [
+      {
+       "text": "한국 소비자물가 발표",
+       "dir": null,
+       "done": false
+      }
+     ],
+     "out": "금리 부담이 이어지는 쪽으로 볼 수 있어요"
+    },
+    "b": {
+     "label": "물가 오름세가 둔화되면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": [
+      {
+       "node": "rate",
+       "dir": "up",
+       "us": null,
+       "kr": "up"
+      }
+     ],
+     "cond": [
+      {
+       "text": "한국 소비자물가 발표",
+       "dir": "down",
+       "done": false
+      }
+     ],
+     "out": "금리 부담이 줄어드는 쪽으로 볼 수 있어요"
+    }
+   },
+   "judge_keys": [],
+   "confirm": [
+    {
+     "label": "먼저",
+     "what": "미국 고용 발표",
+     "when": "12/4"
+    },
+    {
+     "label": "최종",
+     "what": "FOMC 금리 결정",
+     "when": "12/10"
+    }
+   ],
+   "sources": [
+    {
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
+    },
+    {
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
+    },
+    {
+     "name": "네이트 한은 소수의견",
+     "url": "https://m.news.nate.com/view/20261126n13055"
+    }
+   ],
+   "date": "2026-11-26",
+   "question": "12/2 한국 소비자물가가 다시 오를까요?",
+   "watch": {
+    "key": "kr_cpi",
+    "high": "물가 부담이 이어지는 쪽",
+    "low": "오름세가 둔화되는 쪽"
+   }
+  }
+ ],
  "interests": [
   {
    "key": "cpi",
