@@ -23,7 +23,9 @@ RULES = """규칙 (서비스 원칙 — 어기면 그 항목은 화면에 안 �
 - ▲▼는 실제 움직임에만. 가정·시나리오 문장은 '오름 쪽/내림 쪽' 글자로. watch.high/low는 화면에 안 나오지만 시나리오 방향 확인용으로 짧게.
 - 사건마다 watch(다음에 볼 지표) 하나: 사건과 같은 나라 지표. 시나리오 a = watch가 예상보다 높을 때, b = 낮을 때. 시나리오 조건 첫 칸·결과 확인 첫 단계는 그 지표(시스템이 채움). 시나리오 state는 그 지표가 말하는 칸만 바꾸고, 이미 일어난 사실(real)의 방향을 뒤집지 않는다.
 - 관심사 박스 둘째 문장(watch)의 지표는 사건 watch 지표나 '판단할 때 같이 볼 것' 지표 중에서만.
-- 관심사 계기(trigger)는 출처 기사 2개 이상일 때만. 7일 안 발표 때문이면 trigger·fact는 null로 둬도 된다(시스템이 'D-n'과 날짜 문장을 만든다)."""
+- 관심사 계기(trigger)는 출처 기사 2개 이상일 때만.
+- 관심사 박스 첫 문장(fact) = 왜 지금 이 관심사를 보는지: 직전 숫자·흐름(S1 지난 발표 / S3 지표 움직임). '…발표가 있어요' 같은 발표 예정 문장은 쓰지 않는다. 이유 문장을 못 만들면 null(그 관심사는 숨김).
+- 숫자는 수집값 우선. 수집값에 없는 숫자는 서로 다른 매체 2개에 같은 숫자가 있을 때만 쓰고 extra_numbers에 값과 두 출처를 적는다. 7일 안 발표 때문이면 trigger·fact는 null로 둬도 된다(시스템이 'D-n'과 날짜 문장을 만든다)."""
 
 def graph_text():
     n = CFG["nodes"]
@@ -67,7 +69,9 @@ OPT = {"type": "object", "properties": {"label": {"type": "string"}, "path": {"t
        "cond": {"type": "array", "items": COND, "minItems": 1, "maxItems": 3}, "out": {"type": "string"}},
        "required": ["label", "path", "state", "cond", "out"], "additionalProperties": False}
 SRC = {"type": "array", "items": {"type": "object", "properties": {"name": {"type": "string"}, "url": {"type": "string"}}, "required": ["name", "url"], "additionalProperties": False}}
-SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interests", "events"], "properties": {
+SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interests", "events", "extra_numbers"], "properties": {
+  "extra_numbers": {"type": "array", "description": "수집값에 없는데 문장에 쓴 숫자. 서로 다른 매체 2개에 같은 숫자가 있을 때만", "items": {"type": "object", "additionalProperties": False,
+      "required": ["value", "sources"], "properties": {"value": {"type": "string"}, "sources": SRC}}},
   "interests": {"type": "array", "items": {"type": "object", "additionalProperties": False, "required": ["key", "mention", "dir", "sources", "trigger", "trigger_sources", "fact", "fact_sources", "watch", "market_type", "market_sources"], "properties": {
       "key": {"type": "string", "enum": list(CFG["interests"])}, "mention": {"type": "string", "enum": ["많음", "보통", "적음"]},
       "dir": {"type": "string", "enum": ["up", "down"]}, "sources": SRC,

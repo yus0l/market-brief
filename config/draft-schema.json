@@ -3,9 +3,46 @@
  "additionalProperties": false,
  "required": [
   "interests",
-  "events"
+  "events",
+  "extra_numbers"
  ],
  "properties": {
+  "extra_numbers": {
+   "type": "array",
+   "description": "수집값에 없는데 문장에 쓴 숫자. 서로 다른 매체 2개에 같은 숫자가 있을 때만",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "value",
+     "sources"
+    ],
+    "properties": {
+     "value": {
+      "type": "string"
+     },
+     "sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
+     }
+    }
+   }
+  },
   "interests": {
    "type": "array",
    "items": {

@@ -32,9 +32,9 @@ def rank_interests(draft_ints, upc):
     items = []
     for x in draft_ints:
         c = CFG["interests"][x["key"]]
-        ev = next((u for u in upc if u["code"] in c["events"]), None)
+        ev = next((u for u in upc if u["code"] in c["events"]), None) if len(x.get("sources") or []) >= 3 else None   # 발표 가산은 언급 인정(URL 3개+) 관심사만 (명세 §3-3)
         items.append(dict(x, s=score[x["mention"]], ev=ev))
-    items = [x for x in items if x["mention"] != "적음" or x["ev"]]            # 언급이 거의 없으면 숨김
+    items = [x for x in items if len(x.get("sources") or []) >= 3 and (x["mention"] != "적음" or x["ev"])]   # 언급 인정 안 되면 숨김
     items.sort(key=lambda x: (-x["s"], x["ev"]["dday"] if x["ev"] else 99))
     for i in range(1, len(items)):                                             # 발표 가산: 한 단계 올림
         if items[i]["ev"] and not items[i - 1]["ev"]: items[i - 1], items[i] = items[i], items[i - 1]
@@ -45,8 +45,7 @@ def rank_interests(draft_ints, upc):
         if boosted:
             n = x["ev"]["dday"]
             reason = {"type": "event", "label": f"{x['ev']['name']} {md(x['ev'].get('kst') or x['ev']['date'])}"}   # "미국 CPI 12/10"
-            kd = dt.date.fromisoformat((x["ev"].get("kst") or x["ev"]["date"])[:10])
-            fact, fsrc = f"{kd.month}/{kd.day}({'월화수목금토일'[kd.weekday()]}) {x['ev']['name']} 발표가 있어요.", [{"name": "발표 일정", "url": x["ev"].get("source", "")}]   # S2
+            fact, fsrc = x.get("fact"), x.get("fact_sources") or []   # B3 첫 문장 = 왜 지금 보는지(S1·S3). S2 발표 예정 문장은 금지 (명세 §3-6 ③)
         else:
             reason = {"type": "mention", "label": x.get("trigger")}
             fact, fsrc = x.get("fact"), x.get("fact_sources") or []

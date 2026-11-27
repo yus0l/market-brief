@@ -23,40 +23,10 @@
  },
  "interests": [
   {
-   "key": "job",
-   "node": "job",
-   "name": "경기",
-   "rank": 1,
-   "reason": {
-    "type": "event",
-    "label": "미국 고용 12/4"
-   },
-   "upSide": "good",
-   "fact": "12/4(금) 미국 고용 발표가 있어요.",
-   "watch": null,
-   "market_type": null,
-   "market_sources": [],
-   "sentence": "12/4(금) 미국 고용 발표가 있어요.",
-   "fact_sources": [
-    {
-     "name": "발표 일정",
-     "url": "https://www.bls.gov/schedule/"
-    }
-   ],
-   "trigger_sources": [],
-   "explain": [
-    [
-     "job",
-     "stock"
-    ]
-   ],
-   "sources": []
-  },
-  {
    "key": "rate",
    "node": "rate",
    "name": "금리",
-   "rank": 2,
+   "rank": 1,
    "reason": {
     "type": "mention",
     "label": "한은 금리 인상"

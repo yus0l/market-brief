@@ -9,7 +9,7 @@ BANNED = ["매수", "매도", "사세요", "파세요", "될 거예요", "될 �
 TICKER_WORDS = ["삼성전자", "SK하이닉스", "엔비디아 주식", "테슬라 주식", "애플 주식"]   # 종목명 (사건 이름 "엔비디아 실적"은 허용)
 EXPECT = {"예상보다 높음", "예상대로", "예상보다 낮음"}
 ISO = re.compile(r"\d{4}-\d{2}-\d{2}(?:T[\d:+]+)?")   # 일정 날짜(YYYY-MM-DD)는 숫자 검사 제외
-NUM = re.compile(r"(?<![\d/])[-+−]?\d[\d,]*(?:\.\d+)?(?![\d/]|년|개월|월|일|순위|단계|명|개|위)")   # 날짜·기간·순서 표현은 제외
+NUM = re.compile(r"(?<![\d/])[-+−]?\d[\d,]*(?:\.\d+)?(?![\d/]|년|개월|월|일|주|순위|단계|명|개|위)")   # 날짜·기간·순서 표현은 제외
 
 def texts(obj):
     if isinstance(obj, str): yield obj
@@ -107,6 +107,7 @@ def check_interests(ints, errs, allowed=frozenset()):
                    or (x["reason"].get("type") == "mention" and len(x.get("trigger_sources") or []) < 2)):
             errs.append(f"관심사 {k}: 계기 '{lb}' 빠짐(출처 2개 미만·길이·금지 글자)"); x["reason"]["label"] = None
         f = x.get("fact")
+        if f and re.search(r"발표가 있어요|발표 예정|발표돼요", f): errs.append(f"관심사 {k}: 사실 칸이 발표 예정 문장(S2) — B3 첫 문장 금지"); f = None
         if f and (not TIMEWORD.search(f) or VAGUE.search(f) or not x.get("fact_sources") or bad_words(f) or re.search(r"호재|악재", f) or not nums_ok(f, allowed)):
             errs.append(f"관심사 {k}: 사실 칸 빠짐(날짜 M/D·시점 금지어·출처·숫자) — {f}"); f = None
         elif f and len(f) > 40: errs.append(f"[경고] 관심사 {k}: 사실 칸 40자 초과 — {f}")
@@ -187,6 +188,11 @@ def validate(today, facts):
     """today(생성본)를 검사해서 통과한 것만 남긴 사본과 오류 목록을 돌려준다."""
     errs = []
     allowed = {str(v).replace(",", "") for v in facts.get("allowed_numbers", [])}
+    from urllib.parse import urlparse
+    for n in today.get("extra_numbers") or []:          # 수집 안 되는 숫자: 서로 다른 매체 2개에 같은 숫자 (명세 §3-6 ⑤-2)
+        doms = {urlparse(s.get("url", "")).netloc.removeprefix("www.") for s in n.get("sources") or []} - {""}
+        if len(doms) >= 2: allowed.add(str(n["value"]).replace(",", "").lstrip("+-−").rstrip("%"))
+        else: errs.append(f"숫자 {n.get('value')}: 서로 다른 매체 2개 미만이라 허용 안 함")
     out = dict(today)
     out["interests"] = check_interests(today.get("interests", []), errs, allowed)
     out["events"] = [e for e in today.get("events", []) if (e.get("watchChip") or check_sub(e, today.get("date"), errs)) and check_watch(e, errs) and check_event(e, allowed, today.get("date"), errs)][:3]
@@ -202,7 +208,8 @@ def validate(today, facts):
             m1 = code_m1(x, today.get("date"), facts)
             x = dict(x, watch=m1, market_type="M1" if m1 else None)
         x["sentence"] = " ".join(t for t in (x.get("fact"), x.get("watch")) if t)
-        if x.get("sentence"): keep.append(x)
+        if x.get("fact"): keep.append(x)                       # 이유 문장(사실 칸)이 없으면 셀렉트에서 숨김 (명세 §3-3)
+        else: errs.append(f"관심사 {x['key']}: 이유 문장 없음 → 숨김")
     for i, x in enumerate(keep): x["rank"] = i + 1   # 빠진 관심사가 있으면 순위 다시 매김
     out["interests"] = keep
     return out, errs
