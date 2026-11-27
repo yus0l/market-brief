@@ -596,6 +596,7 @@
   .btag.dash { border-style: dashed; }
   .btag.is-flipping { animation: ds-flip .55s var(--ease); }
   .bdesc .bcontra { color: var(--text-1); }
+  .bdesc .bswhy { color: var(--text-1); }
   .bnoexp { font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-3); vertical-align: 2px; }
   .bmorebtn { padding: 4px 0; font-size: var(--fs-label); }
   .bdesc .bsz { font-size: var(--fs-label); }
@@ -916,6 +917,11 @@ const leanText = p => p >= 58 ? "지금 시장은 악재 쪽에 더 가까워요
 // "물가 ▼"는 떨어짐으로 읽혀서, 물가가 관심사일 때 ▼는 "오름세 둔화"
 const mdj = s => s && s.length >= 10 ? `${+s.slice(5, 7)}/${+s.slice(8, 10)}` : (s || "");
 const domN = srcs => new Set((srcs || []).map(x => { try { return new URL(x.url).hostname.replace(/^www\./, ""); } catch (_) { return x.url; } })).size;
+// 쪽 이유 한 줄: "시장이 [관심사]를 걱정할 땐, [결과]면 [이유]라 [쪽]으로 읽어요" — 관심사 칸 × 쪽. PM 문장 표 오기 전 임시
+const SIDE_WHY = {
+  cpi: { bad: "시장이 물가를 걱정할 땐, 물가가 높으면 금리가 더 오를까 봐 악재로 읽어요", good: "시장이 물가를 걱정할 땐, 물가가 낮으면 금리를 내릴 여지가 생겨 호재로 읽어요" },
+  rate: { bad: "시장이 금리를 걱정할 땐, 금리가 오르면 빌리는 비용이 늘어 악재로 읽어요", good: "시장이 금리를 걱정할 땐, 금리가 내리면 빌리는 비용이 줄어 호재로 읽어요" },
+  job: { good: "시장이 경기를 걱정할 땐, 지표가 강하면 경기가 버틴다는 뜻이라 호재로 읽어요", bad: "시장이 경기를 걱정할 땐, 지표가 약하면 경기가 식는다는 뜻이라 악재로 읽어요" } };
 // 나라마다 따로 있는 지표(물가·금리·고용·경기)는 나라를 붙임 (02-UX "지표 이름에 나라 붙이기")
 const CTRY_N = ["cpi", "rate", "job"], CPFX = c => c === "us" ? "미국 " : c === "kr" ? "한국 " : "";
 const iName = x => x && CTRY_N.includes(x.node) && !/^(미국|한국) /.test(x.name) ? CPFX(bCountry(x, [])) + x.name : (x && x.name) || "";
@@ -936,8 +942,8 @@ function home() {
   const e = cur(), L = layers(e, I, st), { v, real, o, op, via, idir, opSide } = L;
   const past = e.kind === "done" && e.date && D.date && e.date < D.date;   // 지난 사건 (결과 확인 남음)
   // 관심사를 바꾼 직후: 같은 사건의 쪽이 뒤집혔으면 태그 뒤집힘 + 한 줄
-  let flipped = false;
-  if (S.flip) { const P = D.interests.find(x => x.key === S.flip); const ps = P && layers(e, P, st).opSide; flipped = !!(ps && opSide && ps !== opSide); }
+  let flipped = false;   // E8 삭제 (02-UX 11/28): 뒤집힘 알림·애니메이션 없음
+  if (false) { const P = D.interests.find(x => x.key === S.flip); const ps = P && layers(e, P, st).opSide; flipped = !!(ps && opSide && ps !== opSide); }
   const fc = flipped ? " is-flipping" : "";
 
   v.expect = e.result && e.result.expect;
@@ -999,7 +1005,6 @@ function home() {
   if (!op && !S.tried) r += `<div class="hint">한쪽을 누르면 위 흐름도에서 어디로 번지는지 보여요</div>`;
   if (!via) r += `<div class="icond none" style="margin-top:12px">이 사건은 ${h(I.name)}와 직접 이어지지 않아요</div>`;
   // E9 힌트 카드 삭제: 흐름도 칸 상태 글자 + 주식 칸 쪽 태그가 같은 말 (02-UX "흐름도가 직접 말하게"). E8 뒤집힘 줄만 남김
-  if (op && flipped) { const P = D.interests.find(x => x.key === S.flip), ps = layers(e, P, st).opSide; r += `<div class="ds-flip-note" style="margin-top:16px">관심사를 ${h(I.name)}로 바꾸니 ${SIDE[ps]} → ${SIDE[opSide]}으로 뒤집혔어요</div>`; }
   if (op && T2 && e.t2[o]) r += `<div class="views" style="margin-top:16px">${h(e.t2[o].view)}<div class="vs2">${(e.t2[o].view_sources || []).map(lnk).join("")}</div></div>`;
 
   // E10 판단할 때 같이 볼 것 = E12 근거 전부(가격 반응 행만, 명세 §3-8) + 크기를 바꾸는 것(§3-10 ③)
@@ -1101,8 +1106,8 @@ function homeB() {
   const sizes = rel.flatMap(e => e.size || []).slice(0, 2);
   const open = k => lvl === 1 || S.bAllOpen || !!(S.bopen || {})[k];
   // E8: 관심사를 바꿔 쪽이 뒤집히면
-  let e8 = "";
-  if (S.flip && S.flip !== I.key) { const P = (D.interests || []).find(x => x.key === S.flip);
+  let e8 = "";   // E8 삭제 (02-UX 11/28) → 쪽 이유 한 줄
+  if (false) { const P = (D.interests || []).find(x => x.key === S.flip);
     if (P) { const pc = bCountry(P, []), ps = sideOf(P, (((D.nowv || {})[pc] || {})[P.node] || {}).dir);
       if (ps && side && ps !== side && bPath(P, pc).some(([, b]) => b === "stock")) e8 = `관심사를 ${josa(I.name, "으로", "로")} 바꾸니 ${SIDE[ps]} → ${SIDE[side]}으로 뒤집혔어요`; } }
   const tri = d => d === "up" ? `<span class="up">▲</span>` : d === "down" ? `<span class="down">▼</span>` : "";
@@ -1122,7 +1127,8 @@ function homeB() {
     let desc = `<p class="bw">${h(bWhy(a + ">" + b, c))}</p>`, extra = "";
     if (b === "stock") { extra = tag(side, false, !!e8);
       // 순서 = E8(바꾼 직후) → 반대 → why → 크기. 3줄까지 보이고 나머지는 "더 보기"
-      const Ls = [e8 ? `<p class="be8">${h(e8)}</p>` : "", contra ? `<p class="bcontra">보통은 ${expStock === "down" ? "내리는데" : "오르는데"} 이번엔 ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
+      const why = (SIDE_WHY[I.node] || {})[side];
+      const Ls = [why ? `<p class="bswhy">${h(why)}</p>` : "", contra ? `<p class="bcontra">보통은 ${expStock === "down" ? "내리는데" : "오르는데"} 이번엔 ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
         .concat(sizes.map(z => `<p class="bsz">${h(z.text)} · ${refs(z.sources)}</p>`)).filter(Boolean);
       const more = Ls.slice(3);
       desc = Ls.slice(0, 3).join("") + (more.length ? (S.bmore ? more.join("") : `<button class="blink bmorebtn" data-bmore>더 보기</button>`) : ""); }
