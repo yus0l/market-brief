@@ -310,7 +310,7 @@ def assemble(today, facts, draft, upc, yesterday):
     return {"judge_keys_all": sorted({k for e in events for k in e.get("judgeKeys", [])}),
             "upcoming_keys": sorted(k for k, c in WS.items() if c.get("sched") in up_codes),
             "date": today.isoformat(), "asof": asof_of(facts, today), "mock": False,
-            "status": status, "interests": ints, "events": events, "now": now, "nowv": nowv, "ktags": KT, "why": {k: v for k, v in CFG.get("why", {}).items() if not k.startswith("_")}}
+            "status": status, "interests": ints, "events": events, "now": now, "nowv": nowv, "ktags": KT, "holidays": {k: v for k, v in json.loads((ROOT / "config" / "holidays.json").read_text(encoding="utf-8")).items() if not k.startswith("_")}, "why": {k: v for k, v in CFG.get("why", {}).items() if not k.startswith("_")}}
 
 def iso(w, today=None):
     """"2026-12-04" 또는 "12/4"(연도 없음 → 오늘 기준 가까운 해) → "2026-12-04". 못 읽으면 None."""
