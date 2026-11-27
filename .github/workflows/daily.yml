@@ -15,4 +15,10 @@ jobs:
         run: sed -n '/<script>/,/<\/script>/p' web/index.html | sed '1d;$d' > /tmp/page.js && node --check /tmp/page.js
       - uses: actions/upload-pages-artifact@v3
         with: { path: web }
-      - uses: actions/deploy-pages@v4
+      - id: d1
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - if: steps.d1.outcome == 'failure'   # GitHub 쪽 일시 오류가 잦아서 한 번 더
+        run: sleep 30
+      - if: steps.d1.outcome == 'failure'
+        uses: actions/deploy-pages@v4
