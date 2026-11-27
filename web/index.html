@@ -251,7 +251,10 @@
   .src a { display: block; margin-top: 6px; color: var(--meaning); word-break: break-all; }
   .no-dev .debug-dot { display: none !important; }
   .asof { font-size: var(--fs-caption); color: var(--text-2); margin: 12px 2px 0; }   /* 기준 시각 (02-UX) */
-  .ibox { padding: 0; }   /* 배경 없앰 (사용자 11/27) */
+  .ibox { padding: 0; }
+  .ichips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .ichip2 { border: 0; border-radius: var(--r-pill); padding: 8px 14px; font-size: var(--fs-label); font-weight: var(--fw-bold); background: var(--surface-sunken); color: var(--text-2); }
+  .ichip2.on { background: var(--interest); color: #fff; }   /* 배경 없앰 (사용자 11/27) */
   .ibox .big { font-size: var(--fs-title); font-weight: var(--fw-bold); line-height: 1.4; word-break: keep-all; }
   .ibox .big em { font-style: normal; color: var(--interest-text); white-space: nowrap; }
   .ibox .big .idot { width: 9px; height: 9px; margin: 0 4px 2px 1px; vertical-align: middle; }
@@ -749,9 +752,9 @@ function home() {
   const sent = h(I.sentence).replace(h(I.name), `<em>${h(I.name)}</em>`);
   const chg = st.rankChange && I.rank === 1 ? `<div class="ds-interest-change">1순위 관심사가 바뀌었어요 · <s>${h(st.rankChange.from)}</s> → ${h(st.rankChange.to)}</div>` : "";
   const ints = D.interests || [];
+  // 관심사 칩 (순서 = 순위, 이름만). 1개면 칩 없음 (02-UX 셀렉트 → 칩)
   const pick = ints.length > 1
-    ? `<div class="ipick"><div class="ds-interest-select"><select data-int aria-label="요즘 시장의 관심사 고르기">${ints.map(x => `<option value="${h(x.key)}" ${x.key === I.key ? "selected" : ""}>${x.rank}순위 · ${h(x.name)}${x.reason ? " · " + h(x.reason.label) : ""}</option>`).join("")}</select>
-        <span class="count">관심사 ${ints.length}개 · 바꿔볼 수 있어요</span></div></div>`
+    ? `<div class="ichips" role="radiogroup" aria-label="요즘 시장의 관심사 고르기">${ints.map(x => `<button class="ichip2 ${x.key === I.key ? "on" : ""}" role="radio" aria-checked="${x.key === I.key}" data-ichip="${h(x.key)}">${h(x.name)}</button>`).join("")}</div>`
     : "";
   const ibox = `<section class="icard"><div class="ibox">${chg}${pick}<div class="big">${sent}</div>${ints.length > 1 ? "" : `<div class="small">요즘 시장의 관심사 · ${h(I.name)}${I.reason ? " · " + h(I.reason.label) : ""}</div>`}</div></section>`;
 
@@ -867,6 +870,8 @@ function closeSheet() {
 }
 
 document.addEventListener("click", ev => {
+  const ic = ev.target.closest("[data-ichip]");
+  if (ic) { if (ic.dataset.ichip !== S.int) { S.flip = S.int; S.int = ic.dataset.ichip; render(); if (ev.detail === 0) { const b = document.querySelector(`[data-ichip="${ic.dataset.ichip}"]`); if (b) b.focus(); } }   // 키보드로 바꿀 때만 포커스 유지 return; }
   const t = ev.target.closest("[data-legend],[data-file],[data-retry],[data-reset],[data-hide],#debugDot,[data-ev],[data-opt],[data-pick],[data-sector],[data-tab],.tapstock,#dimbg");
   if (!t) return;
   const d = t.dataset; S.flip = null;
