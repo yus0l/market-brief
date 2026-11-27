@@ -1,11 +1,14 @@
 {
- "date": "2026-11-26",
- "asof": "11/26 08:00",
- "mock": true,
+ "date": "2026-11-27",
+ "asof": "11/27 08:00",
+ "mock": false,
  "status": {
   "delayed": null,
   "quiet": false,
-  "split": null,
+  "split": {
+   "us": "down",
+   "kr": "up"
+  },
   "closed": {
    "us": false,
    "kr": false
@@ -14,13 +17,77 @@
  },
  "interests": [
   {
-   "key": "cpi",
-   "node": "cpi",
-   "name": "물가",
+   "key": "rate",
+   "node": "rate",
+   "name": "금리",
    "rank": 1,
    "reason": {
     "type": "mention",
     "label": "가장 많이 언급"
+   },
+   "upSide": "bad",
+   "sentence": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+   "explain": [
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "Morningstar 10년물 5% 재돌파",
+     "url": "https://www.morningstar.com/news/marketwatch/2026111076/stocks-fall-as-the-10-year-treasury-yield-reclaims-5"
+    },
+    {
+     "name": "TheStreet 연준 의사록",
+     "url": "https://pro.thestreet.com/stock-market-today/fed-minutes-almost-all-see-more-hikes-and-a-couple-floated-a-bigger-move"
+    },
+    {
+     "name": "Anadolu 글로벌 시장",
+     "url": "https://aa.com.tr/en/economy/global-markets-mixed-amid-hawkish-fed-minutes-ai-uncertainties/4131098"
+    }
+   ]
+  },
+  {
+   "key": "job",
+   "node": "job",
+   "name": "경기",
+   "rank": 2,
+   "reason": {
+    "type": "event",
+    "label": "미국 D-7"
+   },
+   "upSide": "good",
+   "sentence": "지금 시장은 경기가 식어 주식에 악재가 될까 봐 걱정하고 있어요",
+   "explain": [
+    [
+     "job",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "AP 10월 고용",
+     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
+    },
+    {
+     "name": "Zacks 고용 보고서",
+     "url": "https://finviz.com/news/418471/great-jobs-report-will-it-matter-to-market-participants"
+    },
+    {
+     "name": "AP 고용·물가 체감",
+     "url": "https://abc11.com/story/us-continues-generate-jobs-inflation-is-eroding-spending-power-millions-americans/20024536/"
+    }
+   ]
+  },
+  {
+   "key": "cpi",
+   "node": "cpi",
+   "name": "물가",
+   "rank": 3,
+   "reason": {
+    "type": "mention",
+    "label": "언급 많음"
    },
    "upSide": "bad",
    "sentence": "지금 시장은 물가가 올라 주식에 악재가 될까 봐 걱정하고 있어요",
@@ -34,517 +101,143 @@
      "stock"
     ]
    ],
-   "sources": []
-  },
+   "sources": [
+    {
+     "name": "Axios 증시·물가·연준",
+     "url": "https://www.axios.com/2026/11/09/stocks-inflation-fed"
+    },
+    {
+     "name": "InvestingLive CPI 주간",
+     "url": "https://investinglive.com/news/us-cpi-takes-centre-stage-as-markets-look-to-steady-the-ship-after-the-midterm-selloff/"
+    },
+    {
+     "name": "Finimize 데일리 브리핑",
+     "url": "https://finimize.com/content/your-daily-brief-for-november-12th-2026"
+    }
+   ]
+  }
+ ],
+ "events": [
   {
-   "key": "rate",
-   "node": "rate",
-   "name": "금리",
-   "rank": 2,
-   "reason": {
-    "type": "mention",
-    "label": "언급 늘어나는 중"
+   "id": "2026-11-26-bok",
+   "type": "E1",
+   "chip": "한국 기준금리 결정",
+   "head": "한국은행이 기준금리를 올렸어요",
+   "kind": "done",
+   "sub": "오늘",
+   "dday": false,
+   "real": {
+    "rate": {
+     "dir": "up",
+     "kr": "up"
+    }
    },
-   "upSide": "bad",
-   "sentence": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요",
-   "explain": [
+   "realPath": [
+    [
+     "rate",
+     "fx"
+    ],
     [
      "rate",
      "stock"
     ]
    ],
-   "sources": []
-  },
-  {
-   "key": "job",
-   "node": "job",
-   "name": "경기",
-   "rank": 3,
-   "reason": {
-    "type": "mention",
-    "label": "가끔 언급"
-   },
-   "upSide": "good",
-   "sentence": "지금 시장은 경기가 식어 주식에 악재가 될까 봐 걱정하고 있어요",
-   "explain": [
-    [
-     "job",
-     "stock"
-    ]
-   ],
-   "sources": []
-  }
- ],
- "events": [
-  {
-   "id": "bok-2026-11-26",
-   "type": "E1",
-   "chip": "한국은행 금리",
-   "sub": "오늘",
-   "kind": "done",
-   "head": "한국은행 기준금리 인상",
-   "result": {
-    "dir": "up",
-    "text": "3.00% → 3.25% · 예상대로 인상"
-   },
-   "confirm": [
-    {
-     "label": "먼저",
-     "what": "원/달러 환율",
-     "when": "며칠~몇 주",
-     "done": false
-    },
-    {
-     "label": "최종",
-     "what": "1월 금통위",
-     "when": "1/14",
-     "done": false
-    }
-   ],
-   "real": {
-    "rate": {
-     "kr": "up"
-    }
-   },
-   "realPath": [],
    "next": [
     "fx",
-    "cpi"
-   ],
-   "actual": null,
-   "opts": {
-    "a": {
-     "label": "물가가 잡히면",
-     "path": [
-      [
-       "rate",
-       "fx"
-      ],
-      [
-       "fx",
-       "cpi"
-      ],
-      [
-       "rate",
-       "cpi"
-      ]
-     ],
-     "state": {
-      "fx": {
-       "dir": "down"
-      },
-      "cpi": {
-       "dir": "down"
-      }
-     },
-     "cond": [
-      [
-       "금리",
-       "up",
-       1
-      ],
-      [
-       "원화 강세",
-       null
-      ]
-     ],
-     "mid": [
-      "물가 오름세 둔화",
-      "down"
-     ],
-     "out": ""
-    },
-    "b": {
-     "label": "물가가 안 잡히면",
-     "path": [
-      [
-       "cpi",
-       "rate"
-      ],
-      [
-       "rate",
-       "stock"
-      ]
-     ],
-     "state": {
-      "cpi": {
-       "dir": "up"
-      },
-      "rate": {
-       "kr": "up"
-      },
-      "stock": {
-       "kr": "down"
-      }
-     },
-     "cond": [
-      [
-       "물가",
-       "up",
-       0,
-       "유지"
-      ],
-      [
-       "추가 인상",
-       null
-      ]
-     ],
-     "seq": true,
-     "out": ""
-    }
-   },
-   "judge": {
-    "interest": {
-     "cpi": [
-      "down",
-      "금리 인상이 오름세를 늦추는 쪽",
-      "good",
-      true
-     ],
-     "rate": [
-      "up",
-      "3.00% → 3.25%",
-      "bad"
-     ]
-    },
-    "items": [
-     [
-      "원/달러 환율",
-      null,
-      null,
-      null
-     ],
-     [
-      "국고채 3년",
-      null,
-      null,
-      null
-     ],
-     [
-      "코스피",
-      "up",
-      "4,711.21 · +0.29% (장중 +2% 넘었다가 인상 후 대부분 반납)",
-      null
-     ]
-    ]
-   },
-   "lean": null,
-   "sectorTab": "kr",
-   "sectors": {
-    "us": [
-     [
-      "더 크게",
-      [
-       "인터넷·성장주",
-       "유틸리티·리츠"
-      ]
-     ],
-     [
-      "덜",
-      [
-       "은행·금융"
-      ]
-     ]
-    ],
-    "kr": [
-     [
-      "더 크게",
-      [
-       "2차전지",
-       "인터넷·게임",
-       "건설"
-      ]
-     ],
-     [
-      "덜",
-      [
-       "은행·보험"
-      ]
-     ]
-    ]
-   },
-   "sources": [
-    {
-     "name": "이투데이 · 한은 기준금리 3.25% 인상",
-     "url": "https://www.etoday.co.kr/news/view/2652786"
-    },
-    {
-     "name": "서울신문 · 금통위 11월",
-     "url": "https://www.seoul.co.kr/news/economy/finance/2026/11/26/20261126500036"
-    },
-    {
-     "name": "머니투데이 · 전문가 전망(전원 인상)",
-     "url": "https://www.mt.co.kr/economy/2026/11/22/2026112009065366740"
-    },
-    {
-     "name": "이투데이 · 채권시장 설문",
-     "url": "https://www.etoday.co.kr/news/view/2652153"
-    },
-    {
-     "name": "코스피 11/26 종가",
-     "url": "https://supple.kr/news/cmwx70io5p880kwp8a27djm85"
-    }
-   ]
-  },
-  {
-   "id": "us-cpi-next",
-   "type": "E1",
-   "chip": "미국 CPI",
-   "sub": "곧 발표",
-   "kind": "upcoming",
-   "head": "미국 CPI 발표",
-   "top": "발표일·예상치 확인 전",
-   "real": {},
-   "realPath": [],
-   "next": [
-    "cpi",
-    "rate"
-   ],
-   "actual": null,
-   "opts": {
-    "a": {
-     "label": "예상보다 낮으면",
-     "path": [
-      [
-       "cpi",
-       "rate"
-      ],
-      [
-       "rate",
-       "stock"
-      ],
-      [
-       "rate",
-       "fx"
-      ],
-      [
-       "fx",
-       "stock"
-      ]
-     ],
-     "state": {
-      "cpi": {
-       "dir": "down"
-      },
-      "rate": {
-       "us": "down"
-      },
-      "fx": {
-       "dir": "down"
-      },
-      "stock": {
-       "us": "up",
-       "kr": "up"
-      }
-     },
-     "cond": [
-      [
-       "물가",
-       "down"
-      ],
-      [
-       "금리",
-       "down"
-      ]
-     ],
-     "out": "금리 인하 기대로 성장주에 좋은 흐름"
-    },
-    "b": {
-     "label": "예상보다 높으면",
-     "path": [
-      [
-       "cpi",
-       "rate"
-      ],
-      [
-       "rate",
-       "stock"
-      ],
-      [
-       "rate",
-       "fx"
-      ],
-      [
-       "fx",
-       "stock"
-      ]
-     ],
-     "state": {
-      "cpi": {
-       "dir": "up"
-      },
-      "rate": {
-       "us": "up"
-      },
-      "fx": {
-       "dir": "up"
-      },
-      "stock": {
-       "us": "down",
-       "kr": "down"
-      }
-     },
-     "cond": [
-      [
-       "물가",
-       "up"
-      ],
-      [
-       "금리",
-       "up"
-      ]
-     ],
-     "out": "금리 인하가 멀어져 성장주에 부담"
-    }
-   },
-   "judge": {
-    "interest": {},
-    "items": [
-     [
-      "미국채 10년물",
-      null,
-      null,
-      null
-     ],
-     [
-      "VIX",
-      null,
-      null,
-      null
-     ],
-     [
-      "달러 인덱스",
-      null,
-      null,
-      null
-     ]
-    ]
-   },
-   "lean": null,
-   "sectorTab": "us",
-   "sectors": {
-    "us": [
-     [
-      "더 크게",
-      [
-       "인터넷·성장주",
-       "유틸리티·리츠"
-      ]
-     ],
-     [
-      "덜",
-      [
-       "은행·금융"
-      ]
-     ]
-    ],
-    "kr": [
-     [
-      "더 크게",
-      [
-       "2차전지",
-       "인터넷·게임",
-       "건설"
-      ]
-     ],
-     [
-      "덜",
-      [
-       "은행·보험"
-      ]
-     ]
-    ]
-   },
-   "sources": []
-  },
-  {
-   "id": "nvda-earnings",
-   "type": "E8",
-   "chip": "엔비디아 실적",
-   "sub": "일정 확인 전",
-   "kind": "upcoming",
-   "head": "엔비디아 실적",
-   "top": "예상치 확인 전",
-   "real": {},
-   "realPath": [],
-   "next": [
     "stock"
    ],
    "actual": null,
    "opts": {
     "a": {
-     "label": "예상보다 낮으면",
+     "label": "물가 부담이 이어지면",
      "path": [
       [
-       "vix",
-       "stock"
+       "rate",
+       "cpi"
       ]
      ],
      "state": {
-      "stock": {
-       "us": "down",
-       "kr": "down"
-      },
-      "vix": {
-       "dir": "up"
-      }
-     },
-     "cond": [
-      [
-       "매출",
-       "down"
-      ],
-      [
-       "공포",
-       "up"
-      ]
-     ],
-     "out": "반도체 업종에 부담"
-    },
-    "b": {
-     "label": "예상보다 높으면",
-     "path": [],
-     "state": {
-      "stock": {
-       "us": "up",
+      "rate": {
+       "dir": "up",
        "kr": "up"
       }
      },
      "cond": [
       [
-       "매출",
-       "up"
+       "한국 소비자물가 발표",
+       null,
+       0
       ]
      ],
-     "out": "반도체 업종에 좋은 흐름"
+     "out": "금리 부담이 이어지는 쪽으로 볼 수 있어요"
+    },
+    "b": {
+     "label": "물가 오름세가 둔화되면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "rate": {
+       "dir": "down",
+       "kr": "down"
+      }
+     },
+     "cond": [
+      [
+       "미국 CPI 발표",
+       "down",
+       0
+      ]
+     ],
+     "out": "금리 부담이 줄어드는 쪽으로 볼 수 있어요"
     }
    },
    "judge": {
     "interest": {},
-    "items": [
-     [
-      "미국 반도체 지수",
-      null,
-      null,
-      null
-     ],
-     [
-      "나스닥",
-      null,
-      null,
-      null
-     ]
-    ]
+    "items": []
    },
    "lean": null,
+   "confirm": [
+    {
+     "label": "먼저",
+     "what": "미국 고용 발표",
+     "when": "12/4",
+     "done": false
+    },
+    {
+     "label": "최종",
+     "what": "FOMC 금리 결정",
+     "when": "12/10",
+     "done": false
+    }
+   ],
+   "sources": [
+    {
+     "name": "한국은행 ECOS",
+     "url": "https://ecos.bok.or.kr/"
+    },
+    {
+     "name": "한국은행 금리 전망",
+     "url": "https://www.koreancenter.or.kr/news/articleView.html?idxno=1428068"
+    }
+   ],
    "sectorTab": "us",
-   "highlight": "반도체·AI",
    "sectors": {
     "us": [
      [
       "더 크게",
       [
-       "반도체·AI"
+       "인터넷·성장주",
+       "유틸리티·리츠"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·금융"
       ]
      ]
     ],
@@ -552,12 +245,26 @@
      [
       "더 크게",
       [
-       "반도체"
+       "2차전지",
+       "인터넷·게임",
+       "건설"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·보험"
       ]
      ]
     ]
    },
-   "sources": []
+   "result": {
+    "dir": "up",
+    "text": null,
+    "expect": null,
+    "actual_src": "https://ecos.bok.or.kr/",
+    "expect_src": null
+   }
   }
  ]
 }

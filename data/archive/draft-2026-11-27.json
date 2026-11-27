@@ -6,6 +6,10 @@
    "dir": "up",
    "sources": [
     {
+     "name": "Morningstar 10년물 5% 재돌파",
+     "url": "https://www.morningstar.com/news/marketwatch/2026111076/stocks-fall-as-the-10-year-treasury-yield-reclaims-5"
+    },
+    {
      "name": "TheStreet 연준 의사록",
      "url": "https://pro.thestreet.com/stock-market-today/fed-minutes-almost-all-see-more-hikes-and-a-couple-floated-a-bigger-move"
     },
@@ -17,12 +21,39 @@
   },
   {
    "key": "cpi",
-   "mention": "보통",
+   "mention": "많음",
    "dir": "up",
    "sources": [
     {
-     "name": "Anadolu 글로벌 시장",
-     "url": "https://aa.com.tr/en/economy/global-markets-mixed-amid-hawkish-fed-minutes-ai-uncertainties/4131098"
+     "name": "Axios 증시·물가·연준",
+     "url": "https://www.axios.com/2026/11/09/stocks-inflation-fed"
+    },
+    {
+     "name": "InvestingLive CPI 주간",
+     "url": "https://investinglive.com/news/us-cpi-takes-centre-stage-as-markets-look-to-steady-the-ship-after-the-midterm-selloff/"
+    },
+    {
+     "name": "Finimize 데일리 브리핑",
+     "url": "https://finimize.com/content/your-daily-brief-for-november-12th-2026"
+    }
+   ]
+  },
+  {
+   "key": "job",
+   "mention": "보통",
+   "dir": "down",
+   "sources": [
+    {
+     "name": "AP 10월 고용",
+     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
+    },
+    {
+     "name": "Zacks 고용 보고서",
+     "url": "https://finviz.com/news/418471/great-jobs-report-will-it-matter-to-market-participants"
+    },
+    {
+     "name": "AP 고용·물가 체감",
+     "url": "https://abc11.com/story/us-continues-generate-jobs-inflation-is-eroding-spending-power-millions-americans/20024536/"
     }
    ]
   }
@@ -118,12 +149,12 @@
     {
      "label": "먼저",
      "what": "미국 고용 발표",
-     "when": "2026-12-04"
+     "when": "12/4"
     },
     {
      "label": "최종",
      "what": "FOMC 금리 결정",
-     "when": "2026-12-10"
+     "when": "12/10"
     }
    ],
    "sources": [
