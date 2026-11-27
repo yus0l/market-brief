@@ -541,6 +541,38 @@
   .drawln { stroke-dasharray: 1; stroke-dashoffset: 1; animation-name: bdraw; animation-timing-function: ease-out; animation-fill-mode: forwards; }
   @keyframes bdraw { to { stroke-dashoffset: 0; } }
   @media (prefers-reduced-motion: reduce) { .drawln { animation: none; stroke-dashoffset: 0; } }
+
+  /* ── B v2: 고정 흐름도 + 세로 타임라인 ── */
+  .bfix { position: sticky; top: calc(var(--dbg-h, 0px) + env(safe-area-inset-top, 0px)); z-index: 5; background: var(--surface-1); padding: 8px 0 6px; }
+  @media (max-width: 1023px) { .blayout .col-l { display: contents; } }
+  .bbox { position: relative; margin-top: 0; padding: 8px; }
+  .bbox > svg { display: block; width: 100%; height: auto; max-height: 252px; margin: 0 auto; }
+  @media (min-width: 1024px) { .bfix { position: static; padding-top: 10px; } .bbox > svg { max-height: none; width: auto; max-width: 100%; } }
+  .blg { position: absolute; bottom: 8px; left: 12px; font-size: var(--fs-caption); color: var(--text-2); display: flex; align-items: center; gap: 4px; }
+  .bwhy { position: absolute; left: 8px; right: 8px; bottom: 8px; background: var(--surface-1); border-radius: 10px; padding: 8px 10px; font-size: var(--fs-label); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .bthead { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+  .bthead .blink { padding: 6px 0; font-size: var(--fs-caption); }
+  @media (min-width: 1024px) { .bthead { margin-top: 10px; } }
+  .btl { list-style: none; margin: 10px 0 0; padding: 0; }
+  .bt { position: relative; display: grid; grid-template-columns: 24px 1fr; column-gap: 12px; padding-bottom: 28px; }
+  .bt::before { content: ""; position: absolute; left: 11.5px; top: 28px; bottom: 4px; width: 1px; background: var(--border-2); }
+  .bt.done::before { left: 11px; width: 2px; background: var(--text-1); }
+  .bt:last-child::before { display: none; }
+  .bdot { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--border-2); background: var(--surface-1); padding: 0; display: grid; place-items: center; font-size: 13px; font-weight: var(--fw-bold); color: #fff; cursor: pointer; }
+  .bt.done .bdot { background: var(--text-1); border-color: var(--text-1); }
+  .bt.now .bdot { border: 2px solid var(--text-1); }
+  .bt.now .bdot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--text-1); }
+  .bmeta { font-size: var(--fs-caption); color: var(--text-2); line-height: 24px; }
+  .btitle { display: block; text-align: left; border: 0; background: none; padding: 0; margin-top: 2px; font-size: var(--fs-title); font-weight: var(--fw-bold); color: var(--text-1); line-height: 1.4; word-break: keep-all; cursor: pointer; }
+  .bt.next .btitle, .bt.next .bmeta { color: var(--text-3); }
+  .bside { display: inline-block; }
+  .bside.is-flipping { animation: ds-flip .55s var(--ease); }
+  .bdesc { margin-top: 6px; font-size: var(--fs-body); color: var(--text-2); line-height: 1.5; word-break: keep-all; }
+  .bdesc p + p { margin-top: 4px; }
+  .bdesc .be8 { color: var(--meaning); font-weight: var(--fw-bold); }
+  .bdesc .bwl { margin-top: 2px; color: var(--text-2); }
+  .bdesc .bwl b { color: var(--text-1); }
+  .bt .btabs { margin-top: 10px; }
 </style>
 
 <div class="debug" id="debug"></div>
@@ -1077,23 +1109,30 @@ function homeB() {
     : bev.gen ? `${bev.sub} ${josa(bev.name, "이", "가")} 예상보다 높으면 / 낮으면 어디로 번질지 볼게요`
     : w4 ? (w4.next ? `${w4.next} ${josa(w4.name, "이", "가")} 예상보다 높으면 / 낮으면 어디로 번질지 볼게요` : "다음 발표 일정 확인 전이에요")
     : `${bev.sub || ""} ${h(bev.head)} — 결과가 갈리면 어디로 번질지 볼게요`;
-  let narr = "";
-  if (all) narr = lvl === 3 ? "" : `<ol class="bnl"><li>${h(n1)}</li><li>${path.length ? `${h(bName(path[0][0], c))} → ${h(bName(path[0][1], c))} · ${h(bWhy(path[0][0] + ">" + path[0][1], c))}` : "이 관심사에서 바로 이어지는 선이 없어요"}</li><li>${n3}</li><li>${h(n4)}</li></ol>`;
-  else if (step === 1) narr = `<p>${h(n1)}</p>`;
-  else if (step === 2) narr = path.length ? `<p id="bwhy">${lvl >= 2 ? "선을 누르면 왜 이어지는지 보여요" : h(bName(path[0][0], c) + " → " + bName(path[0][1], c) + " · " + bWhy(path[0][0] + ">" + path[0][1], c))}</p>${lvl >= 2 ? "" : `<ul class="bwl" id="bwl" hidden>${whyLines}</ul>`}` : `<p>이 관심사에서 주식까지 바로 이어지는 선이 없어요</p>`;
-  else if (step === 3) narr = `${e8 ? `<p class="be8">${h(e8)}</p>` : ""}<p>${n3}</p>${sizes.length ? `<p class="bmore">같은 사건에 크기를 바꾸는 소식이 있어요 ↓</p>` : ""}`;
-  else narr = `<p>${h(n4)}</p>${I.watch ? `<p class="bsub">${h(I.watch)}</p>` : ""}`;
-  // ④ 조작: 관련 발표 탭 + 높으면/낮으면
+  // B v2 세로 타임라인: 메타 줄 + 제목(그 단계의 답) + 설명. 완료 ✓ / 지금 테두리 / 다음 회색
   let ctl = "";
-  if (step === 4 && !all && bev) {
+  if (bev) {
     if (picks.length > 1) ctl += `<div class="btabs">${picks.map(e => `<button data-bev="${h(e.id)}" class="${e === bev ? "on" : ""}">${h(e.watch ? e.watch.short : e.chip)} ${h(e.watch ? e.watch.next || "" : e.sub || "")}</button>`).join("")}</div>`;
     const gn = bev.gen ? bev.name : bev.watch && bev.watch.next ? bev.watch.name : null;
-    if (gn) ctl += `<div class="scen bscen">${[["a", "높으면"], ["b", "낮으면"]].map(([k, t]) => `<button data-bopt="${k}" class="${S.bopt === k ? "on" : ""}" aria-pressed="${S.bopt === k}">${h(josa(gn, "이", "가"))} 예상보다 ${t}</button>`).join("")}</div>`;
+    if (gn) ctl += `<div class="scen bscen">${[["a", "높으면"], ["b", "낮으면"]].map(([k, t]) => `<button data-bopt="${k}" class="${S.bopt === k ? "on" : ""}" aria-pressed="${S.bopt === k}">${t}</button>`).join("")}</div>`;
     else if (bev.opts && (!w4 || w4.next)) ctl += `<div class="scen bscen">${["a", "b"].map(k => `<button data-bopt="${k}" class="${S.bopt === k ? "on" : ""}" aria-pressed="${S.bopt === k}">${h(bev.opts[k].label)}</button>`).join("")}</div>`;
   }
-  const steps = `<div class="bsteps" role="tablist">${BSTEPS.map((t, i) => `<button role="tab" data-bstep="${i + 1}" class="${!all && step === i + 1 ? "on" : ""} ${!all && step > i + 1 ? "past" : ""}" aria-selected="${!all && step === i + 1}">${"①②③④"[i]} ${t}</button>`).join("")}${lvl === 3 ? `<button class="bre" data-breset>처음부터 보기</button>` : ""}</div>`;
-  const foot = `<div class="bfoot"><button class="blink" data-ball>${all ? "단계별로 보기" : "전체 보기"}</button>${!all && step < 4 ? `<button class="bnext" data-bnext>다음 →</button>` : ""}</div>`;
-  const box = `<section class="bbox">${steps}<div class="flow bflow">${flowSVG(v)}${v.hypoPath.length ? `<div class="legend"><span><i class="sw dash"></i>점선 = 가정</span></div>` : ""}</div><div class="bnar">${narr}</div>${ctl}${foot}</section>`;
+  const fm = (I.fact || "").match(/^(\d{1,2}\/\d{1,2})\s+(.+)$/);
+  const chain = path.length ? [path[0][0]].concat(path.map(([, b]) => b)).filter((x, k, a) => a.indexOf(x) === k).map(k => bName(k, c)).join(" → ") : "";
+  const sideW = side ? `<span class="bside${e8 ? " is-flipping" : ""}">${SIDE[side]}</span>` : "값 확인 전";
+  const T = [
+    [fm ? `${fm[1]} · 무슨 일` : "무슨 일", h(fm ? fm[2] : n1), done && done.result && done.result.text ? `<p>${h(done.result.text)}</p>` : ""],
+    ["어디로 번지나", chain ? h(chain) : "주식까지 바로 이어지지 않아요", path.length ? `<ul class="bwl">${whyLines}</ul>` : ""],
+    ["무엇과 비교하나", !reachStock ? "주식까지 바로 이어지지 않아요" : `${h(exText || "예상치 확인 전")} · 보통 ${sideW}`,
+      `${e8 ? `<p class="be8">${h(e8)}</p>` : ""}<p>${n3}</p>${sizes.length ? `<p class="bmore">크기를 바꾸는 소식이 있어요 ↓</p>` : ""}`],
+    [!bev ? "뭘 보면 갈리나" : bev.gen ? `${h(bev.sub)} · ${h(bev.name)}` : w4 && w4.next ? `${h(w4.next)} · ${h(w4.name)}` : `${h(bev.sub || "")} · ${h(bev.chip || "")}`,
+      !bev || (w4 && !w4.next && !bev.gen) ? "다음 발표 일정 확인 전이에요" : bev.gen || w4 ? "예상보다 높으면 / 낮으면" : h(bev.head),
+      I.watch ? `<p>${h(I.watch)}</p>` : ""]];
+  const tl = `<ol class="btl">${T.map(([meta, title, desc], k) => { const i = k + 1, stt = all || i < step ? "done" : i === step ? "now" : "next";
+      const open = lvl === 1 || !!(S.bopen || {})[i];
+      return `<li class="bt ${stt}" data-bt="${i}"><button class="bdot" data-bstep="${i}" aria-label="${i}단계 ${BSTEPS[i - 1]}">${stt === "done" ? "✓" : ""}</button><div class="bbody"><div class="bmeta">${meta}</div><button class="btitle" data-bstep="${i}">${title}</button>${desc ? `<div class="bdesc"${open ? "" : " hidden"}>${desc}</div>` : ""}${i === 4 ? ctl : ""}</div></li>`; }).join("")}</ol>`;
+  const thead = `<div class="bthead"><span class="stl">풀이 순서</span><span>${lvl === 3 ? `<button class="blink" data-breset>처음부터 보기</button> · ` : ""}<button class="blink" data-ball>${all ? "단계별로 보기" : "전체 보기"}</button></span></div>`;
+  const box = `<div class="bfix"><section class="bbox" id="bbox">${flowSVG(v)}${v.hypoPath.length ? `<span class="blg"><i class="sw dash"></i>점선 = 가정</span>` : ""}<p class="bwhy" id="bwhy" hidden></p></section></div>`;
   // 위: 기준 시각·배너·관심사 셀렉트 (문장은 ①·④로 들어감)
   let top = "";
   if (D.mock) top += `<div class="ds-banner" style="margin-top:8px"><span><b>샘플 데이터</b>예요. 매일 아침 실제 데이터로 바뀌어요</span></div>`;
@@ -1117,8 +1156,39 @@ function homeB() {
   const srcs = rel.flatMap(e => e.sources || []);
   if (srcs.length) r += `<div class="bsec"><details class="src"><summary>출처</summary>${srcs.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details></div>`;
   if (step === 4 || all) setTimeout(bSeen, 0);
-  return top + `<div class="layout blayout"><div class="col-l">${asof}${pick}${box}</div><div class="col-r">${r}</div></div>`;
+  return top + `<div class="layout blayout"><div class="col-l">${asof}${pick}${box}</div><div class="col-r">${thead}${tl}${r}<div class="bpad"></div></div></div>`;
 }
+// B v2: 스크롤 = 진행. 단계 제목이 고정 흐름도 아래 선에 닿으면 그 단계로 흐름도를 바꿈 (흐름도·타임라인만 갈아 끼움)
+function bLine() { const fx = document.querySelector(".bfix"); return matchMedia("(min-width: 1024px)").matches ? 150 : (fx ? fx.getBoundingClientRect().bottom : 0) + 6; }
+function bSwap() {
+  const t = document.createElement("div"); t.innerHTML = homeB();
+  ["#bbox", ".btl", ".bthead"].forEach(q => { const a = document.querySelector(q), b = t.querySelector(q); if (a && b) a.replaceWith(b); });
+}
+function bGo(i) {
+  const it = document.querySelector(`.bt[data-bt="${i}"] .btitle`); S.bstep = i; S.bLock = Date.now() + 900; bSwap();
+  if (!it) return; const fx = document.querySelector(".bfix"), wide = matchMedia("(min-width: 1024px)").matches;
+  const line = wide ? 150 : (fx ? fx.offsetHeight : 0) + 6, el = document.querySelector(`.bt[data-bt="${i}"]`);
+  scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + scrollY - line + 2), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+// 마지막 단계 제목도 선까지 올라올 수 있게 아래 여백
+function bPad() {
+  const pad = document.querySelector(".bpad"), t = document.querySelector('.bt[data-bt="4"]'); if (!pad || !t) return;
+  pad.style.height = "0px";
+  const wide = matchMedia("(min-width: 1024px)").matches, fx = document.querySelector(".bfix");
+  const line = wide ? 150 : (fx ? fx.offsetHeight : 0) + 6;
+  const below = document.documentElement.scrollHeight - (t.getBoundingClientRect().top + scrollY);
+  pad.style.height = Math.max(0, innerHeight - line - below + 8) + "px";
+}
+addEventListener("resize", () => BMODE && bPad());
+function bScroll() {
+  if (!BMODE || LOAD !== "ok" || S.ball || (S.bLock && Date.now() < S.bLock)) return;
+  const ts = [...document.querySelectorAll(".btl > .bt")]; if (!ts.length) return;
+  const line = bLine(); let st = 1;
+  ts.forEach((t, k) => { if (t.getBoundingClientRect().top <= line) st = k + 1; });
+  if (scrollY > 0 && innerHeight + scrollY >= document.documentElement.scrollHeight - 4) st = ts.length;
+  if (st !== S.bstep) { S.bstep = st; S.flip = null; if (st < 4) S.bopt = null; bSwap(); }
+}
+addEventListener("scroll", () => { cancelAnimationFrame(bScroll.r); bScroll.r = requestAnimationFrame(bScroll); }, { passive: true });
 // ② 선을 차례로 그리는 동안 내레이션을 그 선의 "왜"로 바꿈, 다 그리면 목록
 function bPlay() {
   const p = document.getElementById("bwhy"), l = document.getElementById("bwl");
@@ -1163,7 +1233,7 @@ function tabIntoView() {   // 선택 탭이 화면 밖이면 가로로만 스크
 function render() {
   buildDebug();
   document.getElementById("app").innerHTML = home();
-  syncDbgH(); if (LOAD === "ok") { saveURL(); playFlow(); fitFlow(); tabIntoView(); if (BMODE) bPlay(); }
+  syncDbgH(); if (LOAD === "ok") { saveURL(); playFlow(); fitFlow(); tabIntoView(); if (BMODE) bPad(); }
 }
 
 /* ───────── 업종 시트 ───────── */
@@ -1191,13 +1261,12 @@ document.addEventListener("click", ev => {
     const b = ev.target.closest("[data-bstep],[data-bnext],[data-ball],[data-bev],[data-bopt],[data-breset],[data-why]");
     if (b) { const d = b.dataset; S.bTouched = true; S.flip = null;
       if (d.why) { const p = document.getElementById("bwhy"); if (p) { p.hidden = false; p.textContent = b.getAttribute("data-wt") || b.textContent; } return; }   // 선·목록을 누르면 그 선의 "왜"
-      if (d.bstep) { S.ball = false; S.bstep = +d.bstep; S.bopt = null; }
-      else if (d.bnext !== undefined) S.bstep = Math.min(4, S.bstep + 1);
+      if (d.bstep) { const i = +d.bstep; S.ball = false; if (bFade() >= 2) { S.bopen = S.bopen || {}; S.bopen[i] = !S.bopen[i]; } bGo(i); return; }
       else if (d.ball !== undefined) S.ball = !S.ball;
-      else if (d.bev) { S.bev = d.bev; S.bopt = null; }
-      else if (d.bopt) S.bopt = S.bopt === d.bopt ? null : d.bopt;
-      else if (d.breset !== undefined) { S.ball = false; S.bstep = 1; }
-      render(); return; }
+      else if (d.bev) { S.bev = d.bev; S.bopt = null; S.ball = false; S.bstep = 4; S.bLock = Date.now() + 700; }
+      else if (d.bopt) { S.bopt = S.bopt === d.bopt ? null : d.bopt; S.ball = false; S.bstep = 4; S.bLock = Date.now() + 700; }
+      else if (d.breset !== undefined) { S.ball = false; S.bstep = 1; scrollTo(0, 0); }
+      bSwap(); return; }
   }
   const t = ev.target.closest("[data-legend],[data-file],[data-retry],[data-reset],[data-hide],#debugDot,[data-ev],[data-opt],[data-pick],[data-sector],[data-tab],.tapstock,#dimbg");
   if (!t) return;
