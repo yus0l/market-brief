@@ -337,14 +337,15 @@
   .sect { font-size: var(--fs-caption); color: var(--sub); font-weight: var(--fw-bold); margin: 16px 2px 8px; }
   .chips-wrap { position: relative; margin-top: var(--sp-5); }   /* 흐름도 묶음 ↔ 사건 묶음 사이 (1023 이하) */
   @media (min-width: 1024px) { .col-r .chips-wrap { margin-top: 0; } }
-  @media (max-width: 639px) { .chips-wrap::after { content: ""; position: absolute; right: 0; top: 0; bottom: 4px; width: 36px; background: linear-gradient(90deg, rgba(242,242,247,0), var(--bg)); pointer-events: none; } }
-  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 4px; scrollbar-width: none; }
+  @media (max-width: 639px) { .chips-wrap::after { content: ""; position: absolute; right: 0; top: 0; bottom: 1px; width: 36px; background: linear-gradient(90deg, rgba(242,242,247,0), var(--bg)); pointer-events: none; } }
+  /* 사건 탭 = 라인 탭 (02-UX "사건 칩 → 라인 탭"): 선택 = 검정 굵게 + 2px 검정 밑줄, 아래 1px 선에 패널이 바로 붙음 */
+  .chips { display: flex; gap: 20px; overflow-x: auto; padding: 0; scrollbar-width: none; border-bottom: 1px solid var(--border-1); }
   .chips::-webkit-scrollbar { display: none; }
-  .chip { flex: none; font-size: var(--fs-label); border: 1px solid var(--border-2); border-radius: var(--r-pill); padding: 8px 14px; background: var(--surface-1); white-space: nowrap; }
-  .chip small { color: var(--sub); margin-left: 0; font-size: var(--fs-caption); font-weight: var(--fw-bold); }
-  .chip small.dday { color: var(--accent); font-weight: var(--fw-bold); }
-  .chip.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: var(--fw-bold); }
-  .chip.on small { color: var(--accent); }
+  .chip { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 44px; padding: 0; margin-bottom: -1px; font-size: var(--fs-label); color: var(--text-2); background: none; border: 0; border-bottom: 2px solid transparent; border-radius: 0; white-space: nowrap; }
+  .chip small { color: var(--text-3); font-size: var(--fs-caption); font-weight: 400; }
+  .chip.on { color: var(--text-1); font-weight: var(--fw-bold); border-bottom-color: var(--text-1); }
+  .chip.on small { color: var(--text-2); }
+  .chips-wrap + .panel { margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
 
   .panel { background: var(--card); border-radius: 16px; padding: var(--sp-5); margin-top: 8px; }
   .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -836,7 +837,7 @@ function home() {
 
   // 사건 칩: 오늘 → 곧 발표
   let r = `<div class="chips-wrap"><div class="chips" role="tablist">` + D.events.map(x =>
-    `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}<small class="${x.dday ? "dday" : ""}"> · ${h(x.sub)}</small></button>`).join("") + `</div></div>`;
+    `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}<small>${h(x.sub)}</small></button>`).join("") + `</div></div>`;
 
   r += `<section class="panel"><div class="row"><span class="ttl">${h(past && e.question ? e.question : e.head)}</span></div>`;
   if (past && e.trigger) r += `<div class="trig">${h(e.trigger)}</div>`;   // 지난 사건: 계기 한 줄
@@ -937,10 +938,16 @@ function syncDbgH() {
   const hgt = document.documentElement.classList.contains("debug-off") ? 0 : d.offsetHeight;
   document.documentElement.style.setProperty("--dbg-h", hgt + "px");
 }
+function tabIntoView() {   // 선택 탭이 화면 밖이면 가로로만 스크롤
+  const c = document.querySelector(".chips"), t = c && c.querySelector(".chip.on");
+  if (!t) return;
+  const l = t.offsetLeft - c.offsetLeft, r = l + t.offsetWidth;
+  if (l < c.scrollLeft) c.scrollLeft = l - 8; else if (r > c.scrollLeft + c.clientWidth) c.scrollLeft = r - c.clientWidth + 40;
+}
 function render() {
   buildDebug();
   document.getElementById("app").innerHTML = home();
-  syncDbgH(); if (LOAD === "ok") { saveURL(); playFlow(); fitFlow(); }
+  syncDbgH(); if (LOAD === "ok") { saveURL(); playFlow(); fitFlow(); tabIntoView(); }
 }
 
 /* ───────── 업종 시트 ───────── */
