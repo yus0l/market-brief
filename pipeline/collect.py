@@ -12,6 +12,7 @@ FRED = {
   "us_ppi":   ("cpi",   "미국 PPI",        "PPIACO",     "지수"),
   "us_jobs":  ("job",   "비농업 고용",      "PAYEMS",     "천 명"),
   "us_10y":   ("rate",  "미국채 10년물",    "DGS10",      "%"),
+  "us_base":  ("rate",  "미국 기준금리(상단)", "DFEDTARU",  "%"),   # 명세 §3-10-2 (11/28)
   "vix":      ("vix",   "VIX",             "VIXCLS",     ""),
   "wti":      ("oil",   "WTI 유가",        "DCOILWTICO", "달러"),
   "sp500":    ("stock", "S&P 500",         "SP500",      ""),
@@ -30,23 +31,31 @@ MONTHLY = {"us_cpi", "us_ppi"}   # 전년 대비를 계산하는 월간 지수
 def get(url):
     with urllib.request.urlopen(url, timeout=30) as r: return json.loads(r.read().decode("utf-8"))
 
+BASE = {"DFEDTARU", "722Y001"}   # 기준금리: 결정 날에만 바뀜 → 마지막 변경(날짜·이전 값)을 같이 저장
+def last_change(vals, dates):
+    for i in range(1, len(vals)):
+        if vals[i] != vals[0]: return {"changed": {"date": dates[i - 1], "from": vals[i]}}
+    return {}
+
 def fred(series, key):
-    q = urllib.parse.urlencode({"series_id": series, "api_key": key, "file_type": "json", "sort_order": "desc", "limit": 15})
+    q = urllib.parse.urlencode({"series_id": series, "api_key": key, "file_type": "json", "sort_order": "desc", "limit": 500 if series in BASE else 15})
     obs = [o for o in get(f"https://api.stlouisfed.org/fred/series/observations?{q}")["observations"] if o["value"] not in (".", "")]
     if len(obs) < 2: return None
     out = {"value": float(obs[0]["value"]), "prev": float(obs[1]["value"]), "date": obs[0]["date"],
            "source": {"name": f"FRED {series}", "url": f"https://fred.stlouisfed.org/series/{series}"}}
+    if series in BASE: out.update(last_change([float(o["value"]) for o in obs], [o["date"] for o in obs]))
     return dict(out, **yoy([float(o["value"]) for o in obs]))   # obs는 최신이 앞
 
 def ecos(table, cyc, item, key, today):
-    start = (today - dt.timedelta(days=40 if cyc == "D" else 460)).strftime("%Y%m%d" if cyc == "D" else "%Y%m")
+    start = (today - dt.timedelta(days=(500 if table in BASE else 40) if cyc == "D" else 460)).strftime("%Y%m%d" if cyc == "D" else "%Y%m")
     end = today.strftime("%Y%m%d" if cyc == "D" else "%Y%m")
     url = f"https://ecos.bok.or.kr/api/StatisticSearch/{key}/json/kr/1/100/{table}/{cyc}/{start}/{end}/{item}"
-    rows = get(url).get("StatisticSearch", {}).get("row", [])
+    rows = get(url.replace("/1/100/", "/1/1000/")).get("StatisticSearch", {}).get("row", [])
     if len(rows) < 2: return None
     a, b = rows[-1], rows[-2]
     out = {"value": float(a["DATA_VALUE"]), "prev": float(b["DATA_VALUE"]), "date": a["TIME"],
            "source": {"name": f"한국은행 ECOS {table}", "url": "https://ecos.bok.or.kr/"}}
+    if table in BASE: out.update(last_change([float(r["DATA_VALUE"]) for r in reversed(rows)], [r["TIME"] for r in reversed(rows)]))
     return dict(out, **(yoy([float(r["DATA_VALUE"]) for r in reversed(rows)]) if cyc == "M" else {}))
 
 def yoy(vals):

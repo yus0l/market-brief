@@ -590,12 +590,14 @@
   .bbody3[data-brow] { cursor: pointer; }
   .btitle3 { margin-top: 2px; font-size: var(--fs-title); font-weight: var(--fw-bold); color: var(--text-1); line-height: 1.4; word-break: keep-all; }
   .br.next .btitle3 { color: var(--text-1); }
-  .btitle3 .up { color: var(--dir-up); } .btitle3 .down { color: var(--dir-down); }
+  .btitle3 .up, .bsub2 .up { color: var(--dir-up); } .btitle3 .down, .bsub2 .down { color: var(--dir-down); }
   .bbadge { display: inline-block; vertical-align: 2px; font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-2); background: var(--surface-box); border-radius: 6px; padding: 2px 8px; }
   .btag { display: inline-block; vertical-align: 2px; font-size: var(--fs-caption); font-weight: var(--fw-bold); color: var(--meaning); border: 1.4px solid var(--meaning); border-radius: 999px; padding: 1px 8px; }
   .btag.dash { border-style: dashed; }
   .btag.is-flipping { animation: ds-flip .55s var(--ease); }
   .bdesc .bcontra { color: var(--text-1); }
+  .bsub2 { font-size: var(--fs-label); font-weight: var(--fw-medium); color: var(--text-2); margin-top: 2px; }
+  .bstale { font-weight: var(--fw-regular); color: var(--text-3); font-size: var(--fs-caption); }
   .bconds p { display: flex; justify-content: flex-start; align-items: center; gap: 8px; color: var(--text-2); }
   .bconds p.cur { color: var(--text-1); font-weight: var(--fw-bold); }
   .bconds p + p { margin-top: 4px; }
@@ -922,6 +924,7 @@ const domN = srcs => new Set((srcs || []).map(x => { try { return new URL(x.url)
 // 쪽 이유 한 줄: "시장이 [관심사]를 걱정할 땐, [결과]면 [이유]라 [쪽]으로 읽어요" — 관심사 칸 × 쪽. PM 문장 표 오기 전 임시
 // 갈리는 경우 조건 줄: "[걱정] 시점으로 보면 호재/악재" — PM 표 오기 전 임시(관심사별 쪽으로 계산)
 const WORRY = { cpi: "물가", rate: "금리", job: "경기" };
+const exTextOf = e => e && e.result && e.result.expect;
 // 나라마다 따로 있는 지표(물가·금리·고용·경기)는 나라를 붙임 (02-UX "지표 이름에 나라 붙이기")
 const CTRY_N = ["cpi", "rate", "job"], CPFX = c => c === "us" ? "미국 " : c === "kr" ? "한국 " : "";
 const iName = x => x && CTRY_N.includes(x.node) && !/^(미국|한국) /.test(x.name) ? CPFX(bCountry(x, [])) + x.name : (x && x.name) || "";
@@ -1055,7 +1058,7 @@ const BMODE = Q.get("b") === "1";
 const flip2 = d => d === "up" ? "down" : "up";
 const BSTEPS = ["무슨 일", "어디로", "비교", "갈림"];
 Object.assign(S, { bstep: 1, ball: false, bev: null, bopt: null });
-const josa = (w, a, b) => { const c = w.charCodeAt(w.length - 1); return w + (c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? a : b); };
+const josa = (w, a, b) => { const l = w[w.length - 1], c = w.charCodeAt(w.length - 1); if (/\d/.test(l)) return w + ("013678".includes(l) ? a : b); return w + (c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? a : b); };
 // 도움 줄이기: 단계를 끝까지 본 날 수 (하루 1번). 14일 공백이면 한 단계 내림
 function bFade() {
   let r = { days: [], last: null }; try { r = JSON.parse(localStorage.getItem("mf-bdays") || "") || r; } catch (_) {}
@@ -1085,7 +1088,7 @@ function bPath(I, c) {
   return out;
 }
 const bWhy = (k, c) => { const w = (D.why || {})[k]; return w && typeof w === "object" ? w[c] : w || ""; };
-const bName = (k, c) => k === "kospi" ? "코스피" : (SUBS[c] && SUBS[c][k] && ["stock", "fx"].includes(k) ? SUBS[c][k] : (CTRY_N.includes(k) ? CPFX(c) : "") + ((NG[k] && NG[k].t) || k));
+const bName = (k, c) => k === "kospi" ? "코스피" : k === "rate" ? (c === "us" ? "미국 국채 금리" : "한국 국고채 금리") : (SUBS[c] && SUBS[c][k] && ["stock", "fx"].includes(k) ? SUBS[c][k] : (CTRY_N.includes(k) ? CPFX(c) : "") + ((NG[k] && NG[k].t) || k));
 function homeB() {
   // B v3: 번지는 경로 자체가 위→아래 타임라인 (02-UX "B v3"). 줄 하나 = 경로 위 칸 하나. 원·선 = 시간 상태, ▲▼ 색 = 방향
   const st = D.status || {}, I = curIntN(), lvl = bFade();
@@ -1099,39 +1102,50 @@ function homeB() {
   const picks = sameC || !evs.length ? gen.concat(evs) : evs.concat(gen);
   const bev = picks.find(e => e.id === S.bev) || picks[0];
   const done = rel.find(e => e.kind === "done");
-  const dirOf = k => (NV[k] || {}).dir, iDir = dirOf(I.node), side = sideOf(I, iDir);
+  const dirOf = k => (NV[k] || {}).dir;
+  const iDir = I.node === "rate" && NV.rate_base && NV.rate_base.chg ? NV.rate_base.dir : dirOf(I.node);   // 관심사 금리 = 기준금리 (§3-10-2)
+  // 쪽 = 명세 §3-11 K표. 사건이 고른 K 번호가 먼저, 없으면 관심사 칸 실제 방향으로 찾음
+  const KT = D.ktags || {}, kFor = (n, d) => { const e = Object.entries(KT).find(([, v]) => v.node === n && v.dir === d && !v.market && !v.none); return e ? e[1] : null; };
+  const K = (done && done.ktype && KT[done.ktype]) || (I.node === "rate" && exTextOf(done) === "예상대로" ? KT["K5-2"] : kFor(I.node, iDir));
+  const kSide = k => !k || k.none ? null : k.sure || ((k.conds || []).find(q => (q.interest || []).includes(I.node)) || {}).side || null;
+  const side = kSide(K), conds = K && K.conds ? K.conds.map(q => Object.assign({ cur: (q.interest || []).includes(I.node) }, q)) : [];
   const sname = c === "us" ? "S&P500" : "코스피", sd = dirOf("stock"), expStock = side === "bad" ? "down" : side === "good" ? "up" : null;
   const contra = sd && expStock && sd !== expStock;
-  const exText = done && done.result && done.result.expect;
+  const exText = exTextOf(done);
   const sizes = rel.flatMap(e => e.size || []).slice(0, 2);
   const open = k => lvl === 1 || S.bAllOpen || !!(S.bopen || {})[k];
-  // E8: 관심사를 바꿔 쪽이 뒤집히면
-  let e8 = "";   // E8 삭제 (02-UX 11/28) → 쪽 이유 한 줄
-  if (false) { const P = (D.interests || []).find(x => x.key === S.flip);
-    if (P) { const pc = bCountry(P, []), ps = sideOf(P, (((D.nowv || {})[pc] || {})[P.node] || {}).dir);
-      if (ps && side && ps !== side && bPath(P, pc).some(([, b]) => b === "stock")) e8 = `관심사를 ${josa(I.name, "으로", "로")} 바꾸니 ${SIDE[ps]} → ${SIDE[side]}으로 뒤집혔어요`; } }
-  const conds = [];
-  if (side) { conds.push({ node: I.node, name: I.name, side, cur: true });
-    const o = (D.interests || []).filter(P => P.key !== I.key && WORRY[P.node] && WORRY[P.node] !== WORRY[I.node]).map(P => { const pc = bCountry(P, []); return { node: P.node, name: P.name, side: sideOf(P, (((D.nowv || {})[pc] || {})[P.node] || {}).dir) }; }).find(q => q.side && q.side !== side);
-    if (o) conds.push(o); }
+  // 값 기준일이 오늘보다 2영업일 이상 오래되면 "최신 값 확인 전"
+  const stale = x => { if (!x || !x.iso || !D.date) return false; let n = 0; const d = new Date(x.iso + "T00:00"), e = new Date(D.date + "T00:00");
+    for (d.setDate(d.getDate() + 1); d <= e; d.setDate(d.getDate() + 1)) if (d.getDay() % 6) n++; return n >= 2; };
+  const metaOf = (x, nm) => `${x ? x.date : "날짜 확인 전"} · ${h(nm)}${stale(x) ? ` <span class="bstale">· 최신 값 확인 전</span>` : ""}`;
+  // why는 실제 방향이 보통 규칙과 같을 때만 (§3-10-3). 다르면 "보통은 … 이번엔 …"
+  const whyOrNot = (a, b) => { const da = a === "rate" ? dirOf("rate") : dirOf(a), db = dirOf(b), sg = ((SIGN_C[c] || {})[a + ">" + b]) || SIGN[a + ">" + b] || 1;
+    if (!da || !db) return { t: `<p class="bw">${h(bWhy(a + ">" + b, c))}</p>`, off: false };
+    const ex = sg > 0 ? da : flip2(da);
+    if (ex === db) return { t: `<p class="bw">${h(bWhy(a + ">" + b, c))}</p>`, off: false };
+    return { t: `<p class="bcontra">보통은 ${h(josa(bName(a, c), "이", "가"))} ${da === "up" ? "오르면" : "내리면"} ${sg > 0 ? "같이 " : ""}${ex === "up" ? "오르는데" : "내리는데"}, 이번엔 ${db === "up" ? "올랐어요" : "내렸어요"}</p>`, off: true }; };
   const tri = d => d === "up" ? `<span class="up">▲</span>` : d === "down" ? `<span class="down">▼</span>` : "";
   const tag = (sd2, dash, flip) => sd2 ? ` <span class="btag${dash ? " dash" : ""}${flip ? " is-flipping" : ""}">${SIDE[sd2]}</span>` : "";
   // 일어난 줄들
   const fm = (I.fact || "").match(/^(\d{1,2}\/\d{1,2})\s+(.+)$/);
   const rows = [];
-  const nodeRow = (k, meta, desc, extra) => { const x = NV[k]; const nm = bName(k, c);
-    rows.push({ k: "n" + k, st: x && x.dir ? "done" : "wait", meta, title: x && x.dir ? `${h(nm)} ${tri(x.dir)} ${h(x.val)}` : `${h(nm)} · 확인 전`, desc, extra: extra || "" }); };
-  const x0 = NV[I.node];
-  nodeRow(I.node, `${fm ? fm[1] : x0 ? x0.date : ""} · ${h(bName(I.node, c))}`, fm ? `<p>${h(fm[2])}</p>` : "",
-    exText ? ` <span class="bbadge">${h(exText)}</span>` : ` <span class="bnoexp">예상치 확인 전</span>`);
+  const BASE_N = CPFX(c) + "기준금리", bv = NV.rate_base;
+  const baseLine = () => !bv ? `${h(BASE_N)} · 확인 전` : bv.chg ? `${h(BASE_N)} ${tri(bv.dir)} ${h(bv.chg.from)} → ${h(bv.val)} <span class="bstale">${h(bv.chg.md)} 결정</span>` : `${h(BASE_N)} ${h(bv.val)}`;
+  const nodeRow = (k, meta, desc, extra, asBase) => { const x = NV[k]; const nm = bName(k, c);
+    let title = x && x.dir ? `${h(nm)} ${tri(x.dir)} ${h(x.val)}` : `${h(nm)} · 확인 전`, sub = "";
+    if (k === "rate") { if (asBase) { sub = title; title = baseLine(); } else sub = baseLine(); }   // 금리 칸 = 기준금리 + 시장 금리 두 줄 (§3-10-2)
+    rows.push({ k: "n" + k, st: (asBase ? bv && bv.val : x && x.dir) ? "done" : "wait", meta, title, sub, desc, extra: extra || "" }); };
+  const x0 = I.node === "rate" && bv ? Object.assign({}, bv, { date: bv.chg ? bv.chg.md : bv.date }) : NV[I.node];
+  nodeRow(I.node, fm ? `${fm[1]} 발표 · ${h(I.node === "rate" ? BASE_N : bName(I.node, c))}` : metaOf(x0, I.node === "rate" ? BASE_N : bName(I.node, c)), fm ? `<p>${h(fm[2])}</p>` : "",
+    exText ? ` <span class="bbadge">${h(exText)}</span>` : ` <span class="bnoexp">예상치 확인 전</span>`, I.node === "rate");
   const seen = new Set([I.node]);
   const ORD = k => k === "stock" ? 1 : k === "kospi" ? 2 : 0;   // 전달 칸 → 주식 → 다음 날 코스피 순서로 읽히게
   path.slice().sort((p, q) => ORD(p[1]) - ORD(q[1])).forEach(([a, b]) => { if (seen.has(b)) return; seen.add(b); const x = NV[b];
-    const meta = b === "kospi" ? "다음 날 · 코스피" : `${x ? x.date : "날짜 확인 전"} · ${h(bName(b, c))}`;
-    let desc = `<p class="bw">${h(bWhy(a + ">" + b, c))}</p>`, extra = "";
-    if (b === "stock") { extra = conds.length > 1 ? "" : tag(side, false);
+    const meta = b === "kospi" ? `다음 날 · 코스피${stale(x) ? ` <span class="bstale">· 최신 값 확인 전</span>` : ""}` : metaOf(x, bName(b, c) + (b === "rate" ? (c === "us" ? " 10년물" : " 3년") : ""));
+    const W = whyOrNot(a, b); let desc = W.t, extra = "";
+    if (b === "stock") { extra = conds.length > 1 ? "" : tag(side, false); if (W.off && contra) desc = "";
       // 순서 = E8(바꾼 직후) → 반대 → why → 크기. 3줄까지 보이고 나머지는 "더 보기"
-      const Ls = [conds.length > 1 ? `<div class="bconds">${conds.map(q => `<p class="${q.cur ? "cur" : ""}"><span>${h(WORRY[q.node] || q.name)} 걱정 시점으로 보면</span><span class="btag">${SIDE[q.side]}</span></p>`).join("")}</div>` : "", contra ? `<p class="bcontra">그런데 실제로 ${josa(sname, "은", "는")} ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
+      const Ls = [conds.length > 1 ? `<div class="bconds">${conds.map(q => `<p class="${q.cur ? "cur" : ""}"><span>${h(q.text)}</span><span class="btag">${SIDE[q.side]}</span></p>`).join("")}</div>` : "", contra ? `<p class="bcontra">그런데 실제로 ${josa(sname, "은", "는")} ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
         .concat(sizes.map(z => `<p class="bsz">${h(z.text)} · ${refs(z.sources)}</p>`)).filter(Boolean);
       const more = Ls.slice(3);
       desc = Ls.slice(0, 3).join("") + (more.length ? (S.bmore ? more.join("") : `<button class="blink bmorebtn" data-bmore>더 보기</button>`) : ""); }
@@ -1144,7 +1158,7 @@ function homeB() {
   else {
     const tabs = picks.length > 1 ? `<div class="btabs">${picks.map(e => `<button data-bev="${h(e.id)}" class="${e === bev ? "on" : ""}">${h(e.watch ? e.watch.short : e.chip)}</button>`).join("")}</div>` : "";
     const meta = bev.gen ? `${h(bev.sub)} · ${h(bev.name)}` : w4 ? `${h(w4.next)} · ${h(w4.name)}` : `${h(bev.sub || "")} · ${h(bev.chip || "")}`;
-    const title = G ? `${h(josa(bName(G.node, c), "이", "가"))} 예상보다 높은지 낮은지로 갈려요` : h(bev.head);
+    const title = G ? `${h(josa(G.node === "rate" ? CPFX(c) + "기준금리" : bName(G.node, c), "이", "가"))} 예상보다 높은지 낮은지로 갈려요` : h(bev.head);
     const btns = G ? [["a", "높으면"], ["b", "낮으면"]] : bev.opts ? ["a", "b"].map(k => [k, bev.opts[k].label]) : [];
     fut = { k: "f", st: "next", pre: tabs, meta, title, desc: I.watch && I.watch.includes(bev.gen ? bev.sub : w4 ? w4.next || "@" : "@") ? `<p>${h(I.watch)}</p>` : "", extra: "",
       after: btns.length ? `<div class="scen bscen">${btns.map(([k, t]) => `<button data-bopt="${k}" class="${S.bopt === k ? "on" : ""}" aria-pressed="${S.bopt === k}">${h(t)}</button>`).join("")}</div>` : "" };
@@ -1156,12 +1170,12 @@ function homeB() {
     if (G) { dirs[G.node] = S.bopt === "a" ? "up" : "down"; hp = bPath({ node: G.node }, c);
       hp.forEach(([a, b]) => { const sg = ((SIGN_C[c] || {})[a + ">" + b]) || SIGN[a + ">" + b] || 1; if (dirs[a]) dirs[b] = sg > 0 ? dirs[a] : flip2(dirs[a]); }); }
     else if (bev.opts && bev.opts[S.bopt]) { const op = bev.opts[S.bopt]; hp = op.path || []; Object.entries(op.state || {}).forEach(([k, v]) => { const d = nodeDir(v); if (d) dirs[k] = d; }); }
-    const hs = dirs[I.node] ? sideOf(I, dirs[I.node]) : null, hseen = new Set(G ? [G.node] : []);
+    const hs = G ? kSide(kFor(G.node, dirs[G.node])) : dirs[I.node] ? sideOf(I, dirs[I.node]) : null, hseen = new Set(G ? [G.node] : []);
     hp.forEach(([a, b]) => { if (hseen.has(b) || !dirs[b]) return; hseen.add(b);
       hyp.push(`<li class="bh"><span class="bhd"></span><div><b>${dirs[b] === "up" ? "△" : "▽"} ${h(bName(b, c))} ${dirs[b] === "up" ? "오를" : "내릴"} 수 있음</b>${b === "stock" ? tag(hs, true) : ""}<p class="bw">${h(bWhy(a + ">" + b, c))}</p></div></li>`); });
   }
   const tl = `<ol class="btl3">${rows.map((r, i) => { const nx = rows[i + 1]; const seg = r.st === "done" && nx && nx.st !== "next" ? "solid" : "dash";
-    return `<li class="br ${r.st} ${i === rows.length - 1 ? "last" : ""} seg-${seg}">${r.pre || ""}<span class="bdot3" aria-hidden="true">${r.st === "done" ? "✓" : ""}</span><div class="bbody3"${r.desc ? ` data-brow="${r.k}"` : ""}><div class="bmeta">${r.meta}</div><div class="btitle3">${r.title}${r.extra}</div>${r.desc ? `<div class="bdesc"${open(r.k) ? "" : " hidden"}>${r.desc}</div>` : ""}</div>${r.after || ""}</li>`; }).join("")}</ol>${hyp.length ? `<ol class="bhyp">${hyp.join("")}</ol>` : ""}`;
+    return `<li class="br ${r.st} ${i === rows.length - 1 ? "last" : ""} seg-${seg}">${r.pre || ""}<span class="bdot3" aria-hidden="true">${r.st === "done" ? "✓" : ""}</span><div class="bbody3"${r.desc ? ` data-brow="${r.k}"` : ""}><div class="bmeta">${r.meta}</div><div class="btitle3">${r.title}${r.extra}</div>${r.sub ? `<div class="bsub2">${r.sub}</div>` : ""}${r.desc ? `<div class="bdesc"${open(r.k) ? "" : " hidden"}>${r.desc}</div>` : ""}</div>${r.after || ""}</li>`; }).join("")}</ol>${hyp.length ? `<ol class="bhyp">${hyp.join("")}</ol>` : ""}`;
   // 위
   let top = "";
   if (D.mock) top += `<div class="ds-banner" style="margin-top:8px"><span><b>샘플 데이터</b>예요. 매일 아침 실제 데이터로 바뀌어요</span></div>`;

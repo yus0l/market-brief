@@ -1,0 +1,154 @@
+{
+ "_doc": "01-명세 §3-11 쪽 태그 표 (11/28). 고정 문장. AI는 사건마다 K 번호만 고름(없으면 null). sure = 확실 태그, conds = 갈림 조건 줄 2개(interest에 든 관심사 칸이면 굵게). node·dir = 코드가 칸 실제 방향으로 찾을 때 쓰는 열쇠",
+ "K1": {
+  "label": "물가 예상보다 높음",
+  "node": "cpi",
+  "dir": "up",
+  "sure": "bad"
+ },
+ "K2": {
+  "label": "물가 예상보다 낮음",
+  "node": "cpi",
+  "dir": "down",
+  "sure": "good"
+ },
+ "K3": {
+  "label": "고용·ISM 예상보다 좋음",
+  "node": "job",
+  "dir": "up",
+  "conds": [
+   {
+    "text": "금리 걱정 시점으로 보면",
+    "side": "bad",
+    "note": "금리 인하가 늦어져서",
+    "interest": [
+     "rate",
+     "cpi"
+    ]
+   },
+   {
+    "text": "경기 걱정 시점으로 보면",
+    "side": "good",
+    "interest": [
+     "job"
+    ]
+   }
+  ]
+ },
+ "K4": {
+  "label": "고용·ISM 예상보다 나쁨",
+  "node": "job",
+  "dir": "down",
+  "conds": [
+   {
+    "text": "금리 걱정 시점으로 보면",
+    "side": "good",
+    "note": "금리 인하 기대",
+    "interest": [
+     "rate",
+     "cpi"
+    ]
+   },
+   {
+    "text": "경기 걱정 시점으로 보면",
+    "side": "bad",
+    "interest": [
+     "job"
+    ]
+   }
+  ]
+ },
+ "K5": {
+  "label": "기준금리 예상보다 더 올림 · 덜 내림",
+  "node": "rate",
+  "dir": "up",
+  "sure": "bad"
+ },
+ "K5-2": {
+  "label": "기준금리 예상대로 (인상·동결·인하)",
+  "node": "rate",
+  "none": true,
+  "note": "태그 없음 — E2 아래 앞으로 방향 한 줄(§3-10 ①)"
+ },
+ "K6": {
+  "label": "기준금리 예상보다 더 내림",
+  "node": "rate",
+  "dir": "down",
+  "conds": [
+   {
+    "text": "금리 걱정 시점으로 보면",
+    "side": "good",
+    "interest": [
+     "rate",
+     "cpi"
+    ]
+   },
+   {
+    "text": "7일 안에 고용이 예상보다 나빴거나 긴급 인하면",
+    "side": "bad",
+    "note": "경기가 나빠서 내린 거라",
+    "interest": [
+     "job"
+    ],
+    "code": "K4 7일 이력 또는 일정표 밖 인하"
+   }
+  ]
+ },
+ "K7": {
+  "label": "시장 금리 급등",
+  "node": "rate",
+  "dir": "up",
+  "sure": "bad",
+  "market": true
+ },
+ "K8": {
+  "label": "유가 급등",
+  "node": "oil",
+  "dir": "up",
+  "conds": [
+   {
+    "text": "전쟁·감산 같은 공급 차질이랑 같이 나오면",
+    "side": "bad",
+    "interest": []
+   },
+   {
+    "text": "경기 회복으로 수요가 느는 소식이랑 같이 나오면",
+    "side": "good",
+    "interest": []
+   }
+  ]
+ },
+ "K9": {
+  "label": "원화 약세",
+  "node": "fx",
+  "dir": "up",
+  "kospiOnly": true,
+  "conds": [
+   {
+    "text": "외국인 매도 소식이랑 같이 나오면",
+    "side": "bad",
+    "interest": []
+   },
+   {
+    "text": "7일 안 수출 지표가 예상보다 좋았으면",
+    "side": "good",
+    "note": "코스피 대형주는 수출 비중이 커서",
+    "interest": []
+   }
+  ]
+ },
+ "K10": {
+  "label": "공포 급등",
+  "node": "vix",
+  "dir": "up",
+  "sure": "bad"
+ },
+ "K11": {
+  "label": "실적 예상보다 좋음",
+  "sure": "good"
+ },
+ "K12": {
+  "label": "실적 예상보다 나쁨",
+  "sure": "bad"
+ }
+}

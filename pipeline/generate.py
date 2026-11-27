@@ -91,9 +91,10 @@ SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interes
       "market_type": {"type": ["string", "null"], "enum": ["M1", "M2", None]},
       "market_sources": SRC}}},
   "events": {"type": "array", "maxItems": 3, "items": {"type": "object", "additionalProperties": False,
-      "required": ["id", "date", "etype", "t2", "outlook", "size", "question", "watch", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
+      "required": ["id", "date", "ktype", "etype", "t2", "outlook", "size", "question", "watch", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
       "properties": {
         "question": {"type": ["string", "null"], "description": "지난 사건 패널 제목 = 열린 질문, '…까요?'로 끝남. 예: '금리를 올린 뒤, 물가 부담이 이어질까요?'"},
+        "ktype": {"type": ["string", "null"], "enum": ["K1","K2","K3","K4","K5","K5-2","K6","K7","K8","K9","K10","K11","K12", None], "description": "명세 §3-11 쪽 태그 표에서 이 사건 결과 유형 번호만 고름(문장 안 씀). 결과 전이면 예상보다 높음 쪽 유형. 맞는 게 없거나 T2면 null"},
         "etype": {"type": "string", "enum": ["T1", "T2"], "description": "T1 숫자로 갈림(일정표 정기 발표·금리 결정·실적은 무조건 T1) / T2 내용으로 갈림(일정표 밖, 기사들이 결과를 2갈래 이상으로 나눠 봄: 규제·관세·선거). T2는 하루 1개만"},
         "t2": {"type": ["object", "null"], "additionalProperties": False, "required": ["verify", "a", "b", "tally", "actual"], "description": "T2일 때만. T1이면 null",
                "properties": {"verify": {"type": "object", "additionalProperties": False, "required": ["what", "when", "source"], "properties": {"what": {"type": "string", "description": "확인할 일: 법안 발표·표결 등"}, "when": {"type": ["string", "null"], "description": "YYYY-MM-DD, 모르면 null"}, "source": {"type": ["object", "null"], "additionalProperties": False, "required": ["name", "url"], "properties": {"name": {"type": "string"}, "url": {"type": "string"}}}}},

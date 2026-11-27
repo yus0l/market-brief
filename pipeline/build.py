@@ -8,6 +8,7 @@ from collect import collect, KST, FRED, ECOS
 NAMES = {k: v[1] for k, v in {**FRED, **ECOS}.items()}
 from validate import validate, sub_for
 CFG = json.loads((ROOT / "config" / "graph.json").read_text(encoding="utf-8"))
+KT = {k: v for k, v in json.loads((ROOT / "config" / "sidetags.json").read_text(encoding="utf-8")).items() if not k.startswith("_")}
 SECT = json.loads((ROOT / "config" / "sectors.json").read_text(encoding="utf-8"))
 ARCH = ROOT / "data" / "archive"; WEB = ROOT / "web"
 EVENT_SERIES = {"BOK": "kr_base", "US_JOBS": "us_jobs"}            # 결과 숫자를 수집값으로 채울 수 있는 발표
@@ -189,6 +190,7 @@ def assemble(today, facts, draft, upc, yesterday):
         if ev["watch"] and w.get("expect") and len(doms(w.get("expect_sources"))) >= 2:
             ev["watch"]["expect"] = {"value": w["expect"], "source": (w["expect_sources"] or [None])[0]}
         # 유형(명세 §3-10 ①): 일정표 정기 발표·금리 결정은 무조건 T1
+        ev["ktype"] = e.get("ktype") if e.get("ktype") in KT and e.get("etype") != "T2" else None   # §3-11
         ev["etype"] = "T1" if e.get("schedule_code") or e.get("etype") != "T2" else "T2"
         ev["t2"] = None
         if ev["etype"] == "T2" and e.get("t2"):
@@ -294,13 +296,21 @@ def assemble(today, facts, draft, upc, yesterday):
         elif u == "%": t = f"{v:.2f}%"
         elif u == "원": t = f"{v:,.0f}원"
         else: t = f"{v:,.2f}"
-        return {"val": t, "date": md, "dir": sdir(k)}
+        r = {"val": t, "date": md, "dir": sdir(k), "iso": f"{d[:4]}-{d[4:6]}-{d[6:]}" if len(d) == 8 else d if len(d) == 10 else None}
+        ch = x.get("changed") or ({"date": d, "from": x["prev"]} if k in ("kr_base", "us_base") and x.get("prev") is not None and x["prev"] != v else None)
+        if ch:   # 기준금리: 마지막 결정 (§3-10-2)
+            cd = ch["date"].replace("-", "")
+            r.update(dir="up" if v > ch["from"] else "down", chg={"from": f"{ch['from']:.2f}%", "md": f"{int(cd[4:6])}/{int(cd[6:8])}", "iso": f"{cd[:4]}-{cd[4:6]}-{cd[6:8]}"})
+        elif k in ("kr_base", "us_base"): r["dir"] = None
+        return r
     nowv = {c: {n: sval(k) for n, k in m.items() if sval(k)} for c, m in NOW.items()}
+    for c, k in (("kr", "kr_base"), ("us", "us_base")):   # 금리 칸 두 줄: 기준금리 + 시장 금리
+        if sval(k): nowv[c]["rate_base"] = sval(k)
     up_codes = {u["code"] for u in upc}
     return {"judge_keys_all": sorted({k for e in events for k in e.get("judgeKeys", [])}),
             "upcoming_keys": sorted(k for k, c in WS.items() if c.get("sched") in up_codes),
             "date": today.isoformat(), "asof": asof_of(facts, today), "mock": False,
-            "status": status, "interests": ints, "events": events, "now": now, "nowv": nowv, "why": {k: v for k, v in CFG.get("why", {}).items() if not k.startswith("_")}}
+            "status": status, "interests": ints, "events": events, "now": now, "nowv": nowv, "ktags": KT, "why": {k: v for k, v in CFG.get("why", {}).items() if not k.startswith("_")}}
 
 def iso(w, today=None):
     """"2026-12-04" 또는 "12/4"(연도 없음 → 오늘 기준 가까운 해) → "2026-12-04". 못 읽으면 None."""

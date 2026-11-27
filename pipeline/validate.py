@@ -227,6 +227,9 @@ def validate(today, facts):
     out["interests"] = check_interests(today.get("interests", []), errs, allowed)
     out["events"] = [e for e in today.get("events", []) if (e.get("watchChip") or check_sub(e, today.get("date"), errs)) and check_watch(e, errs) and check_event(e, allowed, today.get("date"), errs)][:3]
     out["events"] = [e for e in out["events"] if check_types(e, allowed, errs)]
+    KT = json.loads((pathlib.Path(__file__).resolve().parent.parent / "config" / "sidetags.json").read_text(encoding="utf-8"))
+    for e in out["events"]:                                   # §3-11: K 번호가 표 안인지만
+        if e.get("ktype") and e["ktype"] not in KT: errs.append(f"{e.get('id')}: ktype {e['ktype']} 표에 없음 — 태그 없음"); e["ktype"] = None
     t2 = [e for e in out["events"] if e.get("etype") == "T2"]
     if len(t2) > 1: out["events"] = [e for e in out["events"] if e.get("etype") != "T2" or e is t2[0]]; errs.append("T2 사건은 하루 1개만 — 나머지 뺌")
     # 관심사 둘째 문장 지표 ⊂ 사건 watch·같이 볼 것·7일 안 발표 (02-UX)
