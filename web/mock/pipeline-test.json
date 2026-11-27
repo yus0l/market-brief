@@ -21,18 +21,20 @@
  },
  "interests": [
   {
-   "key": "cpi",
-   "node": "cpi",
-   "name": "물가",
+   "key": "rate",
+   "node": "rate",
+   "name": "금리",
    "rank": 1,
    "reason": {
     "type": "mention",
-    "label": "물가 재상승 뉴스"
+    "label": "한은 금리 인상"
    },
    "upSide": "bad",
-   "fact": "요즘 물가가 다시 오른다는 뉴스가 많아요.",
-   "watch": "시장은 다음 물가 발표가 예상보다 높게 나올지 보고 있어요",
-   "sentence": "요즘 물가가 다시 오른다는 뉴스가 많아요. 시장은 다음 물가 발표가 예상보다 높게 나올지 보고 있어요",
+   "fact": "11/26 한국은행이 기준금리를 올렸어요.",
+   "watch": "시장은 12/2 한국 소비자물가가 계속 오를지 지켜보고 있어요",
+   "market_type": "M1",
+   "market_sources": [],
+   "sentence": "11/26 한국은행이 기준금리를 올렸어요. 시장은 12/2 한국 소비자물가가 계속 오를지 지켜보고 있어요",
    "fact_sources": [
     {
      "name": "a",
@@ -50,10 +52,6 @@
     }
    ],
    "explain": [
-    [
-     "cpi",
-     "rate"
-    ],
     [
      "rate",
      "stock"

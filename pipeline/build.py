@@ -45,12 +45,13 @@ def rank_interests(draft_ints, upc):
         if boosted:
             n = x["ev"]["dday"]
             reason = {"type": "event", "label": f"{x['ev']['name']} {md(x['ev'].get('kst') or x['ev']['date'])}"}   # "미국 CPI 12/10"
-            fact, fsrc = f"{'오늘' if n == 0 else '내일' if n == 1 else f'{n}일 뒤'} {x['ev']['name']} 발표가 있어요.", [{"name": "발표 일정", "url": x["ev"].get("source", "")}]
+            kd = dt.date.fromisoformat((x["ev"].get("kst") or x["ev"]["date"])[:10])
+            fact, fsrc = f"{kd.month}/{kd.day}({'월화수목금토일'[kd.weekday()]}) {x['ev']['name']} 발표가 있어요.", [{"name": "발표 일정", "url": x["ev"].get("source", "")}]   # S2
         else:
             reason = {"type": "mention", "label": x.get("trigger")}
             fact, fsrc = x.get("fact"), x.get("fact_sources") or []
         out.append({"key": x["key"], "node": c["node"], "name": c["name"], "rank": i + 1, "reason": reason, "upSide": c["upSide"],
-                    "fact": fact, "watch": x.get("watch"), "sentence": " ".join(t for t in (fact, x.get("watch")) if t),
+                    "fact": fact, "watch": x.get("watch"), "market_type": x.get("market_type"), "market_sources": x.get("market_sources") or [], "sentence": " ".join(t for t in (fact, x.get("watch")) if t),
                     "fact_sources": fsrc, "trigger_sources": x.get("trigger_sources") or [],
                     "explain": c["explain"], "sources": x["sources"]})
     return out
@@ -131,8 +132,10 @@ def assemble(today, facts, draft, upc, yesterday):
         ev["question"] = e.get("question")
         if ev["watch"]:
             W = ev["watch"]
+            jo = lambda w: w + ("이" if (ord(w[-1]) - 0xAC00) % 28 and 0xAC00 <= ord(w[-1]) <= 0xD7A3 else "가")
             for k, d in (("a", "up"), ("b", "down")):
                 if k in ev["opts"]:
+                    ev["opts"][k]["label"] = f"{jo(W['short'])} 예상보다 {'높으면' if d == 'up' else '낮으면'}"   # E5 (명세 §3-6)
                     rest = [c for c in ev["opts"][k]["cond"] if W["short"] not in c[0] and W["name"] not in c[0]]
                     ev["opts"][k]["cond"] = [[W["name"], d, 0]] + rest[:2]
             first = {"label": "먼저", "what": f"{W['name']} 발표", "when": W["next"] or "일정 확인 전", "date": W["next_date"], "done": False}

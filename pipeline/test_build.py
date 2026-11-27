@@ -11,7 +11,7 @@ facts["allowed_numbers"] = sorted({x for s in facts["series"].values() for x in 
 U = [{"name": "a", "url": f"https://news.example/{i}"} for i in range(3)]
 st = lambda node, dir=None, us=None, kr=None: {"node": node, "dir": dir, "us": us, "kr": kr}
 draft = {"interests": [{"key": "cpi", "mention": "많음", "dir": "up", "sources": U, "trigger": "물가 재상승 뉴스", "trigger_sources": U[:2], "fact": "요즘 물가가 다시 오른다는 뉴스가 많아요.", "fact_sources": U[:1], "watch": "시장은 다음 물가 발표가 예상보다 높게 나올지 보고 있어요"},
-                       {"key": "rate", "mention": "보통", "dir": "up", "sources": U, "trigger": "가장 많이 언급", "trigger_sources": U[:2], "fact": "한국은행이 금리를 올렸어요.", "fact_sources": U[:1], "watch": "시장은 금리가 더 올라 악재가 될지 보고 있어요"},
+                       {"key": "rate", "mention": "보통", "dir": "up", "sources": U, "trigger": "한은 금리 인상", "trigger_sources": U[:2], "fact": "11/26 한국은행이 기준금리를 올렸어요.", "fact_sources": U[:1], "watch": "시장은 12/2 한국 소비자물가가 계속 오를지 지켜보고 있어요", "market_type": "M1", "market_sources": []},  # 명세 §3-6 통과 예시
                        {"key": "job", "mention": "적음", "dir": "down", "sources": U[:1], "trigger": None, "trigger_sources": [], "fact": None, "fact_sources": [], "watch": "시장은 고용 지표가 꺾이는지 보고 있어요"}],
   "events": [
    {"id": "bok", "type": "E1", "chip": "한국은행 금리", "head": "한국은행 기준금리 인상", "kind": "done", "schedule_code": "BOK", "expect": "예상대로",

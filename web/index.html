@@ -740,6 +740,7 @@ function touches(e, k) {
 /* ───────── 화면 ───────── */
 const triI = (d, hypo) => !d ? "" : !hypo ? `<i class="tri ${d}"></i>`
   : `<svg width="11" height="10" viewBox="0 0 11 10" aria-hidden="true" style="flex:none"><polygon points="${d === "up" ? "5.5,1 10,9 1,9" : "5.5,9 10,1 1,1"}" fill="#fff" stroke="${d === "up" ? C.up : C.down}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+const dirText = d => !d ? "" : ` ${d === "up" ? "오름" : "내림"} 쪽`;   // ▲▼는 실제 움직임에만, 가정은 글자 (명세 §3-6 ④-7)
 const leanText = p => p >= 58 ? "지금 시장은 악재 쪽에 더 가까워요" : p <= 42 ? "지금 시장은 호재 쪽에 더 가까워요" : "지금 시장은 어느 쪽에도 크게 치우치지 않았어요";
 // "물가 ▼"는 떨어짐으로 읽혀서, 물가가 관심사일 때 ▼는 "오름세 둔화"
 const dirWord = (I, d) => d === "down" && I.key === "cpi" ? `${h(I.name)} 오름세 둔화` : h(I.name);
@@ -788,7 +789,7 @@ function home() {
 
   // 사건 칩: 오늘 → 곧 발표
   let r = `<div class="chips-wrap"><div class="chips" role="tablist">` + D.events.map(x =>
-    `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}<small class="${x.dday ? "dday" : ""}">${h(x.sub)}</small></button>`).join("") + `</div></div>`;
+    `<button class="chip ${S.ev === x.id ? "on" : ""}" role="tab" aria-selected="${S.ev === x.id}" data-ev="${h(x.id)}">${h(x.chip)}<small class="${x.dday ? "dday" : ""}"> · ${h(x.sub)}</small></button>`).join("") + `</div></div>`;
 
   r += `<section class="panel"><div class="row"><span class="ttl">${h(past && e.question ? e.question : e.head)}</span></div>`;
   if (past && e.trigger) r += `<div class="trig">${h(e.trigger)}</div>`;   // 지난 사건: 결과 줄 → 계기 한 줄
@@ -797,8 +798,7 @@ function home() {
   if (e.watch) { const w = e.watch;
     r += `<div class="wcard"><div class="wl">다음에 볼 지표</div>
       <div class="wn"><b>${h(w.name)}</b><span class="wv">${w.value ? `${h(w.value)} ${triI(w.dir)}` : "값 확인 전"}</span></div>
-      <div class="wx">${w.next ? `다음 발표 <b>${h(w.next)}</b>` : "일정 확인 전"}${w.source ? ` · <a href="${h(w.source.url)}" target="_blank" rel="noopener">${h(w.source.name)}</a>` : ""}</div>
-      <div class="wr"><div class="${w.hit === "low" ? "dim" : w.hit === "high" ? "hit" : ""}">예상보다 높게 나오면 → ${h(w.high || "")}</div><div class="${w.hit === "high" ? "dim" : w.hit === "low" ? "hit" : ""}">낮게 나오면 → ${h(w.low || "")}</div></div></div>`; }
+      <div class="wx">${w.next ? `다음 발표 <b>${h(w.next)}</b>` : "일정 확인 전"}${w.source ? ` · <a href="${h(w.source.url)}" target="_blank" rel="noopener">${h(w.source.name)}</a>` : ""}</div></div>`; }   // E3: 이름·최근 값·다음 발표·출처만 (명세 §3-6)
   // 결과 확인: 두 단계면 .ds-confirm, 아니면 한 줄 라벨
   if (e.confirm && e.confirm.length) r += `<div class="ds-confirm" style="margin-top:12px">결과 확인 ${e.confirm.map(c =>
       `<span class="step ${c.done ? "is-done" : ""}">${h(c.label)} <b>${h(c.what)}</b>${c.when && !c.done ? " · " + h(c.when) : ""}</span>`).join(`<span class="arrow">→</span>`)}</div>`;
@@ -813,8 +813,8 @@ function home() {
     if (flipped) { const P = D.interests.find(x => x.key === S.flip), ps = layers(e, P, st).opSide; r += `<div class="ds-flip-note" style="margin-top:12px">관심사를 ${h(I.name)}로 바꾸니 힌트가 ${SIDE[ps]} → ${SIDE[opSide]}으로 뒤집혔어요</div>`; }
     r += `<div class="hintcard ${real ? "real" : ""}">${real ? `<span class="hitTag">실제 반응</span>` : ""}
       <div class="hc-t">${real ? "이번엔 이렇게 됐어요" : "보통 이렇게 읽어요"}</div>
-      <div class="hc-row">${real && via && idir ? `<span class="cond">${dirWord(I, idir)}${triI(idir)} ${opSide === I.upSide ? "걱정하던 쪽" : "걱정과 반대쪽"}</span><span class="arrow">→</span>` : ""}${op.cond.map(([t, d, done, suf]) => `<span class="cond">${h(t)}${triI(d, !real && !done)}${suf ? " " + h(suf) : ""}</span>`).join(op.seq ? `<span class="arrow">→</span>` : `<span class="plus">+</span>`)}
-        ${op.mid ? `<span class="arrow">→</span><span class="cond">${h(op.mid[0])}${triI(op.mid[1], !real)}</span>` : ""}
+      <div class="hc-row">${real && via && idir ? `<span class="cond">${dirWord(I, idir)}${triI(idir)}${I.market_type === "M2" && I.watch && (opSide === "bad" ? I.watch.includes("걱정하고") : I.watch.includes("기대하고")) ? ` 시장이 ${opSide === "bad" ? "걱정" : "기대"}하던 쪽` : ""}</span><span class="arrow">→</span>` : ""}${op.cond.map(([t, d, done, suf]) => `<span class="cond">${h(t)}${!real && !done ? dirText(d) : triI(d)}${suf ? " " + h(suf) : ""}</span>`).join(op.seq ? `<span class="arrow">→</span>` : `<span class="plus">+</span>`)}
+        ${op.mid ? `<span class="arrow">→</span><span class="cond">${h(op.mid[0])}${real ? triI(op.mid[1]) : dirText(op.mid[1])}</span>` : ""}
         ${opSide ? `<span class="arrow">→</span><span class="out"><b class="${flipped ? "ds-side is-flipping" : ""}" style="${flipped ? "background:none;padding:0" : ""}">${SIDE[opSide]}</b>${op.out ? " · " + h(op.out) : ""}</span>` : ""}</div></div>`;
   }
 

@@ -64,7 +64,19 @@ def check_event(e, allowed_nums, today, errs):
     check_paths(e, errs); check_words(e, e["id"], errs); check_numbers(e, allowed_nums, e["id"], errs)
     return len(errs) == before
 
-TIMEWORD = re.compile(r"어제|오늘|내일|그제|요즘|최근|이번 주|지난주|\d+일 뒤|\d{1,2}/\d{1,2}")
+TIMEWORD = re.compile(r"\d{1,2}/\d{1,2}")                       # 시점은 날짜로 (명세 §3-6 ④-1)
+VAGUE = re.compile(r"이번 주|최근|\d+일 뒤|곧|요즘|어제|내일|지난주")   # 시점 금지어 (§3-6 ⑥)
+MVERB = {"M1": ("지켜보고 있어요",), "M2": ("걱정하고 있어요", "기대하고 있어요", "보고 있어요")}   # B3는 M3(반응했어요) 안 씀
+SCHED_DATES = None
+def verified_dates():
+    global SCHED_DATES
+    if SCHED_DATES is None:
+        SCHED_DATES = set()
+        for p in (pathlib.Path(__file__).resolve().parent.parent / "config").glob("schedule-*.json"):
+            for r in json.loads(p.read_text(encoding="utf-8"))["events"]:
+                if r.get("verified"):
+                    import datetime as _d; d = _d.date.fromisoformat((r.get("kst") or r["date"])[:10]); SCHED_DATES.add(f"{d.month}/{d.day}")
+    return SCHED_DATES
 def bad_words(t): return [w for w in BANNED if w in t]
 def nums_ok(t, allowed): return all(n.replace(",", "").lstrip("+-−") in allowed for n in NUM.findall(ISO.sub("", t)))
 
@@ -76,18 +88,32 @@ def check_interests(ints, errs, allowed=frozenset()):
         if k not in CFG["interests"]: errs.append(f"관심사 후보 밖: {k}"); continue
         if x["reason"].get("type") == "mention" and len(x.get("sources", [])) < 3:
             errs.append(f"관심사 {k}: 언급량 근거 기사 URL 3개 미만"); continue
-        w = x.get("watch") or ""
-        if not (w.startswith("시장은") and w.rstrip(". ").endswith("보고 있어요")) or len(w) > 45 or bad_words(w) or re.search(r"호재|악재|걱정", w) or not nums_ok(w, allowed):
-            errs.append(f"관심사 {k}: 둘째 문장(시장이 보는 것) 규칙 위반 — {w}"); continue
+        # 시장 칸 (§3-6 ②·⑥): 틀리면 시장 칸만 빼고 사실 한 문장으로
+        w = (x.get("watch") or "").strip()
+        if w:
+            mt = next((t for t, vs in MVERB.items() if any(w.rstrip(". ").endswith(v) for v in vs)), None)
+            why = ("'시장은'으로 시작 안 함" if not w.startswith("시장은") else "동사가 M1·M2 목록 밖" if not mt
+                   else "시점 금지어" if VAGUE.search(w) else "금지어·호재/악재" if bad_words(w) or re.search(r"호재|악재", w)
+                   else "출처 없는 숫자" if not nums_ok(w, allowed)
+                   else "M2인데 기사 URL 2개 미만" if mt == "M2" and len(x.get("market_sources") or []) < 2
+                   else "M1인데 일정표 공식 날짜 없음" if mt == "M1" and not any(d in verified_dates() for d in TIMEWORD.findall(w)) else "")
+            side = x.get("upSide") if x.get("dir", "up") == "up" else {"good": "bad", "bad": "good"}.get(x.get("upSide"))
+            if not why and ("걱정하고" in w and side == "good" or "기대하고" in w and side == "bad"): why = "걱정/기대가 쪽과 안 맞음"
+            if why: errs.append(f"관심사 {k}: 시장 칸 빠짐({why}) — {w}"); w = ""
+            elif len(w) > 40: errs.append(f"[경고] 관심사 {k}: 시장 칸 40자 초과 — {w}")
+        x["watch"] = w or None
         lb = x["reason"].get("label")
         if lb and (len(lb) > 12 or re.search(r"[▲▼]|실시간|언급", lb) or bad_words(lb)
                    or (x["reason"].get("type") == "mention" and len(x.get("trigger_sources") or []) < 2)):
             errs.append(f"관심사 {k}: 계기 '{lb}' 빠짐(출처 2개 미만·길이·금지 글자)"); x["reason"]["label"] = None
         f = x.get("fact")
-        if f and (not TIMEWORD.search(f) or not x.get("fact_sources") or len(f) > 45 or bad_words(f) or re.search(r"호재|악재", f) or not nums_ok(f, allowed)):
-            errs.append(f"관심사 {k}: 첫 문장(사실) 빠짐(날짜 말·출처·길이·숫자) — {f}"); f = None
-        x["fact"] = f; x["sentence"] = " ".join(t for t in (f, w) if t)
-        ok.append(x)
+        if f and (not TIMEWORD.search(f) or VAGUE.search(f) or not x.get("fact_sources") or bad_words(f) or re.search(r"호재|악재", f) or not nums_ok(f, allowed)):
+            errs.append(f"관심사 {k}: 사실 칸 빠짐(날짜 M/D·시점 금지어·출처·숫자) — {f}"); f = None
+        elif f and len(f) > 40: errs.append(f"[경고] 관심사 {k}: 사실 칸 40자 초과 — {f}")
+        if f and w and watch_terms(f) & watch_terms(w): errs.append(f"관심사 {k}: 두 문장이 같은 지표 반복 — 시장 칸 뺌"); w = ""
+        x["fact"] = f; x["watch"] = w or None; x["sentence"] = " ".join(t for t in (f, w) if t)
+        if x["sentence"]: ok.append(x)
+        else: errs.append(f"관심사 {k}: 남은 문장이 없어 뺌")
     return ok
 
 def sub_for(d, today):
@@ -110,6 +136,9 @@ def check_watch(e, errs):
     for k, o in (e.get("opts") or {}).items():
         if not o.get("cond") or name not in o["cond"][0][0]: errs.append(f"{e['id']} opts.{k}: 조건 첫 칸이 보는 지표({name})가 아님"); return False
     if not e.get("confirm") or name not in e["confirm"][0].get("what", ""): errs.append(f"{e['id']}: 결과 확인 첫 단계가 보는 지표가 아님"); return False
+    q = e.get("question")
+    if q and w.get("dir") and ("더 오를" in q and w["dir"] == "down" or "다시 오를" in q and w["dir"] == "up"): q = None; errs.append(f"{e['id']}: 질문형 방향 말이 최근 값 방향과 안 맞음 → 사건 제목으로"); e["question"] = None
+    if q and (w.get("name", "") not in q and w.get("short", "") not in q or VAGUE.search(q)): errs.append(f"{e['id']}: 질문형 제목에 지표 이름 없음·시점 금지어 → 사건 제목으로"); e["question"] = None
     real = e.get("real") or {}
     ctry = {m for v in real.values() for m in ("us", "kr") if v.get(m)}
     wc = WS.get(w.get("key"), {}).get("country")
@@ -140,6 +169,7 @@ def validate(today, facts):
         bad = watch_terms(x.get("watch") or "") - ok_keys
         if bad: errs.append(f"관심사 {x['key']}: 둘째 문장 지표 {sorted(bad)}가 화면의 보는 지표·같이 볼 것에 없음"); x = dict(x, sentence=x.get("fact") or "", watch=None)
         if x.get("sentence"): keep.append(x)
+    for i, x in enumerate(keep): x["rank"] = i + 1   # 빠진 관심사가 있으면 순위 다시 매김
     out["interests"] = keep
     return out, errs
 

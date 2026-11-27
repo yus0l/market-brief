@@ -20,7 +20,9 @@
      "trigger_sources",
      "fact",
      "fact_sources",
-     "watch"
+     "watch",
+     "market_type",
+     "market_sources"
     ],
     "properties": {
      "key": {
@@ -96,7 +98,7 @@
        "string",
        "null"
       ],
-      "description": "박스 첫 문장: 무슨 일이 있었나/곧 있나. 30자 안팎, 날짜 말(어제·오늘·요즘·이번 주·N일 뒤) 포함, 출처 있음. 예: '어제 한국은행이 금리를 올렸어요.' 못 쓰면 null"
+      "description": "박스 첫 문장 = 사실 칸 S1(지난 발표: [M/D] [누가] [무엇을] [값]으로 [했어요]) 또는 S3(지표 움직임: [M/D] [지표]가 [수집값]으로 [올랐어요/내렸어요]). 날짜는 'M/D'로, '어제·이번 주·최근·N일 뒤·곧' 금지. 40자 안쪽. 예: '11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요.' 근거 없으면 null"
      },
      "fact_sources": {
       "type": "array",
@@ -118,8 +120,41 @@
       }
      },
      "watch": {
-      "type": "string",
-      "description": "박스 둘째 문장: 시장이 무엇을 지켜보나. 30자 안팎, '시장은 …보고 있어요'로 끝남, 확인 가능한 지표·일정만, 예측·호재·악재 말 금지. 예: '시장은 이게 대출과 환율에 얼마나 부담이 될지 보고 있어요'"
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "박스 둘째 문장 = 시장 칸, 주어 '시장은'. M1: '시장은 [M/D] [지표]가 [어떻게 될지] 지켜보고 있어요'(일정표 공식 날짜 필수) / M2: '시장은 [칸][방향]을 걱정하고·기대하고·보고 있어요'(같은 해석 기사 2개 이상, 칸 이름으로 말함, 관심사 기준 악재 쪽이면 걱정·호재 쪽이면 기대). 첫 문장과 같은 지표를 반복하지 않음. 40자 안쪽. 근거 없으면 null"
+     },
+     "market_type": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "enum": [
+       "M1",
+       "M2",
+       null
+      ]
+     },
+     "market_sources": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "url": {
+         "type": "string"
+        }
+       },
+       "required": [
+        "name",
+        "url"
+       ],
+       "additionalProperties": false
+      }
      }
     }
    }
