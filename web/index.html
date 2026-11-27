@@ -596,6 +596,7 @@
   .btag.dash { border-style: dashed; }
   .btag.is-flipping { animation: ds-flip .55s var(--ease); }
   .bdesc .bcontra { color: var(--text-1); }
+  .bdef { font-size: var(--fs-caption); color: var(--text-3); margin-top: 2px; font-weight: var(--fw-regular); }
   .bsub2 { font-size: var(--fs-label); font-weight: var(--fw-medium); color: var(--text-2); margin-top: 2px; }
   .bstale { font-weight: var(--fw-regular); color: var(--text-3); font-size: var(--fs-caption); }
   .bconds p { display: flex; justify-content: flex-start; align-items: center; gap: 8px; color: var(--text-2); }
@@ -927,7 +928,7 @@ const WORRY = { cpi: "물가", rate: "금리", job: "경기" };
 const exTextOf = e => e && e.result && e.result.expect;
 // 나라마다 따로 있는 지표(물가·금리·고용·경기)는 나라를 붙임 (02-UX "지표 이름에 나라 붙이기")
 const CTRY_N = ["cpi", "rate", "job"], CPFX = c => c === "us" ? "미국 " : c === "kr" ? "한국 " : "";
-const iName = x => x && CTRY_N.includes(x.node) && !/^(미국|한국) /.test(x.name) ? CPFX(bCountry(x, [])) + x.name : (x && x.name) || "";
+const iName = x => x && x.node === "rate" ? CPFX(bCountry(x, [])) + "기준금리" : x && CTRY_N.includes(x.node) && !/^(미국|한국) /.test(x.name) ? CPFX(bCountry(x, [])) + x.name : (x && x.name) || "";
 const curIntN = () => { const x = curInt(); return x ? Object.assign({}, x, { name: iName(x) }) : x; };
 const refs = srcs => !(srcs && srcs.length) ? "" : `<details class="ref"><summary>기사 ${domN(srcs)}개 ›</summary>${srcs.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;   // 기사 N개 = 서로 다른 매체 수
 const dirWord = (I, d) => d === "down" && I.key === "cpi" ? `${h(I.name)} 오름세 둔화` : h(I.name);
@@ -1088,7 +1089,7 @@ function bPath(I, c) {
   return out;
 }
 const bWhy = (k, c) => { const w = (D.why || {})[k]; return w && typeof w === "object" ? w[c] : w || ""; };
-const bName = (k, c) => k === "kospi" ? "코스피" : k === "rate" ? (c === "us" ? "미국 국채 금리" : "한국 국고채 금리") : (SUBS[c] && SUBS[c][k] && ["stock", "fx"].includes(k) ? SUBS[c][k] : (CTRY_N.includes(k) ? CPFX(c) : "") + ((NG[k] && NG[k].t) || k));
+const bName = (k, c) => k === "kospi" ? "코스피" : k === "rate" ? (c === "us" ? "미국 10년 국채 금리" : "한국 3년 국채 금리") : (SUBS[c] && SUBS[c][k] && ["stock", "fx"].includes(k) ? SUBS[c][k] : (CTRY_N.includes(k) ? CPFX(c) : "") + ((NG[k] && NG[k].t) || k));
 function homeB() {
   // B v3: 번지는 경로 자체가 위→아래 타임라인 (02-UX "B v3"). 줄 하나 = 경로 위 칸 하나. 원·선 = 시간 상태, ▲▼ 색 = 방향
   const st = D.status || {}, I = curIntN(), lvl = bFade();
@@ -1130,20 +1131,23 @@ function homeB() {
   const fm = (I.fact || "").match(/^(\d{1,2}\/\d{1,2})\s+(.+)$/);
   const rows = [];
   const BASE_N = CPFX(c) + "기준금리", bv = NV.rate_base;
+  const DEF = { mkt: "시장에서 매일 정해지는 금리예요. 앞으로 기준금리가 어떻게 될지에 대한 예상이 담겨요", base: "중앙은행이 회의에서 정하는 금리예요" };
+  const defL = t => lvl === 1 && !S.bAllOpen ? `<div class="bdef">${DEF[t]}</div>` : "";
   const baseLine = () => !bv ? `${h(BASE_N)} · 확인 전` : bv.chg ? `${h(BASE_N)} ${tri(bv.dir)} ${h(bv.chg.from)} → ${h(bv.val)} <span class="bstale">${h(bv.chg.md)} 결정</span>` : `${h(BASE_N)} ${h(bv.val)}`;
   const nodeRow = (k, meta, desc, extra, asBase) => { const x = NV[k]; const nm = bName(k, c);
     let title = x && x.dir ? `${h(nm)} ${tri(x.dir)} ${h(x.val)}` : `${h(nm)} · 확인 전`, sub = "";
-    if (k === "rate") { if (asBase) { sub = title; title = baseLine(); } else sub = baseLine(); }   // 금리 칸 = 기준금리 + 시장 금리 두 줄 (§3-10-2)
-    rows.push({ k: "n" + k, st: (asBase ? bv && bv.val : x && x.dir) ? "done" : "wait", meta, title, sub, desc, extra: extra || "" }); };
+    let def = "";
+    if (k === "rate") { if (asBase) { sub = title + defL("mkt"); title = baseLine(); def = defL("base"); } else { sub = baseLine() + defL("base"); def = defL("mkt"); } }   // 금리 칸 = 기준금리 + 시장 금리 두 줄 (§3-10-2)
+    rows.push({ k: "n" + k, st: (asBase ? bv && bv.val : x && x.dir) ? "done" : "wait", meta, title, sub: def + (sub ? `<div class="bsub2">${sub}</div>` : ""), desc, extra: extra || "" }); };
   const x0 = I.node === "rate" && bv ? Object.assign({}, bv, { date: bv.chg ? bv.chg.md : bv.date }) : NV[I.node];
   nodeRow(I.node, fm ? `${fm[1]} 발표 · ${h(I.node === "rate" ? BASE_N : bName(I.node, c))}` : metaOf(x0, I.node === "rate" ? BASE_N : bName(I.node, c)), fm ? `<p>${h(fm[2])}</p>` : "",
     exText ? ` <span class="bbadge">${h(exText)}</span>` : ` <span class="bnoexp">예상치 확인 전</span>`, I.node === "rate");
   const seen = new Set([I.node]);
   const ORD = k => k === "stock" ? 1 : k === "kospi" ? 2 : 0;   // 전달 칸 → 주식 → 다음 날 코스피 순서로 읽히게
   path.slice().sort((p, q) => ORD(p[1]) - ORD(q[1])).forEach(([a, b]) => { if (seen.has(b)) return; seen.add(b); const x = NV[b];
-    const meta = b === "kospi" ? `다음 날 · 코스피${stale(x) ? ` <span class="bstale">· 최신 값 확인 전</span>` : ""}` : metaOf(x, bName(b, c) + (b === "rate" ? (c === "us" ? " 10년물" : " 3년") : ""));
-    const W = whyOrNot(a, b); let desc = W.t, extra = "";
-    if (b === "stock") { extra = conds.length > 1 ? "" : tag(side, false); if (W.off && contra) desc = "";
+    const meta = b === "kospi" ? `다음 날 · 코스피${stale(x) ? ` <span class="bstale">· 최신 값 확인 전</span>` : ""}` : metaOf(x, bName(b, c));
+    let desc = "", extra = "";   // 실제 줄 설명 = 이번 이유(데이터 형식 PM 대기). 규칙 why는 가정 줄에만 (02-UX 11/28)
+    if (b === "stock") { extra = conds.length > 1 ? "" : tag(side, false); 
       // 순서 = E8(바꾼 직후) → 반대 → why → 크기. 3줄까지 보이고 나머지는 "더 보기"
       const Ls = [conds.length > 1 ? `<div class="bconds">${conds.map(q => `<p class="${q.cur ? "cur" : ""}"><span>${h(q.text)}</span><span class="btag">${SIDE[q.side]}</span></p>`).join("")}</div>` : "", contra ? `<p class="bcontra">그런데 실제로 ${josa(sname, "은", "는")} ${sd === "up" ? "올랐어요" : "내렸어요"}</p>` : "", desc]
         .concat(sizes.map(z => `<p class="bsz">${h(z.text)} · ${refs(z.sources)}</p>`)).filter(Boolean);
@@ -1175,7 +1179,7 @@ function homeB() {
       hyp.push(`<li class="bh"><span class="bhd"></span><div><b>${dirs[b] === "up" ? "△" : "▽"} ${h(bName(b, c))} ${dirs[b] === "up" ? "오를" : "내릴"} 수 있음</b>${b === "stock" ? tag(hs, true) : ""}<p class="bw">${h(bWhy(a + ">" + b, c))}</p></div></li>`); });
   }
   const tl = `<ol class="btl3">${rows.map((r, i) => { const nx = rows[i + 1]; const seg = r.st === "done" && nx && nx.st !== "next" ? "solid" : "dash";
-    return `<li class="br ${r.st} ${i === rows.length - 1 ? "last" : ""} seg-${seg}">${r.pre || ""}<span class="bdot3" aria-hidden="true">${r.st === "done" ? "✓" : ""}</span><div class="bbody3"${r.desc ? ` data-brow="${r.k}"` : ""}><div class="bmeta">${r.meta}</div><div class="btitle3">${r.title}${r.extra}</div>${r.sub ? `<div class="bsub2">${r.sub}</div>` : ""}${r.desc ? `<div class="bdesc"${open(r.k) ? "" : " hidden"}>${r.desc}</div>` : ""}</div>${r.after || ""}</li>`; }).join("")}</ol>${hyp.length ? `<ol class="bhyp">${hyp.join("")}</ol>` : ""}`;
+    return `<li class="br ${r.st} ${i === rows.length - 1 ? "last" : ""} seg-${seg}">${r.pre || ""}<span class="bdot3" aria-hidden="true">${r.st === "done" ? "✓" : ""}</span><div class="bbody3"${r.desc ? ` data-brow="${r.k}"` : ""}><div class="bmeta">${r.meta}</div><div class="btitle3">${r.title}${r.extra}</div>${r.sub || ""}${r.desc ? `<div class="bdesc"${open(r.k) ? "" : " hidden"}>${r.desc}</div>` : ""}</div>${r.after || ""}</li>`; }).join("")}</ol>${hyp.length ? `<ol class="bhyp">${hyp.join("")}</ol>` : ""}`;
   // 위
   let top = "";
   if (D.mock) top += `<div class="ds-banner" style="margin-top:8px"><span><b>샘플 데이터</b>예요. 매일 아침 실제 데이터로 바뀌어요</span></div>`;
@@ -1193,9 +1197,9 @@ function homeB() {
   let r = "";
   const Ln = (done || bev || {}).lean;
   if (Ln) r += `<div class="bsec"><h4 class="stl">시장은 지금</h4><div class="lean-t">${h(Ln.text)}</div>${Ln.pos == null ? "" : `<div class="leanbar"><i style="left:${+Ln.pos}%"></i></div><div class="leanlbl"><span>호재 쪽</span><span>악재 쪽</span></div><div class="basis">${h(Ln.basis)}</div>`}</div>`;
-  const PN = { "국고채 3년": "rate", "미국 10년물": "rate", "원/달러 환율": "fx", "S&P500": "stock", "VIX": "vix", "코스피": c === "us" ? "kospi" : "stock" };
+  const PN = { "국고채 3년": "rate", "미국 10년물": "rate", "미국채 10년물": "rate", "원/달러 환율": "fx", "S&P500": "stock", "VIX": "vix", "코스피": c === "us" ? "kospi" : "stock" };
   const PR = ((done || bev || {}).prices || []).filter(x => !seen.has(PN[x.name]));
-  if (PR.length) r += `<div class="bsec judge"><details class="src"><summary>다른 지표 보기</summary>${PR.map(x => `<div class="jrow"><span class="jn">${h(x.name)}</span>
+  if (PR.length) r += `<div class="bsec judge"><details class="src"><summary>다른 지표 보기</summary>${PR.map(x => `<div class="jrow"><span class="jn">${h({ "국고채 3년": "한국 3년 국채 금리", "미국채 10년물": "미국 10년 국채 금리", "미국 10년물": "미국 10년 국채 금리" }[x.name] || x.name)}</span>
       <span class="side ${x.note ? "none cnt0" : x.side || "none"}">${x.note ? h(x.note) : x.side ? SIDE[x.side] + (x.weak ? " · 약하게" : "") : "—"}</span><span class="jv">${triI(x.dir)}${x.value == null ? "값 확인 전" : h(x.value)}</span></div>`).join("")}</details></div>`;
   const srcs = rel.flatMap(e => e.sources || []);
   if (srcs.length) r += `<div class="bsec"><details class="src"><summary>출처</summary>${srcs.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details></div>`;
