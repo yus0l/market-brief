@@ -250,6 +250,7 @@
   .src summary { cursor: pointer; }
   .src a { display: block; margin-top: 6px; color: var(--meaning); word-break: break-all; }
   .no-dev .debug-dot { display: none !important; }
+  .asof { font-size: var(--fs-caption); color: var(--text-2); margin: 12px 2px 0; }   /* 기준 시각 (02-UX) */
   .ibox { padding: 0; }   /* 배경 없앰 (사용자 11/27) */
   .ibox .big { font-size: var(--fs-title); font-weight: var(--fw-bold); line-height: 1.4; word-break: keep-all; }
   .ibox .big em { font-style: normal; color: var(--interest-text); white-space: nowrap; }
@@ -740,7 +741,7 @@ function home() {
   // 위쪽 상태 배너
   let top = "";
   if (D.mock) top += `<div class="ds-banner" style="margin-top:8px"><span><b>샘플 데이터</b>예요. 매일 아침 실제 데이터로 바뀌어요</span></div>`;
-  if (st.delayed) top += `<div class="ds-banner" style="margin-top:8px"><span>아직 오늘 데이터가 안 들어왔어요. <b>어제 기준</b>이에요 (${h(st.delayed)})</span></div>`;
+  if (st.delayed) top += `<div class="ds-banner" style="margin-top:8px"><span>아직 오늘 데이터가 안 들어왔어요. <b>어제 기준</b>이에요</span></div>`;
   if (st.quiet) top += `<div class="ds-banner" style="margin-top:8px"><span>오늘은 새 사건이 없어요</span></div>`;
   if (st.split) top += `<div class="ds-banner" style="margin-top:8px"><span>오늘 미국 주식은 ${st.split.us === "up" ? "오르고" : "내리고"} 한국 주식은 ${st.split.kr === "up" ? "올랐어요" : "내렸어요"}. 달러·환율에서 갈라졌어요</span></div>`;
 
@@ -811,10 +812,13 @@ function home() {
     r += `<div class="mine"><div class="vs">${p ? `내 판단: ${SIDE[p]}<span class="arr">→</span>` : ""}<span class="act">실제 시장 반응: ${SIDE[opSide]}</span></div>
       ${e.reason ? `<div class="hint">${h(e.reason)}</div>` : ""}</div>`;
   }
-  if (e.sources && e.sources.length) r += `<details class="src"><summary>출처 · ${h(D.asof || "")} 기준</summary>${e.sources.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;
+  if (e.sources && e.sources.length) r += `<details class="src"><summary>출처</summary>${e.sources.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;
   if (SHOW_SECTORS && e.sectors) r += `<button class="linkbtn" data-sector>업종별 영향 보기 ›</button>`;
   r += `</section>`;
-  return top + `<div class="layout"><div class="col-l">${ibox}${flow}</div><div class="col-r">${r}</div></div>`;
+  // 기준 시각 한 줄 (데이터 기준, 화면 연 시각 아님): "11/27(금) 08:00 기준"
+  const dd = D.date && new Date(D.date + "T00:00:00"), tm = ((D.asof || "").match(/\d{1,2}:\d{2}/) || [""])[0];
+  const asof = dd && !isNaN(dd) ? `<div class="asof">${dd.getMonth() + 1}/${dd.getDate()}(${"일월화수목금토"[dd.getDay()]})${tm ? " " + tm : ""} 기준</div>` : "";
+  return top + `<div class="layout"><div class="col-l">${asof}${ibox}${flow}</div><div class="col-r">${r}</div></div>`;
 }
 
 function sheetHTML() {
