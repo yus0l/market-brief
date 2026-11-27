@@ -770,7 +770,7 @@ function home() {
   if (st.split) top += `<div class="ds-banner" style="margin-top:8px"><span>오늘 미국 주식은 ${st.split.us === "up" ? "오르고" : "내리고"} 한국 주식은 ${st.split.kr === "up" ? "올랐어요" : "내렸어요"}. 달러·환율에서 갈라졌어요</span></div>`;
 
   // 관심사 박스 (스크롤하면 사라짐) + 박스 아래 사건 상황 줄
-  const sent = h(I.sentence).replace(h(I.name), `<em>${h(I.name)}</em>`);
+  const sent = h(I.sentence);   // 문장 강조 없음, 전부 text-1 (주황은 흐름도 관심사 칸·설명 경로에만)
   const chg = st.rankChange && I.rank === 1 ? `<div class="ds-interest-change">1순위 관심사가 바뀌었어요 · <s>${h(st.rankChange.from)}</s> → ${h(st.rankChange.to)}</div>` : "";
   const ints = D.interests || [];
   // 관심사 고르기 = 버튼 + 펼침 목록 (02-UX "되돌림: 칩 → 셀렉트"): "1 금리 · 한은 금리 인상", 1은 빨강·2·3 검정
