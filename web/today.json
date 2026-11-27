@@ -1,4 +1,12 @@
 {
+ "judge_keys_all": [
+  "kr_base",
+  "ktb3y",
+  "usdkrw"
+ ],
+ "upcoming_keys": [
+  "us_jobs"
+ ],
  "date": "2026-11-27",
  "asof": "11/27 08:00",
  "mock": false,
@@ -27,12 +35,12 @@
    },
    "upSide": "bad",
    "fact": "어제 한국은행이 기준금리를 올렸어요.",
-   "watch": "시장은 다음 FOMC 결정과 국고채 금리 흐름을 보고 있어요",
-   "sentence": "어제 한국은행이 기준금리를 올렸어요. 시장은 다음 FOMC 결정과 국고채 금리 흐름을 보고 있어요",
+   "watch": null,
+   "sentence": "어제 한국은행이 기준금리를 올렸어요.",
    "fact_sources": [
     {
-     "name": "세계일보 한은 3.25% 인상",
-     "url": "https://www.segye.com/newsView/20261126507219"
+     "name": "뉴스웨이 한은 3.25% 인상",
+     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
     },
     {
      "name": "WOW TV 한은 점도표",
@@ -41,8 +49,8 @@
    ],
    "trigger_sources": [
     {
-     "name": "세계일보 한은 3.25% 인상",
-     "url": "https://www.segye.com/newsView/20261126507219"
+     "name": "뉴스웨이 한은 3.25% 인상",
+     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
     },
     {
      "name": "WOW TV 한은 점도표",
@@ -57,20 +65,20 @@
    ],
    "sources": [
     {
-     "name": "세계일보 한은 3.25% 인상",
-     "url": "https://www.segye.com/newsView/20261126507219"
+     "name": "뉴스웨이 한은 3.25% 인상",
+     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
     },
     {
      "name": "WOW TV 한은 점도표",
      "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
     },
     {
-     "name": "이투데이 11월 금통위",
-     "url": "https://www.etoday.co.kr/news/view/2653240"
+     "name": "파이낸셜뉴스 금통위 인상",
+     "url": "https://www.fnnews.com/news/202611260931178752"
     },
     {
-     "name": "TradingEconomics 美 10년물",
-     "url": "https://tradingeconomics.com/united-states/government-bond-yield/news/604880"
+     "name": "머니투데이 주담대 금리",
+     "url": "https://www.mt.co.kr/finance/2026/11/26/2026112615315475729"
     }
    ]
   },
@@ -110,8 +118,8 @@
      "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
     },
     {
-     "name": "AP 고용·물가 체감",
-     "url": "https://abc11.com/story/us-continues-generate-jobs-inflation-is-eroding-spending-power-millions-americans/20024536/"
+     "name": "InvestingLive 실업수당",
+     "url": "https://investinglive.com/news/us-initial-jobless-claims-203k-vs-197k-estimate/"
     }
    ]
   },
@@ -126,12 +134,12 @@
    },
    "upSide": "bad",
    "fact": "이번 주 미국 PCE 물가 지표가 나왔어요.",
-   "watch": "시장은 다음 CPI 발표와 연준 결정을 보고 있어요",
-   "sentence": "이번 주 미국 PCE 물가 지표가 나왔어요. 시장은 다음 CPI 발표와 연준 결정을 보고 있어요",
+   "watch": null,
+   "sentence": "이번 주 미국 PCE 물가 지표가 나왔어요.",
    "fact_sources": [
     {
-     "name": "StockAnalysis 10월 PCE",
-     "url": "https://stockanalysis.com/news/us-pce-inflation-october-2026/"
+     "name": "CNBC 10월 PCE",
+     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
     },
     {
      "name": "Benzinga PCE·GDP",
@@ -140,8 +148,8 @@
    ],
    "trigger_sources": [
     {
-     "name": "StockAnalysis 10월 PCE",
-     "url": "https://stockanalysis.com/news/us-pce-inflation-october-2026/"
+     "name": "CNBC 10월 PCE",
+     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
     },
     {
      "name": "Benzinga PCE·GDP",
@@ -160,190 +168,19 @@
    ],
    "sources": [
     {
-     "name": "StockAnalysis 10월 PCE",
-     "url": "https://stockanalysis.com/news/us-pce-inflation-october-2026/"
+     "name": "CNBC 10월 PCE",
+     "url": "https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html"
     },
     {
      "name": "Benzinga PCE·GDP",
      "url": "https://www.benzinga.com/markets/economic-data/26/11/63619838/pce-inflation-october-gdp-second-estimate"
     },
     {
-     "name": "Axios 증시·물가·연준",
-     "url": "https://www.axios.com/2026/11/09/stocks-inflation-fed"
+     "name": "Wichita Liberty 10월 PCE",
+     "url": "https://www.wichitaliberty.org/economics/october-2026-pce-inflation-report/"
     }
    ]
   }
  ],
- "events": [
-  {
-   "id": "2026-11-26-bok",
-   "type": "E1",
-   "chip": "한국 기준금리 결정",
-   "head": "한국은행이 기준금리를 올렸어요",
-   "kind": "done",
-   "date": "2026-11-26",
-   "dday": false,
-   "real": {
-    "rate": {
-     "dir": "up",
-     "kr": "up"
-    }
-   },
-   "realPath": [
-    [
-     "rate",
-     "fx"
-    ],
-    [
-     "rate",
-     "stock"
-    ]
-   ],
-   "next": [
-    "fx",
-    "stock"
-   ],
-   "actual": null,
-   "opts": {
-    "a": {
-     "label": "물가 부담이 이어지면",
-     "path": [
-      [
-       "rate",
-       "cpi"
-      ]
-     ],
-     "state": {
-      "rate": {
-       "dir": "up",
-       "kr": "up"
-      }
-     },
-     "cond": [
-      [
-       "한국 소비자물가 발표",
-       null,
-       0
-      ]
-     ],
-     "out": "금리 부담이 이어지는 쪽으로 볼 수 있어요"
-    },
-    "b": {
-     "label": "물가 오름세가 둔화되면",
-     "path": [
-      [
-       "rate",
-       "cpi"
-      ]
-     ],
-     "state": {
-      "rate": {
-       "dir": "down",
-       "kr": "down"
-      }
-     },
-     "cond": [
-      [
-       "미국 CPI 발표",
-       "down",
-       0
-      ]
-     ],
-     "out": "금리 부담이 줄어드는 쪽으로 볼 수 있어요"
-    }
-   },
-   "judge": {
-    "interest": {},
-    "items": [
-     [
-      "기준금리",
-      "up",
-      "3.25% · 직전보다 +0.25%p (11/26 기준)",
-      "bad"
-     ],
-     [
-      "국고채 3년",
-      "up",
-      "3.62% · 전일보다 +0.04%p (11/26 기준)",
-      "bad"
-     ],
-     [
-      "원/달러 환율",
-      "down",
-      "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
-      "good"
-     ]
-    ]
-   },
-   "lean": null,
-   "confirm": [
-    {
-     "label": "먼저",
-     "what": "미국 고용 발표",
-     "when": "12/4",
-     "done": false,
-     "date": "2026-12-04"
-    },
-    {
-     "label": "최종",
-     "what": "FOMC 금리 결정",
-     "when": "12/10",
-     "done": false,
-     "date": "2026-12-10"
-    }
-   ],
-   "sources": [
-    {
-     "name": "한국은행 ECOS",
-     "url": "https://ecos.bok.or.kr/"
-    },
-    {
-     "name": "세계일보 한은 3.25% 인상",
-     "url": "https://www.segye.com/newsView/20261126507219"
-    }
-   ],
-   "sectorTab": "us",
-   "sectors": {
-    "us": [
-     [
-      "더 크게",
-      [
-       "인터넷·성장주",
-       "유틸리티·리츠"
-      ]
-     ],
-     [
-      "덜",
-      [
-       "은행·금융"
-      ]
-     ]
-    ],
-    "kr": [
-     [
-      "더 크게",
-      [
-       "2차전지",
-       "인터넷·게임",
-       "건설"
-      ]
-     ],
-     [
-      "덜",
-      [
-       "은행·보험"
-      ]
-     ]
-    ]
-   },
-   "result": {
-    "dir": "up",
-    "text": "3.00% → 3.25%",
-    "expect": null,
-    "actual_src": "https://ecos.bok.or.kr/",
-    "expect_src": null
-   },
-   "sub": "11/26"
-  }
- ]
+ "events": []
 }
