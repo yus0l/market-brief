@@ -263,15 +263,15 @@
   .wcard .wr { margin-top: 10px; display: grid; gap: 4px; font-size: var(--fs-label); }
   .wcard .wr .hit { font-weight: var(--fw-bold); }
   .wcard .wr .dim { color: var(--text-3); }   /* 배경 없앰 (사용자 11/27) */
-  .isel { position: relative; margin-bottom: 12px; }
-  .isel-btn { display: flex; width: 100%; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-2); border-radius: var(--r-control); background: var(--surface-1); font-size: var(--fs-label); color: var(--text-1); }
-  .isel-btn .car { color: var(--text-2); margin-left: auto; padding-left: 6px; flex: none; }   /* ▾ 오른쪽 끝 (보완 4) */
+  .isel { position: relative; width: fit-content; max-width: 100%; margin-bottom: 12px; }   /* 내용·패딩에 맞는 너비 (사용자 11/27) */
+  .isel-btn { display: flex; width: 100%; max-width: 100%; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-2); border-radius: var(--r-control); background: var(--surface-1); font-size: var(--fs-label); color: var(--text-1); }
+  .isel-btn .car { color: var(--text-2); margin-left: auto; padding-left: 6px; flex: none; }   /* ▾는 내용 바로 뒤 */
   .isel .rk { flex: none; width: 16px; text-align: center; font-size: 13px; font-weight: var(--fw-bold); color: var(--text-1); }
   .isel .rk.r1 { color: var(--dir-up); }
   .isel b { font-weight: var(--fw-bold); white-space: nowrap; }
   .isel .l2 { min-width: 0; color: var(--text-2); font-weight: var(--fw-regular); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* 넘치면 계기만 말줄임 */
   .isel .rk, .isel b { flex: none; }
-  .isel-list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; box-sizing: border-box; margin: 0; padding: 4px; list-style: none; background: var(--surface-1); border: 1px solid var(--border-2); border-radius: var(--r-control); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .isel-list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content; max-width: calc(100vw - 64px); box-sizing: border-box; margin: 0; padding: 4px; list-style: none; background: var(--surface-1); border: 1px solid var(--border-2); border-radius: var(--r-control); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
   .isel-list li { min-width: 0; display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 8px; border-radius: 8px; font-size: var(--fs-label); cursor: pointer; white-space: nowrap; }
   .isel-list li.on { background: var(--surface-sunken); }   /* 셀렉트 안 주황 없음 (보완 3) */
   .isel-list li:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
