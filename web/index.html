@@ -511,6 +511,35 @@
   .isel-btn { background: var(--surface-box); border: 0; }
   .icard { background: none; padding: 0; border-radius: 0; }
   .panel { background: none; }
+
+  /* ── B 풀이 순서 (?b=1) ── */
+  .bbox { margin-top: 10px; background: var(--surface-box); border-radius: 16px; padding: 14px 14px 12px; }
+  .bbox .bflow { position: static; background: none; padding: 0; margin: 8px 0 0; border-radius: 0; box-shadow: none; }
+  .bsteps { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .bsteps button { flex: none; border: 0; background: none; padding: 6px 8px; border-radius: 8px; font-size: var(--fs-caption); color: var(--text-3); }
+  .bsteps button.past { color: var(--text-2); }
+  .bsteps button.on { background: var(--surface-1); color: var(--text-1); font-weight: var(--fw-bold); }
+  .bsteps .bre { margin-left: auto; color: var(--text-2); text-decoration: underline; }
+  .bnar { margin-top: 8px; font-size: var(--fs-body); line-height: 1.5; color: var(--text-1); word-break: keep-all; min-height: 48px; }
+  .bnar p + p { margin-top: 4px; }
+  .bnar .bsub, .bnar .bmore { font-size: var(--fs-label); color: var(--text-2); }
+  .bnl { padding-left: 18px; display: grid; gap: 4px; font-size: var(--fs-label); }
+  .bwl { list-style: none; display: grid; gap: 6px; font-size: var(--fs-label); }
+  .bwl li { cursor: pointer; }
+  .btabs { display: flex; gap: 14px; margin-top: 12px; overflow-x: auto; scrollbar-width: none; }
+  .btabs button { flex: none; border: 0; background: none; padding: 4px 0; font-size: var(--fs-label); color: var(--text-2); border-bottom: 2px solid transparent; }
+  .btabs button.on { color: var(--text-1); font-weight: var(--fw-bold); border-bottom-color: var(--text-1); }
+  .bscen { margin-top: 10px; }
+  .bfoot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .blink { border: 0; background: none; color: var(--text-2); font-size: var(--fs-label); text-decoration: underline; padding: 8px 0; }
+  .bnext { border: 0; background: var(--text-1); color: #fff; font-weight: var(--fw-bold); font-size: var(--fs-label); border-radius: 12px; padding: 12px 20px; min-height: 44px; }
+  .bsec { margin-top: 32px; }
+  .bsec .stl { margin-bottom: 6px; }
+  .blayout .col-r > .bsec:first-child { margin-top: 32px; }
+  @media (min-width: 1024px) { .blayout .col-r > .bsec:first-child { margin-top: 10px; } }
+  .drawln { stroke-dasharray: 1; stroke-dashoffset: 1; animation-name: bdraw; animation-timing-function: ease-out; animation-fill-mode: forwards; }
+  @keyframes bdraw { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) { .drawln { animation: none; stroke-dashoffset: 0; } }
 </style>
 
 <div class="debug" id="debug"></div>
@@ -574,6 +603,7 @@ const LPOS = { "rate>stock": [235, 97] };      // 짧은 선: 라벨 아래 끝�
 const CNAME = { stock:{ kr:"코스피", us:"S&P 500" }, rate:{ kr:"금리", us:"금리" }, fx:{ kr:"환율", us:"환율" } };
 const WNODE = { kr_cpi:"cpi", us_cpi:"cpi", us_ppi:"cpi", kr_base:"rate", ktb3y:"rate", us_10y:"rate", usdkrw:"fx", kospi:"stock", us_jobs:"job" };
 function contras(v) {   // 실제 경로 중 두 칸의 실제 방향이 보통 관계와 반대인 선
+  if (v.noContra) return [];   // B: 선 라벨 대신 내레이션이 말함
   const m = v.country || "us", dirOf = k => { const o = (v.real || {})[k]; return o && (o[m] || o.dir); };
   return (v.realPath || []).map(([a, b]) => {
     const sg = ((SIGN_C[m] || {})[a + ">" + b]) || SIGN[a + ">" + b], dA = dirOf(a), dB = dirOf(b);
@@ -635,7 +665,8 @@ function flowSVG(v) {
     if (o5 && o5.usOnly && !US) return null;
     const pts = pts0.map(([x, y]) => [mx(x), y]), lab = lab0 && Object.assign({}, lab0, { x: mx(lab0.x) });
     const both = !!(o5 && o5.both), hit = l => has(l, a, b) || (both && has(l, b, a));
-    const real = hit(v.realPath), hyp = !real && hit(v.hypoPath);
+    let real = hit(v.realPath), hyp = !real && hit(v.hypoPath);
+    if (b === "gold" && real) { real = false; hyp = true; }   // 금 수집값 없음 → 금으로 가는 선은 항상 점선 (명세 §1-1-4 검수)
     return { a, b, pts, lab, i, real, hyp, both, on: real || hyp, weak: has(WEAK, a, b), contra: real && CT.some(c => c.a === a && c.b === b) };
   }).filter(Boolean);
   const on = lit.filter(e => e.on);
@@ -667,7 +698,9 @@ function flowSVG(v) {
   on.forEach(e => {
     const d = roundPath(e.pts);
     body += `<path d="${d}" fill="none" stroke="${C.stage}" stroke-width="6"/>`;
-    body += `<path d="${d}" fill="none" stroke="${C.path}" stroke-width="1.75" stroke-linecap="round" ${e.hyp?'stroke-dasharray="5 4"':''} marker-end="url(#mp)" ${e.both?'marker-start="url(#mp)"':""}/>`;
+    const di = (v.drawOrder || []).indexOf(e.a + ">" + e.b);
+    body += `<path d="${d}" fill="none" stroke="${C.path}" stroke-width="1.75" stroke-linecap="round" ${e.hyp?'stroke-dasharray="5 4"':''} marker-end="url(#mp)" ${e.both?'marker-start="url(#mp)"':""} ${di >= 0 ? `class="drawln" pathLength="1" style="animation-delay:${di * v.drawDur}s;animation-duration:${v.drawDur}s"` : ""}/>`;
+    if (v.tapWhy) body += `<path d="${d}" fill="none" stroke="transparent" stroke-width="16" data-why="${e.a}>${e.b}" data-wt="${h(bName(e.a, v.country) + " → " + bName(e.b, v.country) + " · " + bWhy(e.a + ">" + e.b, v.country))}" style="cursor:pointer"/>`;
     body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="5" filter="url(#blur)" opacity=".7" stroke-dasharray="0.22 2" stroke-dashoffset="0.22"/>`;
     body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="1.4" opacity=".95" stroke-dasharray="0.12 2" stroke-dashoffset="0.12"/>`;
   });
@@ -687,7 +720,7 @@ function flowSVG(v) {
     const lv = !pathN.size ? 2 : k === v.core ? 1 : (pathN.has(k) || isNext || isInt) ? 2 : 3;
     const { x, y, w, h } = n, L = x - w/2, T = y - h/2, rx = n.split ? 16 : 13;
     body += `<g>`;
-    if (lv < 3) body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="${C.surf}" stroke="${C.b2}" stroke-width="1" ${lv === 1 ? 'filter="url(#sh)"' : ""}/>`;
+    if (lv < 3) body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="${C.surf}" stroke="${isNext && v.nextDash ? C.path : C.b2}" stroke-width="${isNext && v.nextDash ? 1.4 : 1}" ${isNext && v.nextDash ? 'stroke-dasharray="4 3"' : ""} ${lv === 1 ? 'filter="url(#sh)"' : ""}/>`;
     const lab = k === "stock" && v.sideTag && pathN.has("stock") ? "" : isNext ? "다음에 볼 것" : isInt ? "관심사" : "";   // 칸당 하나, 겹치면 "다음에 볼 것"
     if (lab) body += `<text x="${L+2}" y="${T-4}" font-family='${MONO}' font-size="11" fill="${C.sub}">${lab}</text>`;
     const nameFill = lv === 3 ? C.t3 : C.ink, fw = lv === 1 ? 700 : 400, subFill = lv === 3 ? C.t3 : C.sub;
@@ -829,6 +862,7 @@ function skeleton() {
 function home() {
   if (LOAD === "loading") return skeleton();
   if (LOAD === "error") return `<div class="ds-banner" style="margin-top:12px"><span>지금 데이터를 불러오지 못했어요</span><button data-retry>다시 시도</button></div>`;
+  if (BMODE) return homeB();
   const st = D.status || {}, I = curInt();
   INTEREST = I.node; EXPLAIN = I.explain || [];
   const e = cur(), L = layers(e, I, st), { v, real, o, op, via, idir, opSide } = L;
@@ -942,6 +976,153 @@ function home() {
   return top + `<div class="layout"><div class="col-l">${asof}${ibox}${flow}</div><div class="col-r">${r}</div></div>`;
 }
 
+/* ───────── B 풀이 순서 (?b=1, 01-명세 §1-1-4 · 02-UX "B 풀이 순서 배치") ─────────
+   흐름도 주인 = 관심사. ① 무슨 일 → ② 어디로 번지나 → ③ 무엇과 비교하나 → ④ 뭘 보면 갈리나 */
+const BMODE = Q.get("b") === "1";
+const flip2 = d => d === "up" ? "down" : "up";
+const BSTEPS = ["무슨 일", "어디로", "비교", "갈림"];
+Object.assign(S, { bstep: 1, ball: false, bev: null, bopt: null });
+const josa = (w, a, b) => { const c = w.charCodeAt(w.length - 1); return w + (c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? a : b); };
+// 도움 줄이기: 단계를 끝까지 본 날 수 (하루 1번). 14일 공백이면 한 단계 내림
+function bFade() {
+  let r = { days: [], last: null }; try { r = JSON.parse(localStorage.getItem("mf-bdays") || "") || r; } catch (_) {}
+  const n = r.days.length, gap = r.last ? (new Date(D.date) - new Date(r.last)) / 864e5 : 0;
+  let lv = n <= 3 ? 1 : n <= 10 ? 2 : 3; if (gap >= 14) lv = Math.max(1, lv - 1);
+  return lv;
+}
+function bSeen() {
+  try { const r = JSON.parse(localStorage.getItem("mf-bdays") || "null") || { days: [], last: null };
+    if (!r.days.includes(D.date)) r.days.push(D.date); r.last = D.date; localStorage.setItem("mf-bdays", JSON.stringify(r)); } catch (_) {}
+}
+// 관심사 나라: 관심사 첫 문장 기준 (미국/한국), 없으면 이어진 사건 나라
+function bCountry(I, rel) {
+  const f = I.fact || "";
+  if (/미국|FOMC|연준/.test(f)) return "us";
+  if (/한국|한은|금통위|코스피/.test(f)) return "kr";
+  return (rel[0] && rel[0].country) || "kr";
+}
+// 관심사 칸 → 주식 칸까지 기본 관계 길이 2 이하 (금·공포·유가·"몇 달 뒤" 제외, 환율→주식은 코스피에만)
+function bPath(I, c) {
+  const ok = E.filter(([a, b, , , o]) => !(o && o.usOnly) && !["gold", "vix", "oil"].includes(b) && !(a === "rate" && b === "cpi") && !(c === "us" && a === "fx" && b === "stock")).map(([a, b]) => [a, b]);
+  const out = [], add = e => { if (!out.some(x => x[0] === e[0] && x[1] === e[1])) out.push(e); };
+  if (I.node === "stock") return [];
+  ok.filter(([a, b]) => a === I.node && b === "stock").forEach(add);
+  ok.filter(([a, b]) => a === I.node && b !== "stock").forEach(([a, m]) => { const e2 = ok.find(([x, y]) => x === m && y === "stock"); if (e2) { add([a, m]); add(e2); } });
+  if (c === "us" && out.length) out.push(["stock", "kospi"]);
+  return out;
+}
+const bWhy = (k, c) => { const w = (D.why || {})[k]; return w && typeof w === "object" ? w[c] : w || ""; };
+const bName = (k, c) => k === "kospi" ? "코스피" : (SUBS[c] && SUBS[c][k] && ["stock", "fx"].includes(k) ? SUBS[c][k] : (NG[k] && NG[k].t) || k);
+function homeB() {
+  const st = D.status || {}, I = curInt(), lvl = bFade();
+  INTEREST = I.node; EXPLAIN = [];
+  if (lvl === 3 && S.bstep === 1 && !S.bTouched) S.ball = true;
+  const rel0 = (D.events || []).filter(e => touches(e, I.node) || (e.watch && WNODE[e.watch.key] === I.node));
+  const c = bCountry(I, rel0), now = (D.now || {})[c] || {}, path = bPath(I, c);
+  const rel = rel0.filter(e => (e.country || "kr") === c);   // 관심사 나라와 같은 사건만
+  // ④ 고를 것 = 관심사의 다음 공식 발표(코드 M1과 같은 것) + 같은 나라 관련 사건
+  const CODE_NODE = { US_CPI: "cpi", US_PPI: "cpi", KR_CPI: "cpi", US_JOBS: "job", US_ISM: "job", FOMC: "rate", BOK: "rate" };
+  const nr = I.next_rel, gen = nr ? [{ id: "next", gen: true, chip: nr.name, sub: nr.md, node: CODE_NODE[nr.code] || I.node, name: nr.name }] : [];
+  const evs = rel.filter(e => e.kind !== "done" || e.watch), sameC = nr && ((/^(US_|FOMC)/.test(nr.code) ? "us" : "kr") === c);
+  const picks = sameC || !evs.length ? gen.concat(evs) : evs.concat(gen);   // 관심사 나라와 같은 발표를 먼저
+  const bev = picks.find(e => e.id === S.bev) || picks[0];
+  const done = rel.find(e => e.kind === "done");
+  const step = S.ball ? 4 : S.bstep, all = S.ball;
+  const dirOf = k => now[k], iDir = dirOf(I.node), side = sideOf(I, iDir);
+  const reachStock = path.some(([a, b]) => b === "stock");
+  // 흐름도 상태
+  const v = { real: {}, realPath: [], hypo: {}, hypoPath: [], next: [], closed: st.closed, split: false, country: c, core: I.node, noContra: true };
+  const put = k => { if (dirOf(k)) v.real[k] = { dir: dirOf(k) }; };
+  put(I.node);
+  if (step >= 2) { v.realPath = path.slice(); path.forEach(([a, b]) => { put(a); put(b); }); if (step === 2 && !all) { v.drawOrder = path.map(([a, b]) => a + ">" + b); v.drawDur = lvl >= 2 ? .6 : 1.2; } v.tapWhy = true; }
+  if (step >= 3) { v.expect = done && done.result && done.result.expect; if (reachStock && side) v.sideTag = { side, real: false }; }
+  let nextNode = null;
+  if (step >= 4 && bev && !all && S.bopt) { v.real = {}; v.realPath = []; v.sideTag = null; v.expect = null; }   // 가정을 고르면 가정 경로만 (실제와 섞지 않음)
+  if (step >= 4 && bev) {
+    nextNode = bev.gen ? bev.node : (bev.watch && WNODE[bev.watch.key]) || bev.core || Object.keys(bev.real || {})[0];
+    if (nextNode) { v.next = [nextNode]; v.nextDash = true; }
+    const G = bev.gen ? bev : bev.watch && WNODE[bev.watch.key] ? { node: WNODE[bev.watch.key], name: bev.watch.name } : null;
+    if (G && !all && S.bopt) {   // 다음 발표: 그 칸 높으면 ▲/낮으면 ▼ → 기본 관계 방향대로 번짐(가정)
+      const d0 = S.bopt === "a" ? "up" : "down", gp = bPath({ node: G.node }, c), dirs = { [G.node]: d0 };
+      gp.forEach(([a, b]) => { const sg = ((SIGN_C[c] || {})[a + ">" + b]) || SIGN[a + ">" + b] || 1; if (dirs[a]) dirs[b] = sg > 0 ? dirs[a] : flip2(dirs[a]); });
+      Object.entries(dirs).forEach(([k, d]) => v.hypo[k] = { dir: d }); v.hypoPath = gp;
+      const hs = dirs[I.node] ? sideOf(I, dirs[I.node]) : null; if (hs && gp.some(([, b]) => b === "stock")) v.sideTag = { side: hs, real: false };
+    }
+    const op = !G && !all && S.bopt && bev.opts && bev.opts[S.bopt];
+    if (op) { const toK = l => (l || []).map(([a, b]) => c === "us" && a === "fx" && b === "stock" ? ["fx", "kospi"] : [a, b]);
+      Object.assign(v.hypo, op.state || {}); v.hypoPath = toK(op.path);
+      const hd = nodeDir((op.state || {})[I.node]); const hs = hd ? sideOf(I, hd) : null;
+      if (hs && reachStock) v.sideTag = { side: hs, real: false }; }
+  }
+  // 내레이션
+  const L = [];
+  const n1 = I.fact || `${josa(I.name, "부터", "부터")} 볼게요`;
+  const whyLines = path.map(([a, b]) => `<li data-why="${a}>${b}"><b>${h(bName(a, c))} → ${h(bName(b, c))}</b> · ${h(bWhy(a + ">" + b, c))}</li>`).join("");
+  const sname = c === "us" ? "S&P500" : "코스피", sd = dirOf("stock"), expStock = side === "bad" ? "down" : side === "good" ? "up" : null;
+  const contra = reachStock && sd && expStock && sd !== expStock;
+  const exText = v.expect || (done && done.result && done.result.expect);
+  const n3 = !reachStock ? "이 관심사는 주식까지 바로 이어지지 않아요"
+    : (lvl >= 2 ? "" : "중요한 건 예상보다 어땠냐예요. ") + (exText ? `${exText}로 나와서 보통 ${SIDE[side] || ""}으로 읽어요` : `예상치를 아직 못 찾았어요. 보통은 ${h(josa(I.name, "이", "가"))} ${iDir === "up" ? "오르면" : "내리면"} ${SIDE[side] || ""}으로 읽어요`)
+      + (contra ? ` · 이번엔 ${josa(sname, "이", "가")} ${sd === "up" ? "올랐어요" : "내렸어요"} · 보통과 반대` : "");
+  const sizes = rel.flatMap(e => e.size || []);
+  const w4 = bev && bev.watch, n4 = !bev ? "다음 발표 일정 확인 전이에요"
+    : bev.gen ? `${bev.sub} ${josa(bev.name, "이", "가")} 예상보다 높으면 / 낮으면 어디로 번질지 볼게요`
+    : w4 ? (w4.next ? `${w4.next} ${josa(w4.name, "이", "가")} 예상보다 높으면 / 낮으면 어디로 번질지 볼게요` : "다음 발표 일정 확인 전이에요")
+    : `${bev.sub || ""} ${h(bev.head)} — 결과가 갈리면 어디로 번질지 볼게요`;
+  let narr = "";
+  if (all) narr = lvl === 3 ? "" : `<ol class="bnl"><li>${h(n1)}</li><li>${path.length ? `${h(bName(path[0][0], c))} → ${h(bName(path[0][1], c))} · ${h(bWhy(path[0][0] + ">" + path[0][1], c))}` : "이 관심사에서 바로 이어지는 선이 없어요"}</li><li>${n3}</li><li>${h(n4)}</li></ol>`;
+  else if (step === 1) narr = `<p>${h(n1)}</p>`;
+  else if (step === 2) narr = path.length ? `<p id="bwhy">${lvl >= 2 ? "선을 누르면 왜 이어지는지 보여요" : h(bName(path[0][0], c) + " → " + bName(path[0][1], c) + " · " + bWhy(path[0][0] + ">" + path[0][1], c))}</p>${lvl >= 2 ? "" : `<ul class="bwl" id="bwl" hidden>${whyLines}</ul>`}` : `<p>이 관심사에서 주식까지 바로 이어지는 선이 없어요</p>`;
+  else if (step === 3) narr = `<p>${n3}</p>${sizes.length ? `<p class="bmore">같은 사건에 크기를 바꾸는 소식이 있어요 ↓</p>` : ""}`;
+  else narr = `<p>${h(n4)}</p>${I.watch ? `<p class="bsub">${h(I.watch)}</p>` : ""}`;
+  // ④ 조작: 관련 발표 탭 + 높으면/낮으면
+  let ctl = "";
+  if (step === 4 && !all && bev) {
+    if (picks.length > 1) ctl += `<div class="btabs">${picks.map(e => `<button data-bev="${h(e.id)}" class="${e === bev ? "on" : ""}">${h(e.watch ? e.watch.short : e.chip)} ${h(e.watch ? e.watch.next || "" : e.sub || "")}</button>`).join("")}</div>`;
+    const gn = bev.gen ? bev.name : bev.watch && bev.watch.next ? bev.watch.name : null;
+    if (gn) ctl += `<div class="scen bscen">${[["a", "높으면"], ["b", "낮으면"]].map(([k, t]) => `<button data-bopt="${k}" class="${S.bopt === k ? "on" : ""}" aria-pressed="${S.bopt === k}">${h(josa(gn, "이", "가"))} 예상보다 ${t}</button>`).join("")}</div>`;
+    else if (bev.opts && (!w4 || w4.next)) ctl += `<div class="scen bscen">${["a", "b"].map(k => `<button data-bopt="${k}" class="${S.bopt === k ? "on" : ""}" aria-pressed="${S.bopt === k}">${h(bev.opts[k].label)}</button>`).join("")}</div>`;
+  }
+  const steps = `<div class="bsteps" role="tablist">${BSTEPS.map((t, i) => `<button role="tab" data-bstep="${i + 1}" class="${!all && step === i + 1 ? "on" : ""} ${!all && step > i + 1 ? "past" : ""}" aria-selected="${!all && step === i + 1}">${"①②③④"[i]} ${t}</button>`).join("")}${lvl === 3 ? `<button class="bre" data-breset>처음부터 보기</button>` : ""}</div>`;
+  const foot = `<div class="bfoot"><button class="blink" data-ball>${all ? "단계별로 보기" : "전체 보기"}</button>${!all && step < 4 ? `<button class="bnext" data-bnext>다음 →</button>` : ""}</div>`;
+  const box = `<section class="bbox">${steps}<div class="flow bflow">${flowSVG(v)}${v.hypoPath.length ? `<div class="legend"><span><i class="sw dash"></i>점선 = 가정</span></div>` : ""}</div><div class="bnar">${narr}</div>${ctl}${foot}</section>`;
+  // 위: 기준 시각·배너·관심사 셀렉트 (문장은 ①·④로 들어감)
+  let top = "";
+  if (D.mock) top += `<div class="ds-banner" style="margin-top:8px"><span><b>샘플 데이터</b>예요. 매일 아침 실제 데이터로 바뀌어요</span></div>`;
+  if (st.delayed) top += `<div class="ds-banner" style="margin-top:8px"><span>아직 오늘 데이터가 안 들어왔어요. <b>어제 기준</b>이에요</span></div>`;
+  const ints = D.interests || [];
+  const iitem = x => `<span class="rk ${x.rank === 1 ? "r1" : ""}">${x.rank}</span><b>${h(x.name)}</b>${x.reason && x.reason.label ? `<span class="l2"> · ${h(x.reason.label)}</span>` : ""}`;
+  const pick = ints.length > 1 ? `<div class="isel"><button class="isel-btn" data-iopen aria-haspopup="listbox" aria-expanded="${!!S.iopen}">${iitem(I)}<span class="car" aria-hidden="true">▾</span></button>${S.iopen
+      ? `<ul class="isel-list" role="listbox">${ints.map(x => `<li role="option" tabindex="-1" aria-selected="${x.key === I.key}" class="${x.key === I.key ? "on" : ""}" data-ichip="${h(x.key)}">${iitem(x)}</li>`).join("")}</ul>` : ""}</div>`
+    : `<div class="isel"><div class="isel-btn">${iitem(I)}</div></div>`;
+  const am = (D.asof || "").match(/^(\d{1,2})\/(\d{1,2})/), tm = ((D.asof || "").match(/\d{1,2}:\d{2}/) || [""])[0];
+  const dd = am && D.date ? new Date(+D.date.slice(0, 4), am[1] - 1, +am[2]) : null;
+  const asof = dd ? `<div class="asof">${dd.getMonth() + 1}/${dd.getDate()}(${"일월화수목금토"[dd.getDay()]})${tm ? " " + tm : ""} 기준</div>` : "";
+  // 아래 흰 영역: 크기를 바꾸는 것 · 같이 볼 지표 · 시장은 지금 · 출처
+  let r = "";
+  if (sizes.length) r += `<div class="bsec"><h4 class="stl">크기를 바꾸는 것</h4>${sizes.slice(0, 2).map(z => `<div class="szrow">${h(z.text)} · ${refs(z.sources)}</div>`).join("")}</div>`;
+  const PR = (done || bev || {}).prices || [];
+  if (PR.length) r += `<div class="bsec judge"><h4 class="stl">같이 볼 지표</h4>${PR.map(x => `<div class="jrow"><span class="jn">${h(x.name)}</span>
+      <span class="side ${x.note ? "none cnt0" : x.side || "none"}">${x.note ? h(x.note) : x.side ? SIDE[x.side] + (x.weak ? " · 약하게" : "") : "—"}</span><span class="jv">${triI(x.dir)}${x.value == null ? "값 확인 전" : h(x.value)}</span></div>`).join("")}</div>`;
+  const Ln = (done || bev || {}).lean;
+  if (Ln) r += `<div class="bsec"><h4 class="stl">시장은 지금</h4><div class="lean-t">${h(Ln.text)}</div>${Ln.pos == null ? "" : `<div class="leanbar"><i style="left:${+Ln.pos}%"></i></div><div class="leanlbl"><span>호재 쪽</span><span>악재 쪽</span></div><div class="basis">${h(Ln.basis)}</div>`}</div>`;
+  const srcs = rel.flatMap(e => e.sources || []);
+  if (srcs.length) r += `<div class="bsec"><details class="src"><summary>출처</summary>${srcs.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details></div>`;
+  if (step === 4 || all) setTimeout(bSeen, 0);
+  return top + `<div class="layout blayout"><div class="col-l">${asof}${pick}${box}</div><div class="col-r">${r}</div></div>`;
+}
+// ② 선을 차례로 그리는 동안 내레이션을 그 선의 "왜"로 바꿈, 다 그리면 목록
+function bPlay() {
+  const p = document.getElementById("bwhy"), l = document.getElementById("bwl");
+  if (!p || !l) return;
+  const items = [...l.children], dur = 1200;
+  clearTimeout(bPlay.t); let i = 0;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) { p.hidden = true; l.hidden = false; return; }
+  const tick = () => { if (i >= items.length) { p.hidden = true; l.hidden = false; return; } p.innerHTML = items[i].innerHTML; i++; bPlay.t = setTimeout(tick, dur); };
+  tick();
+}
+
 function sheetHTML() {
   const e = cur(), groups = (e.sectors && e.sectors[S.tab]) || [];
   return `<div class="grab"></div><h3>이 사건에 더 크게 / 덜 영향받는 업종</h3>
@@ -974,7 +1155,7 @@ function tabIntoView() {   // 선택 탭이 화면 밖이면 가로로만 스크
 function render() {
   buildDebug();
   document.getElementById("app").innerHTML = home();
-  syncDbgH(); if (LOAD === "ok") { saveURL(); playFlow(); fitFlow(); tabIntoView(); }
+  syncDbgH(); if (LOAD === "ok") { saveURL(); playFlow(); fitFlow(); tabIntoView(); if (BMODE) bPlay(); }
 }
 
 /* ───────── 업종 시트 ───────── */
@@ -998,6 +1179,18 @@ document.addEventListener("click", ev => {
   if (ic) { pickInt(ic.dataset.ichip); return; }
   if (ev.target.closest("[data-iopen]")) { S.iopen = !S.iopen; render(); if (S.iopen) focusOpt(); return; }
   if (S.iopen && !ev.target.closest(".isel")) { S.iopen = false; render(); }   // 바깥 누르면 닫힘
+  if (BMODE && LOAD === "ok") {
+    const b = ev.target.closest("[data-bstep],[data-bnext],[data-ball],[data-bev],[data-bopt],[data-breset],[data-why]");
+    if (b) { const d = b.dataset; S.bTouched = true;
+      if (d.why) { const p = document.getElementById("bwhy"); if (p) { p.hidden = false; p.textContent = b.getAttribute("data-wt") || b.textContent; } return; }   // 선·목록을 누르면 그 선의 "왜"
+      if (d.bstep) { S.ball = false; S.bstep = +d.bstep; S.bopt = null; }
+      else if (d.bnext !== undefined) S.bstep = Math.min(4, S.bstep + 1);
+      else if (d.ball !== undefined) S.ball = !S.ball;
+      else if (d.bev) { S.bev = d.bev; S.bopt = null; }
+      else if (d.bopt) S.bopt = S.bopt === d.bopt ? null : d.bopt;
+      else if (d.breset !== undefined) { S.ball = false; S.bstep = 1; }
+      render(); return; }
+  }
   const t = ev.target.closest("[data-legend],[data-file],[data-retry],[data-reset],[data-hide],#debugDot,[data-ev],[data-opt],[data-pick],[data-sector],[data-tab],.tapstock,#dimbg");
   if (!t) return;
   const d = t.dataset; S.flip = null;
@@ -1022,7 +1215,7 @@ document.addEventListener("change", ev => {
 });
 function pickInt(k) {
   S.iopen = false;
-  if (k !== S.int) { S.flip = S.int; S.int = k; }
+  if (k !== S.int) { S.flip = S.int; S.int = k; S.bopt = null; S.bev = null; }
   render(); const b = document.querySelector("[data-iopen]"); if (b) b.focus();
 }
 function focusOpt(k) {

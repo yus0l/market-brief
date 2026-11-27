@@ -275,11 +275,20 @@ def assemble(today, facts, draft, upc, yesterday):
                 n = node_of.get(key)
                 if not r or not n or n in x["real"] or not any(b == n for a, b in x["realPath"]): continue
                 m = x.get("country", "us"); x["real"][n] = {m: r["dir"]}
+    # B 풀이 순서(?b=1): 칸마다 지금 실제 방향(나라별) — 수집값만
+    def sdir(k):
+        x = facts["series"].get(k)
+        if not x: return None
+        ch = (x["yoy"] - x["yoy_prev"]) if x.get("yoy") is not None and x.get("yoy_prev") is not None else x["value"] - x["prev"]
+        return "up" if ch > 0 else "down" if ch < 0 else None
+    NOW = {"kr": {"cpi": "kr_cpi", "rate": "ktb3y", "fx": "usdkrw", "stock": "kospi", "oil": "wti", "vix": "vix"},
+           "us": {"cpi": "us_cpi", "rate": "us_10y", "job": "us_jobs", "fx": "usdkrw", "stock": "sp500", "oil": "wti", "vix": "vix", "kospi": "kospi"}}
+    now = {c: {n: sdir(k) for n, k in m.items() if sdir(k)} for c, m in NOW.items()}
     up_codes = {u["code"] for u in upc}
     return {"judge_keys_all": sorted({k for e in events for k in e.get("judgeKeys", [])}),
             "upcoming_keys": sorted(k for k, c in WS.items() if c.get("sched") in up_codes),
             "date": today.isoformat(), "asof": asof_of(facts, today), "mock": False,
-            "status": status, "interests": ints, "events": events}
+            "status": status, "interests": ints, "events": events, "now": now, "why": {k: v for k, v in CFG.get("why", {}).items() if not k.startswith("_")}}
 
 def iso(w, today=None):
     """"2026-12-04" 또는 "12/4"(연도 없음 → 오늘 기준 가까운 해) → "2026-12-04". 못 읽으면 None."""

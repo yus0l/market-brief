@@ -181,6 +181,7 @@ def code_m1(x, today, facts):
             jo = "을" if (ord(nm[-1]) - 0xAC00) % 28 and 0xAC00 <= ord(nm[-1]) <= 0xD7A3 else "를"
             m = f"시장은 {d.month}/{d.day} {nm}{jo} 지켜보고 있어요"
         if watch_terms(x.get("fact") or "") & watch_terms(m) or nm in (x.get("fact") or ""): continue   # 두 문장 같은 지표 반복 금지
+        code_m1.info = {"date": d.isoformat(), "md": f"{d.month}/{d.day}", "name": nm, "code": r["code"], "series": sk}   # B ④ 다음 발표
         return m
     return None
 
@@ -236,8 +237,9 @@ def validate(today, facts):
             bad = watch_terms(x["watch"]) - ok_keys
             if bad: errs.append(f"관심사 {x['key']}: 시장 칸(M2) 지표 {sorted(bad)}가 화면의 보는 지표·같이 볼 것에 없음"); x = dict(x, watch=None)
         else: x = dict(x, watch=None)                       # AI M1은 쓰지 않음 → 아래에서 코드가 채움
+        code_m1.info = None; m1 = code_m1(x, today.get("date"), facts) if x.get("fact") else None
+        x = dict(x, next_rel=code_m1.info)                    # B ④: 관심사의 다음 공식 발표
         if x.get("fact") and not x.get("watch"):              # M2가 없거나 빠지면 코드 M1 (명세 §3-6 ② PM 11/27)
-            m1 = code_m1(x, today.get("date"), facts)
             x = dict(x, watch=m1, market_type="M1" if m1 else None)
         x["sentence"] = " ".join(t for t in (x.get("fact"), x.get("watch")) if t)
         if x.get("fact"): keep.append(x)                       # 이유 문장(사실 칸)이 없으면 셀렉트에서 숨김 (명세 §3-3)
