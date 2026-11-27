@@ -222,5 +222,20 @@ def assemble(topics, facts, today, nowv=None):
 def export():
     (ROOT / "config" / "draft-schema-v2.json").write_text(json.dumps(SCHEMA, ensure_ascii=False, indent=1), encoding="utf-8")
 
+def run(draft_path):
+    """수동 실행: v2 초안 → 검사 → 조립 → web/today-v2.json (매일 실행 v1의 today.json은 건드리지 않음)."""
+    draft = json.loads(pathlib.Path(draft_path).read_text(encoding="utf-8"))
+    fp = sorted((ROOT / "data").glob("facts-*.json"))[-1]
+    facts = json.loads(fp.read_text(encoding="utf-8"))
+    errs = []
+    ok = check(draft, facts, errs)
+    topics = assemble(ok, facts, dt.date.fromisoformat(draft["date"]))
+    out = {"date": draft["date"], "facts": fp.name, "generated": dt.datetime.now().isoformat(timespec="minutes"), "topics": topics, "dropped": errs}
+    (ROOT / "web" / "today-v2.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({"date": draft["date"], "candidates": len(draft.get("topics", [])), "passed": len(ok), "shown": len(topics),
+                      "paths": [[t["name"], [c["name"] for c in t["path"]]] for t in topics], "dropped": errs}, ensure_ascii=False))
+
 if __name__ == "__main__":
-    export(); print(SEARCH_BUDGET)
+    import sys
+    if len(sys.argv) > 2 and sys.argv[1] == "run": run(sys.argv[2])
+    else: export(); print(SEARCH_BUDGET)

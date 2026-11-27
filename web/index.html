@@ -621,6 +621,7 @@
   .b4st { font-size: 13px; font-weight: var(--fw-bold); color: var(--text-3); margin: 0 0 10px; }
   .b4tl { list-style: none; margin: 0; padding: 0; }
   .b4c { position: relative; display: grid; grid-template-columns: 24px 1fr; column-gap: 12px; padding-bottom: 20px; }
+  .b4c.lnu::before { content: ""; position: absolute; left: 11.5px; top: 28px; bottom: 2px; width: 1px; background: var(--border-2); }
   .b4c.ln::before { content: ""; position: absolute; left: 11px; top: 28px; bottom: 2px; width: 2px; background: var(--text-1); }
   .b4dot { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--border-2); background: var(--surface-1); display: grid; place-items: center; font-size: 13px; font-weight: var(--fw-bold); color: #fff; }
   .b4c.done .b4dot { background: var(--text-1); border-color: var(--text-1); }
@@ -1093,6 +1094,10 @@ function home() {
 /* ───────── B 풀이 순서 (?b=1, 01-명세 §1-1-4 · 02-UX "B 풀이 순서 배치") ─────────
    흐름도 주인 = 관심사. ① 무슨 일 → ② 어디로 번지나 → ③ 무엇과 비교하나 → ④ 뭘 보면 갈리나 */
 const BMODE = Q.get("b") === "1";
+// v2 데이터(정보설계 v3): ?b=1은 today-v2.json이 있으면 그걸 읽음(수동 실행분), ?v2mock=1이면 목업
+let V2 = null;
+if (BMODE) fetch(Q.get("v2mock") === "1" ? "mock/v2-topics.json" : "today-v2.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null)
+  .then(j => { if (j) { V2 = Array.isArray(j) ? { topics: j } : j; if (LOAD === "ok") render(); } }).catch(() => {});
 const flip2 = d => d === "up" ? "down" : "up";
 const BSTEPS = ["무슨 일", "어디로", "비교", "갈림"];
 Object.assign(S, { bstep: 1, ball: false, bev: null, bopt: null });
@@ -1131,7 +1136,7 @@ function homeB() {
   // B v4 (02-UX "B v4", 01-정보설계 v3): 화면의 모든 정보는 {관심사}가 정한다. 변수 없으면 줄·단계가 사라짐
   const st = D.status || {};
   INTEREST = null; EXPLAIN = [];
-  const TP = D.topics && D.topics.length ? D.topics.map(normTopic) : topicsFromV1();
+  const TP = V2 && V2.topics ? V2.topics.map(normTopic) : D.topics && D.topics.length ? D.topics.map(normTopic) : topicsFromV1();
   const am = (D.asof || "").match(/^(\d{1,2})\/(\d{1,2})/), tm = ((D.asof || "").match(/\d{1,2}:\d{2}/) || [""])[0];
   const dd = am && D.date ? new Date(+D.date.slice(0, 4), am[1] - 1, +am[2]) : null;
   let top = `<div class="b4top">${dd ? `<span class="asof">${dd.getMonth() + 1}/${dd.getDate()}(${"일월화수목금토"[dd.getDay()]})${tm ? " " + tm : ""} 기준</span>` : "<span></span>"}${st.delayed ? `<span class="b4ban">어제 기준</span>` : D.mock ? `<span class="b4ban">샘플</span>` : ""}</div>`;
@@ -1149,7 +1154,7 @@ function homeB() {
     const meta = [c.metaDate || (v ? v.date : c.num ? "" : ""), c.next_day ? "다음 날" : "", c.parentName ? `← ${h(c.parentName)}에서` : ""].filter(Boolean).join(" · ")
       + (v && v.stale ? ` <span class="bstale">· 최신 값 확인 전</span>` : "");
     const valL = v ? `${tri(v.dir)} <span class="b4n">${h(v.chg ? `${v.chg.from} → ${v.val}` : v.val)}</span>` : c.num ? `<span class="b4n">${h(c.num.value)}</span>${art(c.num.sources)}` : `<span class="b4no">값 확인 전</span>`;
-    return `<li class="b4c ${has ? "done" : "wait"} ${link === "yes" ? "ln" : ""}"><span class="b4dot" aria-hidden="true">${has ? "✓" : ""}</span><div>${meta ? `<div class="bmeta">${meta}</div>` : ""}<div class="b4name">${nmSpan(c.name, c.def)}</div><div class="b4val">${valL}${c.badge ? ` <span class="bbadge">${h(c.badge)}</span>` : ""}</div>${c.why ? `<p class="b4why">${h(c.why)}${art(c.why_sources)}</p>` : ""}</div></li>`; };
+    return `<li class="b4c ${has ? "done" : "wait"} ${link === "yes" ? "ln" : link === "no" || !link ? "" : "lnu"}"><span class="b4dot" aria-hidden="true">${has ? "✓" : ""}</span><div>${meta ? `<div class="bmeta">${meta}</div>` : ""}<div class="b4name">${nmSpan(c.name, c.def)}</div><div class="b4val">${valL}${c.badge ? ` <span class="bbadge">${h(c.badge)}</span>` : ""}</div>${c.why ? `<p class="b4why">${h(c.why)}${art(c.why_sources)}</p>` : ""}</div></li>`; };
   const sec = (title, body) => body ? `<section class="b4sec"><h4 class="b4st">${title}</h4>${body}</section>` : "";
   // ① 무슨 일
   const P = T.path || [], first = P[0];
