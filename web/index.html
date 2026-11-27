@@ -253,8 +253,8 @@
   .asof { font-size: var(--fs-caption); color: var(--text-2); margin: 12px 2px 0; }   /* 기준 시각 (02-UX) */
   .ibox { padding: 0; }
   .ichips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-  .ichip2 { border: 0; border-radius: var(--r-pill); padding: 8px 14px; font-size: var(--fs-label); font-weight: var(--fw-bold); background: var(--surface-sunken); color: var(--text-2); }
-  .ichip2.on { background: var(--interest); color: #fff; }   /* 배경 없앰 (사용자 11/27) */
+  .ichip2 { border: 1.5px solid transparent; border-radius: var(--r-pill); padding: 8px 14px; font-size: var(--fs-label); font-weight: var(--fw-bold); background: var(--surface-sunken); color: var(--text-2); }
+  .ichip2.on { background: var(--interest-soft); color: var(--interest-text); border-color: var(--interest); }   /* 흐름도 관심사 칸과 같은 모양, 대비 약 4.9:1 */   /* 배경 없앰 (사용자 11/27) */
   .ibox .big { font-size: var(--fs-title); font-weight: var(--fw-bold); line-height: 1.4; word-break: keep-all; }
   .ibox .big em { font-style: normal; color: var(--interest-text); white-space: nowrap; }
   .ibox .big .idot { width: 9px; height: 9px; margin: 0 4px 2px 1px; vertical-align: middle; }
