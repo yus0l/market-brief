@@ -9,15 +9,12 @@
   "us_jobs"
  ],
  "date": "2026-11-27",
- "asof": "11/27 08:00",
+ "asof": "11/27 13:29",
  "mock": false,
  "status": {
   "delayed": null,
   "quiet": false,
-  "split": {
-   "us": "down",
-   "kr": "up"
-  },
+  "split": null,
   "closed": {
    "us": false,
    "kr": false

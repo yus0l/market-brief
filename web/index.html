@@ -849,7 +849,9 @@ function home() {
   if (SHOW_SECTORS && e.sectors) r += `<button class="linkbtn" data-sector>업종별 영향 보기 ›</button>`;
   r += `</section>`;
   // 기준 시각 한 줄 (데이터 기준, 화면 연 시각 아님): "11/27(금) 08:00 기준"
-  const dd = D.date && new Date(D.date + "T00:00:00"), tm = ((D.asof || "").match(/\d{1,2}:\d{2}/) || [""])[0];
+  // 기준 시각 = 실제 수집 시각(asof "11/27 13:29"), 날짜도 asof 기준
+  const am = (D.asof || "").match(/^(\d{1,2})\/(\d{1,2})/), tm = ((D.asof || "").match(/\d{1,2}:\d{2}/) || [""])[0];
+  const dd = am && D.date ? new Date(+D.date.slice(0, 4), am[1] - 1, +am[2]) : D.date && new Date(D.date + "T00:00:00");
   const asof = dd && !isNaN(dd) ? `<div class="asof">${dd.getMonth() + 1}/${dd.getDate()}(${"일월화수목금토"[dd.getDay()]})${tm ? " " + tm : ""} 기준</div>` : "";
   return top + `<div class="layout"><div class="col-l">${asof}${ibox}${flow}</div><div class="col-r">${r}</div></div>`;
 }

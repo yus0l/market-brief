@@ -3,9 +3,11 @@
   "kospi",
   "usdkrw"
  ],
- "upcoming_keys": [],
+ "upcoming_keys": [
+  "kr_cpi"
+ ],
  "date": "2026-11-26",
- "asof": "11/26 08:00",
+ "asof": "11/26",
  "mock": false,
  "status": {
   "delayed": null,

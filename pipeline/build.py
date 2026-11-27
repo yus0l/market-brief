@@ -105,6 +105,11 @@ def watch_card(key, hi, lo, facts, today):
     return {"key": key, "short": c["short"], "name": c["full"], "value": val, "dir": dirn, "source": src,
             "next": md(nd) if nd else None, "next_date": nd, "high": hi, "low": lo, "hit": None}
 
+def asof_of(facts, today):
+    """기준 시각 = 실제 수집 시각 (검수 11/27: 08:00 고정 표기는 재실행 때 틀림)."""
+    try: c = dt.datetime.fromisoformat(facts["collected_at"]); return f"{c.month}/{c.day} {c.hour:02d}:{c.minute:02d}"
+    except (KeyError, ValueError): return f"{today.month}/{today.day}"
+
 def assemble(today, facts, draft, upc, yesterday):
     events = []
     for e in draft["events"]:
@@ -172,7 +177,10 @@ def assemble(today, facts, draft, upc, yesterday):
     status = {"delayed": None, "quiet": not any(e["kind"] == "done" for e in events), "split": None,
               "closed": {"us": False, "kr": False}, "rankChange": None}
     sp, ks = facts["series"].get("sp500"), facts["series"].get("kospi")
-    if sp and ks and (sp["value"] - sp["prev"]) * (ks["value"] - ks["prev"]) < 0:
+    def gap(a, b):   # 두 날짜 사이에 낀 평일 수 (같은 날 방향 비교인지 확인, 명세 §3-1)
+        a, b = sorted(dt.date.fromisoformat(x[:4] + "-" + x[4:6] + "-" + x[6:8]) if "-" not in x else dt.date.fromisoformat(x) for x in (a, b))
+        return sum(1 for i in range(1, (b - a).days) if (a + dt.timedelta(days=i)).weekday() < 5)
+    if sp and ks and gap(sp["date"], ks["date"]) == 0 and (sp["value"] - sp["prev"]) * (ks["value"] - ks["prev"]) < 0:
         status["split"] = {"us": "up" if sp["value"] > sp["prev"] else "down", "kr": "up" if ks["value"] > ks["prev"] else "down"}
     daily = [s["date"] for k, s in facts["series"].items() if len(s["date"]) == 10]
     if not daily or max(daily) < (today - dt.timedelta(days=4)).isoformat(): status["delayed"] = max(daily) if daily else "어제"
@@ -181,7 +189,7 @@ def assemble(today, facts, draft, upc, yesterday):
     up_codes = {u["code"] for u in upc}
     return {"judge_keys_all": sorted({k for e in events for k in e.get("judgeKeys", [])}),
             "upcoming_keys": sorted(k for k, c in WS.items() if c.get("sched") in up_codes),
-            "date": today.isoformat(), "asof": f"{today.month}/{today.day} 08:00", "mock": False,
+            "date": today.isoformat(), "asof": asof_of(facts, today), "mock": False,
             "status": status, "interests": ints, "events": events}
 
 def iso(w, today=None):
