@@ -1,0 +1,184 @@
+{
+ "date": "2026-11-27",
+ "collected_at": "2026-11-27T11:49+09:00",
+ "series": {
+  "us_cpi": {
+   "value": 337.476,
+   "prev": 336.298,
+   "date": "2026-10-01",
+   "source": {
+    "name": "FRED CPIAUCSL",
+    "url": "https://fred.stlouisfed.org/series/CPIAUCSL"
+   },
+   "node": "cpi",
+   "name": "미국 CPI",
+   "unit": "지수"
+  },
+  "us_ppi": {
+   "value": 293.921,
+   "prev": 294.473,
+   "date": "2026-10-01",
+   "source": {
+    "name": "FRED PPIACO",
+    "url": "https://fred.stlouisfed.org/series/PPIACO"
+   },
+   "node": "cpi",
+   "name": "미국 PPI",
+   "unit": "지수"
+  },
+  "us_jobs": {
+   "value": 159293.0,
+   "prev": 159128.0,
+   "date": "2026-10-01",
+   "source": {
+    "name": "FRED PAYEMS",
+    "url": "https://fred.stlouisfed.org/series/PAYEMS"
+   },
+   "node": "job",
+   "name": "비농업 고용",
+   "unit": "천 명"
+  },
+  "us_10y": {
+   "value": 4.91,
+   "prev": 4.92,
+   "date": "2026-11-24",
+   "source": {
+    "name": "FRED DGS10",
+    "url": "https://fred.stlouisfed.org/series/DGS10"
+   },
+   "node": "rate",
+   "name": "미국채 10년물",
+   "unit": "%"
+  },
+  "vix": {
+   "value": 26.36,
+   "prev": 26.62,
+   "date": "2026-11-24",
+   "source": {
+    "name": "FRED VIXCLS",
+    "url": "https://fred.stlouisfed.org/series/VIXCLS"
+   },
+   "node": "vix",
+   "name": "VIX",
+   "unit": ""
+  },
+  "wti": {
+   "value": 82.24,
+   "prev": 81.42,
+   "date": "2026-11-24",
+   "source": {
+    "name": "FRED DCOILWTICO",
+    "url": "https://fred.stlouisfed.org/series/DCOILWTICO"
+   },
+   "node": "oil",
+   "name": "WTI 유가",
+   "unit": "달러"
+  },
+  "sp500": {
+   "value": 7201.09,
+   "prev": 7237.17,
+   "date": "2026-11-24",
+   "source": {
+    "name": "FRED SP500",
+    "url": "https://fred.stlouisfed.org/series/SP500"
+   },
+   "node": "stock",
+   "name": "S&P 500",
+   "unit": ""
+  }
+ },
+ "errors": [
+  "kr_base: 값 없음 (ECOS_API_KEY 없음)",
+  "usdkrw: 값 없음 (ECOS_API_KEY 없음)",
+  "ktb3y: 값 없음 (ECOS_API_KEY 없음)",
+  "kospi: 값 없음 (ECOS_API_KEY 없음)",
+  "kr_cpi: 값 없음 (ECOS_API_KEY 없음)"
+ ],
+ "allowed_numbers": [
+  "-0",
+  "-0.0",
+  "-0.01",
+  "-0.187454",
+  "-0.19",
+  "-0.2",
+  "-0.20",
+  "-0.203252",
+  "-0.26",
+  "-0.3",
+  "-0.498537",
+  "-0.5",
+  "-0.50",
+  "-0.55",
+  "-0.552",
+  "-0.6",
+  "-0.976709",
+  "-0.98",
+  "-1",
+  "-1.0",
+  "-36",
+  "-36.08",
+  "-36.1",
+  "0",
+  "0.1",
+  "0.10",
+  "0.10369",
+  "0.35",
+  "0.350285",
+  "0.4",
+  "0.8",
+  "0.82",
+  "1",
+  "1.0",
+  "1.00712",
+  "1.01",
+  "1.178",
+  "1.18",
+  "1.2",
+  "159128",
+  "159128.0",
+  "159128.00",
+  "159293",
+  "159293.0",
+  "159293.00",
+  "165",
+  "165.0",
+  "165.00",
+  "26",
+  "26.36",
+  "26.4",
+  "26.6",
+  "26.62",
+  "27",
+  "293.9",
+  "293.92",
+  "293.921",
+  "294",
+  "294.47",
+  "294.473",
+  "294.5",
+  "336",
+  "336.298",
+  "336.3",
+  "336.30",
+  "337",
+  "337.476",
+  "337.48",
+  "337.5",
+  "4.9",
+  "4.91",
+  "4.92",
+  "5",
+  "7201",
+  "7201.09",
+  "7201.1",
+  "7237",
+  "7237.17",
+  "7237.2",
+  "81",
+  "81.4",
+  "81.42",
+  "82",
+  "82.2",
+  "82.24"
+ ]
+}
