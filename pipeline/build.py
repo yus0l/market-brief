@@ -41,10 +41,18 @@ def rank_interests(draft_ints, upc):
     out = []
     for i, x in enumerate(items):
         c = CFG["interests"][x["key"]]; boosted = x["ev"] and (i == 0 or items[i - 1]["s"] >= x["s"]) and x["s"] < max(y["s"] for y in items)
-        reason = ({"type": "event", "label": f"{x['ev']['name']} D-{x['ev']['dday']}"} if boosted
-                  else {"type": "mention", "label": "가장 많이 언급" if i == 0 else f"언급 {x['mention']}"})
+        # 칩 아랫줄 계기 (02-UX "오늘의 이슈 순위"): 앞둔 발표면 코드가 "미국 CPI D-3", 아니면 AI 계기(출처 2개↑, 검사기가 확인)
+        if boosted:
+            n = x["ev"]["dday"]
+            reason = {"type": "event", "label": f"{x['ev']['name']} D-{n}"}
+            fact, fsrc = f"{'오늘' if n == 0 else '내일' if n == 1 else f'{n}일 뒤'} {x['ev']['name']} 발표가 있어요.", [{"name": "발표 일정", "url": x["ev"].get("source", "")}]
+        else:
+            reason = {"type": "mention", "label": x.get("trigger")}
+            fact, fsrc = x.get("fact"), x.get("fact_sources") or []
         out.append({"key": x["key"], "node": c["node"], "name": c["name"], "rank": i + 1, "reason": reason, "upSide": c["upSide"],
-                    "sentence": c["sentence"][x["dir"]], "explain": c["explain"], "sources": x["sources"]})
+                    "fact": fact, "watch": x.get("watch"), "sentence": " ".join(t for t in (fact, x.get("watch")) if t),
+                    "fact_sources": fsrc, "trigger_sources": x.get("trigger_sources") or [],
+                    "explain": c["explain"], "sources": x["sources"]})
     return out
 
 def st_dict(arr):

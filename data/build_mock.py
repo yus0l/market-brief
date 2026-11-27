@@ -23,14 +23,14 @@ base = {
   "status": {"delayed": None, "quiet": False, "split": None, "closed": {"us": False, "kr": False}, "rankChange": None},
   # 관심사 후보(고정 3개) 순위 — 샘플 순위. 실제는 AI가 매일 근거·출처와 함께 정함
   "interests": [
-    {"key": "cpi", "node": "cpi", "name": "물가", "rank": 1, "reason": {"type": "mention", "label": "가장 많이 언급"}, "upSide": "bad",
-     "sentence": "지금 시장은 물가가 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+    {"key": "cpi", "node": "cpi", "name": "물가", "rank": 1, "reason": {"type": "mention", "label": None}, "upSide": "bad",
+     "sentence": "시장은 다음 물가 발표가 예상보다 높게 나올지 보고 있어요",
      "explain": [["cpi","rate"],["rate","stock"]], "sources": []},
-    {"key": "rate", "node": "rate", "name": "금리", "rank": 2, "reason": {"type": "mention", "label": "언급 늘어나는 중"}, "upSide": "bad",
-     "sentence": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+    {"key": "rate", "node": "rate", "name": "금리", "rank": 2, "reason": {"type": "mention", "label": "한은 금리 인상"}, "upSide": "bad",
+     "sentence": "어제 한국은행이 금리를 올렸어요. 시장은 이게 대출과 환율에 얼마나 부담이 될지 보고 있어요",
      "explain": [["rate","stock"]], "sources": []},
-    {"key": "job", "node": "job", "name": "경기", "rank": 3, "reason": {"type": "mention", "label": "가끔 언급"}, "upSide": "good",
-     "sentence": "지금 시장은 경기가 식어 주식에 악재가 될까 봐 걱정하고 있어요",
+    {"key": "job", "node": "job", "name": "경기", "rank": 3, "reason": {"type": "mention", "label": None}, "upSide": "good",
+     "sentence": "시장은 고용 지표가 꺾이는지 보고 있어요",
      "explain": [["job","stock"]], "sources": []},
   ],
   "events": [
@@ -74,7 +74,7 @@ def write(name, d):
     p = OUT / name; p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
 
-write("today.json", base)
+write("mock/sample.json", base)
 q = copy.deepcopy(base); q["status"]["quiet"] = True; q["events"] = q["events"][1:]; write("mock/quiet.json", q)
 r = copy.deepcopy(base); c = r["events"][1]
 c.update({"sub": "오늘 발표", "kind": "done", "actual": "b", "result": {"dir": "up", "text": "예상보다 높음 (샘플)"},

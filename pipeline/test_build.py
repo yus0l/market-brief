@@ -10,8 +10,9 @@ facts = {"series": {"kr_base": S("기준금리", "rate", 3.25, 3.00, "2026-11-26
 facts["allowed_numbers"] = sorted({x for s in facts["series"].values() for x in fmt_variants(s["value"]) | fmt_variants(s["prev"]) | fmt_variants(s["value"] - s["prev"]) | fmt_variants((s["value"] / s["prev"] - 1) * 100)})
 U = [{"name": "a", "url": f"https://news.example/{i}"} for i in range(3)]
 st = lambda node, dir=None, us=None, kr=None: {"node": node, "dir": dir, "us": us, "kr": kr}
-draft = {"interests": [{"key": "cpi", "mention": "많음", "dir": "up", "sources": U}, {"key": "rate", "mention": "보통", "dir": "up", "sources": U},
-                       {"key": "job", "mention": "적음", "dir": "down", "sources": U[:1]}],
+draft = {"interests": [{"key": "cpi", "mention": "많음", "dir": "up", "sources": U, "trigger": "물가 재상승 뉴스", "trigger_sources": U[:2], "fact": "요즘 물가가 다시 오른다는 뉴스가 많아요.", "fact_sources": U[:1], "watch": "시장은 다음 물가 발표가 예상보다 높게 나올지 보고 있어요"},
+                       {"key": "rate", "mention": "보통", "dir": "up", "sources": U, "trigger": "가장 많이 언급", "trigger_sources": U[:2], "fact": "한국은행이 금리를 올렸어요.", "fact_sources": U[:1], "watch": "시장은 금리가 더 올라 악재가 될지 보고 있어요"},
+                       {"key": "job", "mention": "적음", "dir": "down", "sources": U[:1], "trigger": None, "trigger_sources": [], "fact": None, "fact_sources": [], "watch": "시장은 고용 지표가 꺾이는지 보고 있어요"}],
   "events": [
    {"id": "bok", "type": "E1", "chip": "한국은행 금리", "head": "한국은행 기준금리 인상", "kind": "done", "schedule_code": "BOK", "expect": "예상대로",
     "actual_src": "https://www.etoday.co.kr/news/view/2652786", "expect_src": "https://www.mt.co.kr/economy/2026/11/22/2026112009065366740", "spread": True,
@@ -26,7 +27,8 @@ draft = {"interests": [{"key": "cpi", "mention": "많음", "dir": "up", "sources
     "b": {"label": "y", "path": [], "state": [], "cond": [{"text": "y", "dir": None, "done": False}], "out": ""}}, "judge_keys": [], "confirm": [], "sources": [{"name": "a", "url": "u"}]}]}
 out = assemble(today, facts, draft, upcoming(load_schedule(), today), None)
 final, errs = validate(out, facts)
-print("사건", [e["id"] for e in final["events"]], "| 관심사", [(x["rank"], x["name"], x["reason"]["label"]) for x in final["interests"]])
+print("사건", [e["id"] for e in final["events"]], "| 관심사", [(x["rank"], x["name"], x["reason"]["label"], x["sentence"]) for x in final["interests"]])
+print("관심사 오류:", [x for x in errs if x.startswith("관심사")])
 e0 = out["events"][0]; print("결과 줄:", e0["result"]["text"]); print("판단 재료:", e0["judge"]["items"])
 print("\n".join(errs))
 pathlib.Path(__file__).resolve().parent.parent.joinpath("web/mock/pipeline-test.json").write_text(json.dumps(final, ensure_ascii=False, indent=1), encoding="utf-8")

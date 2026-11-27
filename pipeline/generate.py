@@ -17,7 +17,9 @@ RULES = """규칙 (서비스 원칙 — 어기면 그 항목은 화면에 안 �
 - 예상 대비는 '예상보다 높음' / '예상대로' / '예상보다 낮음' 중 하나. 실제값·예상치 출처가 둘 다 있어야 한다. 조사가 갈리면 다수 의견 + spread=true.
 - 경로는 아래 기본 관계 목록의 선만 쓴다. 새 연결을 만들지 않는다.
 - 시나리오 조건은 확인 가능한 지표·일정만('투자 심리가 회복되면' 같은 것 금지).
-- '물가 ▼'는 '물가 오름세 둔화'로 쓴다."""
+- '물가 ▼'는 '물가 오름세 둔화'로 쓴다.
+- 관심사 박스 문장 = [사실 한 문장 fact] + [시장이 보는 것 한 문장 watch]. '걱정' 고정 틀 쓰지 않음, '보고 있어요'로 끝냄. 쪽(호재·악재)은 쓰지 않는다.
+- 관심사 계기(trigger)는 출처 기사 2개 이상일 때만. 7일 안 발표 때문이면 trigger·fact는 null로 둬도 된다(시스템이 'D-n'과 날짜 문장을 만든다)."""
 
 def graph_text():
     n = CFG["nodes"]
@@ -43,7 +45,7 @@ def research(today, facts, upcoming):
    E1 금리▲ / E2 금리▼ / E3 유가▲ / E4 원화 약세 / E5 경기▲ / E6 경기▼ / E7 공포▲ / E8 AI·반도체 실적
 2. 7일 안 발표 예정(아래 목록)의 시장 예상치(컨센서스)와 출처 URL. 못 찾으면 '못 찾음'.
 {json.dumps(upcoming, ensure_ascii=False)}
-3. 최근 3일 뉴스에서 '물가', '경기', '금리' 중 시장이 무엇을 가장 많이 걱정하는지: 후보별 대표 기사 URL 3개 이상과 대략적 언급 정도(많음/보통/적음). 각 관심사가 지금 오르는 쪽 걱정인지 내리는 쪽 걱정인지.
+3. 최근 3일 뉴스에서 '물가', '경기', '금리' 각각: 대표 기사 URL 3개 이상, 언급 정도(많음/보통/적음), 오르는 쪽인지 내리는 쪽인지, 순위를 올린 계기 한 마디(사건 이름이나 뉴스 주제, 출처 2개 이상), 박스 문장 2개(사실 + 시장이 보는 것).
 4. 금 가격(전일 종가)과 출처 1곳 이상. 오늘이 ISM 발표 다음 날이면 ISM 제조업 PMI 값과 출처.
 참고로 이미 공식 API로 모은 값(이 값들은 다시 찾지 않아도 됨): {json.dumps({k: [v['name'], v['value'], v['date']] for k, v in facts['series'].items()}, ensure_ascii=False)}
 메모는 항목별로 짧게, URL은 빠짐없이."""
@@ -62,9 +64,14 @@ OPT = {"type": "object", "properties": {"label": {"type": "string"}, "path": {"t
        "required": ["label", "path", "state", "cond", "out"], "additionalProperties": False}
 SRC = {"type": "array", "items": {"type": "object", "properties": {"name": {"type": "string"}, "url": {"type": "string"}}, "required": ["name", "url"], "additionalProperties": False}}
 SCHEMA = {"type": "object", "additionalProperties": False, "required": ["interests", "events"], "properties": {
-  "interests": {"type": "array", "items": {"type": "object", "additionalProperties": False, "required": ["key", "mention", "dir", "sources"], "properties": {
+  "interests": {"type": "array", "items": {"type": "object", "additionalProperties": False, "required": ["key", "mention", "dir", "sources", "trigger", "trigger_sources", "fact", "fact_sources", "watch"], "properties": {
       "key": {"type": "string", "enum": list(CFG["interests"])}, "mention": {"type": "string", "enum": ["많음", "보통", "적음"]},
-      "dir": {"type": "string", "enum": ["up", "down"]}, "sources": SRC}}},
+      "dir": {"type": "string", "enum": ["up", "down"]}, "sources": SRC,
+      "trigger": {"type": ["string", "null"], "description": "칩 아랫줄 계기, 8자 안팎. 순위를 올린 사건·뉴스 주제 자체(예: '한은 금리 인상', '고용 둔화 뉴스'). '가장 많이 언급' 같은 집계 말 금지, ▲▼·'실시간' 금지. 못 만들면 null"},
+      "trigger_sources": SRC,
+      "fact": {"type": ["string", "null"], "description": "박스 첫 문장: 무슨 일이 있었나/곧 있나. 30자 안팎, 날짜 말(어제·오늘·요즘·이번 주·N일 뒤) 포함, 출처 있음. 예: '어제 한국은행이 금리를 올렸어요.' 못 쓰면 null"},
+      "fact_sources": SRC,
+      "watch": {"type": "string", "description": "박스 둘째 문장: 시장이 무엇을 지켜보나. 30자 안팎, '시장은 …보고 있어요'로 끝남, 확인 가능한 지표·일정만, 예측·호재·악재 말 금지. 예: '시장은 이게 대출과 환율에 얼마나 부담이 될지 보고 있어요'"}}}},
   "events": {"type": "array", "maxItems": 3, "items": {"type": "object", "additionalProperties": False,
       "required": ["id", "date", "type", "chip", "head", "kind", "schedule_code", "expect", "actual_src", "expect_src", "spread", "real", "realPath", "next", "opts", "judge_keys", "confirm", "sources"],
       "properties": {

@@ -20,10 +20,10 @@
    "rank": 1,
    "reason": {
     "type": "mention",
-    "label": "가장 많이 언급"
+    "label": null
    },
    "upSide": "bad",
-   "sentence": "지금 시장은 물가가 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+   "sentence": "시장은 다음 물가 발표가 예상보다 높게 나올지 보고 있어요",
    "explain": [
     [
      "cpi",
@@ -43,10 +43,10 @@
    "rank": 2,
    "reason": {
     "type": "mention",
-    "label": "언급 늘어나는 중"
+    "label": "한은 금리 인상"
    },
    "upSide": "bad",
-   "sentence": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+   "sentence": "어제 한국은행이 금리를 올렸어요. 시장은 이게 대출과 환율에 얼마나 부담이 될지 보고 있어요",
    "explain": [
     [
      "rate",
@@ -62,10 +62,10 @@
    "rank": 3,
    "reason": {
     "type": "mention",
-    "label": "가끔 언급"
+    "label": null
    },
    "upSide": "good",
-   "sentence": "지금 시장은 경기가 식어 주식에 악재가 될까 봐 걱정하고 있어요",
+   "sentence": "시장은 고용 지표가 꺾이는지 보고 있어요",
    "explain": [
     [
      "job",

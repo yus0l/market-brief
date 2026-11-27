@@ -20,21 +20,19 @@
    "rank": 1,
    "reason": {
     "type": "mention",
-    "label": "가장 많이 언급"
+    "label": "물가 재상승 뉴스"
    },
    "upSide": "bad",
-   "sentence": "지금 시장은 물가가 올라 주식에 악재가 될까 봐 걱정하고 있어요",
-   "explain": [
-    [
-     "cpi",
-     "rate"
-    ],
-    [
-     "rate",
-     "stock"
-    ]
+   "fact": "요즘 물가가 다시 오른다는 뉴스가 많아요.",
+   "watch": "시장은 다음 물가 발표가 예상보다 높게 나올지 보고 있어요",
+   "sentence": "요즘 물가가 다시 오른다는 뉴스가 많아요. 시장은 다음 물가 발표가 예상보다 높게 나올지 보고 있어요",
+   "fact_sources": [
+    {
+     "name": "a",
+     "url": "https://news.example/0"
+    }
    ],
-   "sources": [
+   "trigger_sources": [
     {
      "name": "a",
      "url": "https://news.example/0"
@@ -42,25 +40,13 @@
     {
      "name": "a",
      "url": "https://news.example/1"
-    },
-    {
-     "name": "a",
-     "url": "https://news.example/2"
     }
-   ]
-  },
-  {
-   "key": "rate",
-   "node": "rate",
-   "name": "금리",
-   "rank": 2,
-   "reason": {
-    "type": "mention",
-    "label": "언급 보통"
-   },
-   "upSide": "bad",
-   "sentence": "지금 시장은 금리가 더 올라 주식에 악재가 될까 봐 걱정하고 있어요",
+   ],
    "explain": [
+    [
+     "cpi",
+     "rate"
+    ],
     [
      "rate",
      "stock"

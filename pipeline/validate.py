@@ -64,14 +64,29 @@ def check_event(e, allowed_nums, today, errs):
     check_paths(e, errs); check_words(e, e["id"], errs); check_numbers(e, allowed_nums, e["id"], errs)
     return len(errs) == before
 
-def check_interests(ints, errs):
+TIMEWORD = re.compile(r"어제|오늘|내일|그제|요즘|최근|이번 주|지난주|\d+일 뒤|\d{1,2}/\d{1,2}")
+def bad_words(t): return [w for w in BANNED if w in t]
+def nums_ok(t, allowed): return all(n.replace(",", "").lstrip("+-−") in allowed for n in NUM.findall(ISO.sub("", t)))
+
+def check_interests(ints, errs, allowed=frozenset()):
+    """02-UX "관심사 칩 = 오늘의 이슈 순위 + 박스 문장 형식". 계기·사실 문장은 틀리면 그 부분만 빼고, 보는 것 문장이 틀리면 관심사를 뺀다."""
     ok = []
     for x in ints:
-        if x["key"] not in CFG["interests"]: errs.append(f"관심사 후보 밖: {x['key']}"); continue
-        if x.get("reason", {}).get("type") == "mention" and len(x.get("sources", [])) < 3:
-            errs.append(f"관심사 {x['key']}: 언급량 근거 기사 URL 3개 미만"); continue
-        if x.get("sentence") not in CFG["interests"][x["key"]]["sentence"].values():
-            errs.append(f"관심사 {x['key']}: 문장이 템플릿과 다름"); continue
+        k = x["key"]; x = dict(x, reason=dict(x.get("reason") or {}))
+        if k not in CFG["interests"]: errs.append(f"관심사 후보 밖: {k}"); continue
+        if x["reason"].get("type") == "mention" and len(x.get("sources", [])) < 3:
+            errs.append(f"관심사 {k}: 언급량 근거 기사 URL 3개 미만"); continue
+        w = x.get("watch") or ""
+        if not (w.startswith("시장은") and w.rstrip(". ").endswith("보고 있어요")) or len(w) > 45 or bad_words(w) or re.search(r"호재|악재|걱정", w) or not nums_ok(w, allowed):
+            errs.append(f"관심사 {k}: 둘째 문장(시장이 보는 것) 규칙 위반 — {w}"); continue
+        lb = x["reason"].get("label")
+        if lb and (len(lb) > 12 or re.search(r"[▲▼]|실시간|언급", lb) or bad_words(lb)
+                   or (x["reason"].get("type") == "mention" and len(x.get("trigger_sources") or []) < 2)):
+            errs.append(f"관심사 {k}: 계기 '{lb}' 빠짐(출처 2개 미만·길이·금지 글자)"); x["reason"]["label"] = None
+        f = x.get("fact")
+        if f and (not TIMEWORD.search(f) or not x.get("fact_sources") or len(f) > 45 or bad_words(f) or re.search(r"호재|악재", f) or not nums_ok(f, allowed)):
+            errs.append(f"관심사 {k}: 첫 문장(사실) 빠짐(날짜 말·출처·길이·숫자) — {f}"); f = None
+        x["fact"] = f; x["sentence"] = " ".join(t for t in (f, w) if t)
         ok.append(x)
     return ok
 
@@ -91,7 +106,7 @@ def validate(today, facts):
     errs = []
     allowed = {str(v).replace(",", "") for v in facts.get("allowed_numbers", [])}
     out = dict(today)
-    out["interests"] = check_interests(today.get("interests", []), errs)
+    out["interests"] = check_interests(today.get("interests", []), errs, allowed)
     out["events"] = [e for e in today.get("events", []) if check_sub(e, today.get("date"), errs) and check_event(e, allowed, today.get("date"), errs)][:3]
     return out, errs
 
