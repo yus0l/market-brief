@@ -1,0 +1,58 @@
+{
+ "date": "2026-11-28",
+ "facts": "facts-2026-11-27.json",
+ "generated": "2026-11-27T16:22",
+ "topics": [
+  {
+   "name": "미국 엔비디아 소식",
+   "element": "company",
+   "country": "us",
+   "reason": "CEO 사임",
+   "reason_sources": [
+    {
+     "name": "Fox Business",
+     "url": "https://foxbusiness.com/markets/nvidia-shares-plunge-more-7-premarket-trading-ceo-uncertainty-rattles-ai-stocks"
+    },
+    {
+     "name": "SF Standard",
+     "url": "https://sfstandard.com/2026/11/12/nvidia-shares-tumble-as-wall-street-reacts-huang-s-exit/"
+    }
+   ],
+   "mentions": 4,
+   "boost": false,
+   "base": null,
+   "base_num": null,
+   "compare": null,
+   "recent": null,
+   "recent_sources": [],
+   "path": [],
+   "read": null,
+   "actual": null,
+   "next": null,
+   "sources": [
+    {
+     "name": "Fox Business",
+     "url": "https://foxbusiness.com/markets/nvidia-shares-plunge-more-7-premarket-trading-ceo-uncertainty-rattles-ai-stocks"
+    },
+    {
+     "name": "SF Standard",
+     "url": "https://sfstandard.com/2026/11/12/nvidia-shares-tumble-as-wall-street-reacts-huang-s-exit/"
+    },
+    {
+     "name": "City AM",
+     "url": "https://www.cityam.com/?p=2477309"
+    },
+    {
+     "name": "Khaleej Times",
+     "url": "https://www.khaleejtimes.com/business/global-ai-stocks-sink-as-nvidia-ceos-exit-deepens-sector-selloff"
+    }
+   ],
+   "rank": 1
+  }
+ ],
+ "dropped": [
+  "[미국 엔비디아 소식] 회사 주가 매체 2개 미만 → 값 확인 전",
+  "[미국 엔비디아 소식] 칸 co:엔비디아: 값 없음(수집값·매체 2개 숫자) → 여기서 자름",
+  "[미국 엔비디아 소식] 경로가 시장 칸까지 못 감 → ② 안 그림"
+ ]
+}

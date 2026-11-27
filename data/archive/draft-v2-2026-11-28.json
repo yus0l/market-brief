@@ -1,0 +1,112 @@
+{
+ "date": "2026-11-28",
+ "topics": [
+  {
+   "name": "미국 엔비디아 소식",
+   "element": "company",
+   "country": "us",
+   "mention_sources": [
+    {
+     "name": "Fox Business",
+     "url": "https://foxbusiness.com/markets/nvidia-shares-plunge-more-7-premarket-trading-ceo-uncertainty-rattles-ai-stocks"
+    },
+    {
+     "name": "SF Standard",
+     "url": "https://sfstandard.com/2026/11/12/nvidia-shares-tumble-as-wall-street-reacts-huang-s-exit/"
+    },
+    {
+     "name": "City AM",
+     "url": "https://www.cityam.com/?p=2477309"
+    },
+    {
+     "name": "Khaleej Times",
+     "url": "https://www.khaleejtimes.com/business/global-ai-stocks-sink-as-nvidia-ceos-exit-deepens-sector-selloff"
+    }
+   ],
+   "reason": "CEO 사임",
+   "reason_sources": [
+    {
+     "name": "Fox Business",
+     "url": "https://foxbusiness.com/markets/nvidia-shares-plunge-more-7-premarket-trading-ceo-uncertainty-rattles-ai-stocks"
+    },
+    {
+     "name": "SF Standard",
+     "url": "https://sfstandard.com/2026/11/12/nvidia-shares-tumble-as-wall-street-reacts-huang-s-exit/"
+    }
+   ],
+   "base_key": null,
+   "base_num": null,
+   "expect": null,
+   "expect_sources": [],
+   "recent": null,
+   "recent_sources": [],
+   "path": [
+    {
+     "key": "co:엔비디아",
+     "name": "엔비디아 주가",
+     "num": null,
+     "link_sources": [],
+     "why": "CEO 사임 소식 때문이라고 봐요",
+     "why_sources": [
+      {
+       "name": "Fox Business",
+       "url": "https://foxbusiness.com/markets/nvidia-shares-plunge-more-7-premarket-trading-ceo-uncertainty-rattles-ai-stocks"
+      },
+      {
+       "name": "SF Standard",
+       "url": "https://sfstandard.com/2026/11/12/nvidia-shares-tumble-as-wall-street-reacts-huang-s-exit/"
+      }
+     ],
+     "link_prev": "unknown"
+    },
+    {
+     "key": "sector:반도체",
+     "name": "미국 반도체 업종",
+     "num": null,
+     "link_sources": [
+      {
+       "name": "Khaleej Times",
+       "url": "https://www.khaleejtimes.com/business/global-ai-stocks-sink-as-nvidia-ceos-exit-deepens-sector-selloff"
+      },
+      {
+       "name": "City AM",
+       "url": "https://www.cityam.com/?p=2477309"
+      }
+     ],
+     "why": "엔비디아 CEO 사임 여파 때문이라고 봐요",
+     "why_sources": [
+      {
+       "name": "Khaleej Times",
+       "url": "https://www.khaleejtimes.com/business/global-ai-stocks-sink-as-nvidia-ceos-exit-deepens-sector-selloff"
+      },
+      {
+       "name": "Herald Corp",
+       "url": "https://biz.heraldcorp.com/article/10935685"
+      }
+     ],
+     "link_prev": "yes"
+    },
+    {
+     "key": "idx:나스닥",
+     "name": "미국 나스닥 지수",
+     "num": null,
+     "link_sources": [
+      {
+       "name": "Herald Corp",
+       "url": "https://biz.heraldcorp.com/article/10935685"
+      },
+      {
+       "name": "Khaleej Times",
+       "url": "https://www.khaleejtimes.com/business/global-ai-stocks-sink-as-nvidia-ceos-exit-deepens-sector-selloff"
+      }
+     ],
+     "why": null,
+     "why_sources": [],
+     "link_prev": "unknown"
+    }
+   ],
+   "ktype": null,
+   "read_articles": []
+  }
+ ]
+}
