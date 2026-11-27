@@ -55,7 +55,7 @@
    "rank": 2,
    "reason": {
     "type": "event",
-    "label": "미국 D-7"
+    "label": "미국 고용 D-7"
    },
    "upSide": "good",
    "sentence": "지금 시장은 경기가 식어 주식에 악재가 될까 봐 걱정하고 있어요",
@@ -197,7 +197,26 @@
    },
    "judge": {
     "interest": {},
-    "items": []
+    "items": [
+     [
+      "기준금리",
+      "up",
+      "3.25% · 직전보다 +0.25%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "국고채 3년",
+      "up",
+      "3.62% · 전일보다 +0.04%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "원/달러 환율",
+      "down",
+      "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
+      "good"
+     ]
+    ]
    },
    "lean": null,
    "confirm": [
@@ -260,7 +279,7 @@
    },
    "result": {
     "dir": "up",
-    "text": null,
+    "text": "3.00% → 3.25%",
     "expect": null,
     "actual_src": "https://ecos.bok.or.kr/",
     "expect_src": null

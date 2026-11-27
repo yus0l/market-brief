@@ -41,7 +41,7 @@ def rank_interests(draft_ints, upc):
     out = []
     for i, x in enumerate(items):
         c = CFG["interests"][x["key"]]; boosted = x["ev"] and (i == 0 or items[i - 1]["s"] >= x["s"]) and x["s"] < max(y["s"] for y in items)
-        reason = ({"type": "event", "label": f"{x['ev']['name'].split()[0]} D-{x['ev']['dday']}"} if boosted
+        reason = ({"type": "event", "label": f"{x['ev']['name']} D-{x['ev']['dday']}"} if boosted
                   else {"type": "mention", "label": "가장 많이 언급" if i == 0 else f"언급 {x['mention']}"})
         out.append({"key": x["key"], "node": c["node"], "name": c["name"], "rank": i + 1, "reason": reason, "upSide": c["upSide"],
                     "sentence": c["sentence"][x["dir"]], "explain": c["explain"], "sources": x["sources"]})
@@ -54,6 +54,19 @@ def st_dict(arr):
         if v: d[s["node"]] = v
     return d
 
+def mdd(d):   # FRED "2026-11-24" · ECOS "20261126" / "202610" → "11/24" · "10월"
+    d = str(d).replace("-", "")
+    return f"{int(d[4:6])}/{int(d[6:8])}" if len(d) >= 8 else f"{int(d[4:6])}월"
+
+UP_SIDE = {"stock": "good", "job": "good", "rate": "bad", "cpi": "bad", "fx": "bad", "vix": "bad", "oil": "bad"}
+def default_judge(facts, e):
+    """AI가 판단 재료 지표를 안 골랐을 때: 사건이 닿는 칸의 수집 지표에서 최대 3개 (한국 사건이면 한국 지표 먼저)."""
+    nodes = [r["node"] for r in e["real"]] + list(e.get("next") or [])
+    kr = any(r.get("kr") for r in e["real"])
+    keys = sorted((k for k, v in facts["series"].items() if v["node"] in nodes), key=lambda k: (kr != k.startswith(("kr_", "usdkrw", "ktb", "kospi")), nodes.index(facts["series"][k]["node"])))
+    return [{"key": k, "side_if_up": UP_SIDE.get(facts["series"][k]["node"], "bad")} for k in keys[:3]]
+
+DAILY = {"us_10y", "vix", "wti", "sp500", "usdkrw", "ktb3y", "kospi"}   # 나머지(금리 결정·월간 지표)는 "직전보다"
 def judge_row(f, key, side_if_up):
     s = f["series"].get(key)
     if not s: return [NAMES.get(key, key), None, None, None]
@@ -61,18 +74,20 @@ def judge_row(f, key, side_if_up):
     side = side_if_up if d == "up" else ({"good": "bad", "bad": "good"}.get(side_if_up) if d == "down" else None)
     unit = s["unit"] if s["unit"] in ("%", "원") else ""
     chs = f"{ch:+.2f}%p" if unit == "%" else f"{(s['value'] / s['prev'] - 1) * 100:+.2f}%"
-    return [s["name"], d, f"{s['value']:,.2f}{unit} · 전일보다 {chs} ({int(s['date'][5:7])}/{int(s['date'][8:10])} 기준)", side]
+    return [s["name"], d, f"{s['value']:,.2f}{unit} · {'전일보다' if key in DAILY else '직전보다'} {chs} ({mdd(s['date'])} 기준)", side]
 
 def assemble(today, facts, draft, upc, yesterday):
     events = []
     for e in draft["events"]:
+        if not e.get("schedule_code") and e["type"] == "E1" and any(r["node"] == "rate" and r.get("kr") for r in e["real"]):
+            e["schedule_code"] = "BOK"                          # AI가 비워도 한국 금리 결정이면 금통위로 연결 (결과 줄 값 채우기)
         sched = next((u for u in upc if u["code"] == e.get("schedule_code")), None)
         ev = {"id": e["id"], "type": e["type"], "chip": e["chip"], "head": e["head"], "kind": e["kind"],
               "sub": "오늘" if e["kind"] == "done" else (f"D-{sched['dday']}" if sched else "곧 발표"), "dday": e["kind"] != "done",
               "real": st_dict(e["real"]), "realPath": e["realPath"], "next": e["next"], "actual": None,
               "opts": {k: {"label": o["label"], "path": o["path"], "state": st_dict(o["state"]),
                            "cond": [[c["text"], c["dir"], 1 if c["done"] else 0] for c in o["cond"]], "out": o["out"]} for k, o in e["opts"].items()},
-              "judge": {"interest": {}, "items": [judge_row(facts, j["key"], j["side_if_up"]) for j in e["judge_keys"]]},
+              "judge": {"interest": {}, "items": [judge_row(facts, j["key"], j["side_if_up"]) for j in (e["judge_keys"] or default_judge(facts, e))]},
               "lean": None, "confirm": [dict(c, done=False, when=md(c.get("when"))) for c in e["confirm"]], "sources": e["sources"],
               "sectorTab": "kr" if e["type"] in ("E4",) else "us", "sectors": SECT.get(e["type"])}
         if e["kind"] == "upcoming": ev["top"] = f"예상치 확인 전" if not e["expect_src"] else "예상치 출처 있음"
