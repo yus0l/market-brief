@@ -796,7 +796,7 @@ function flowSVG(v) {
       : [dd.d === "up" ? "▲ 오름" : "▼ 내림", dd.d === "up" ? C.up : C.down];
     const exb = core && ["예상보다 높음", "예상보다 낮음", "예상대로"].includes(v.expect) ? v.expect : null;
     const lines = 1 + sub.length + (stt ? 1 : 0), y0 = y - (lines - 1) * 13.5 / 2 + 4 - (exb ? 5 : 0);
-    body += `<text x="${x}" y="${y0}" font-size="13" text-anchor="middle" font-weight="${fw}" fill="${nameFill}">${n.t}</text>`;
+    body += `<text x="${x}" y="${y0}" font-size="13" text-anchor="middle" font-weight="${fw}" fill="${nameFill}">${CTRY_N.includes(k) ? CPFX(CN) : ""}${n.t}</text>`;
     sub.forEach((t, i) => body += `<text x="${x}" y="${y0 + 14 + i * 13}" font-size="10.5" text-anchor="middle" fill="${subFill}">${t}</text>`);
     if (stt) body += `<text x="${x}" y="${y0 + 14 + sub.length * 13 + 1}" font-size="10.5" font-weight="600" text-anchor="middle" fill="${stt[1]}">${stt[0]}</text>`;
     if (exb) { const bw = exb.length * 11 + 14, by = T + h - 8;   // 칸 아래 테두리에 걸친 회색 배지
@@ -916,6 +916,10 @@ const leanText = p => p >= 58 ? "지금 시장은 악재 쪽에 더 가까워요
 // "물가 ▼"는 떨어짐으로 읽혀서, 물가가 관심사일 때 ▼는 "오름세 둔화"
 const mdj = s => s && s.length >= 10 ? `${+s.slice(5, 7)}/${+s.slice(8, 10)}` : (s || "");
 const domN = srcs => new Set((srcs || []).map(x => { try { return new URL(x.url).hostname.replace(/^www\./, ""); } catch (_) { return x.url; } })).size;
+// 나라마다 따로 있는 지표(물가·금리·고용·경기)는 나라를 붙임 (02-UX "지표 이름에 나라 붙이기")
+const CTRY_N = ["cpi", "rate", "job"], CPFX = c => c === "us" ? "미국 " : c === "kr" ? "한국 " : "";
+const iName = x => x && CTRY_N.includes(x.node) && !/^(미국|한국) /.test(x.name) ? CPFX(bCountry(x, [])) + x.name : (x && x.name) || "";
+const curIntN = () => { const x = curInt(); return x ? Object.assign({}, x, { name: iName(x) }) : x; };
 const refs = srcs => !(srcs && srcs.length) ? "" : `<details class="ref"><summary>기사 ${domN(srcs)}개 ›</summary>${srcs.map(x => `<a href="${h(x.url)}" target="_blank" rel="noopener">${h(x.name)}</a>`).join("")}</details>`;   // 기사 N개 = 서로 다른 매체 수
 const dirWord = (I, d) => d === "down" && I.key === "cpi" ? `${h(I.name)} 오름세 둔화` : h(I.name);
 
@@ -927,7 +931,7 @@ function home() {
   if (LOAD === "loading") return skeleton();
   if (LOAD === "error") return `<div class="ds-banner" style="margin-top:12px"><span>지금 데이터를 불러오지 못했어요</span><button data-retry>다시 시도</button></div>`;
   if (BMODE) return homeB();
-  const st = D.status || {}, I = curInt();
+  const st = D.status || {}, I = curIntN();
   INTEREST = I.node; EXPLAIN = I.explain || [];
   const e = cur(), L = layers(e, I, st), { v, real, o, op, via, idir, opSide } = L;
   const past = e.kind === "done" && e.date && D.date && e.date < D.date;   // 지난 사건 (결과 확인 남음)
@@ -952,7 +956,7 @@ function home() {
   const chg = "";   // B4 1순위 변경 줄 삭제 (02-UX 요소 점검 2)
   const ints = D.interests || [];
   // 관심사 고르기 = 버튼 + 펼침 목록 (02-UX "되돌림: 칩 → 셀렉트"): "1 금리 · 한은 금리 인상", 1은 빨강·2·3 검정
-  const iitem = x => `<span class="rk ${x.rank === 1 ? "r1" : ""}">${x.rank}</span><b>${h(x.name)}</b>${x.reason && x.reason.label ? `<span class="l2"> · ${h(x.reason.label)}</span>` : ""}`;
+  const iitem = x => `<span class="rk ${x.rank === 1 ? "r1" : ""}">${x.rank}</span><b>${h(iName(x))}</b>${x.reason && x.reason.label ? `<span class="l2"> · ${h(x.reason.label)}</span>` : ""}`;
   const pick = ints.length > 1
     ? `<div class="isel"><button class="isel-btn" data-iopen aria-haspopup="listbox" aria-expanded="${!!S.iopen}" aria-label="요즘 시장의 관심사 고르기">${iitem(I)}<span class="car" aria-hidden="true">▾</span></button>${S.iopen
       ? `<ul class="isel-list" role="listbox" aria-label="요즘 시장의 관심사">${ints.map(x => `<li role="option" tabindex="-1" aria-selected="${x.key === I.key}" class="${x.key === I.key ? "on" : ""}" data-ichip="${h(x.key)}">${iitem(x)}</li>`).join("")}</ul>` : ""}</div>`
@@ -1076,10 +1080,10 @@ function bPath(I, c) {
   return out;
 }
 const bWhy = (k, c) => { const w = (D.why || {})[k]; return w && typeof w === "object" ? w[c] : w || ""; };
-const bName = (k, c) => k === "kospi" ? "코스피" : (SUBS[c] && SUBS[c][k] && ["stock", "fx"].includes(k) ? SUBS[c][k] : (NG[k] && NG[k].t) || k);
+const bName = (k, c) => k === "kospi" ? "코스피" : (SUBS[c] && SUBS[c][k] && ["stock", "fx"].includes(k) ? SUBS[c][k] : (CTRY_N.includes(k) ? CPFX(c) : "") + ((NG[k] && NG[k].t) || k));
 function homeB() {
   // B v3: 번지는 경로 자체가 위→아래 타임라인 (02-UX "B v3"). 줄 하나 = 경로 위 칸 하나. 원·선 = 시간 상태, ▲▼ 색 = 방향
-  const st = D.status || {}, I = curInt(), lvl = bFade();
+  const st = D.status || {}, I = curIntN(), lvl = bFade();
   INTEREST = I.node; EXPLAIN = [];
   const rel0 = (D.events || []).filter(e => touches(e, I.node) || (e.watch && WNODE[e.watch.key] === I.node));
   const c = bCountry(I, rel0), NV = (D.nowv || {})[c] || {}, path = bPath(I, c);
@@ -1154,7 +1158,7 @@ function homeB() {
   if (D.mock) top += `<div class="ds-banner" style="margin-top:8px"><span><b>샘플 데이터</b>예요. 매일 아침 실제 데이터로 바뀌어요</span></div>`;
   if (st.delayed) top += `<div class="ds-banner" style="margin-top:8px"><span>아직 오늘 데이터가 안 들어왔어요. <b>어제 기준</b>이에요</span></div>`;
   const ints = D.interests || [];
-  const iitem = x => `<span class="rk ${x.rank === 1 ? "r1" : ""}">${x.rank}</span><b>${h(x.name)}</b>${x.reason && x.reason.label ? `<span class="l2"> · ${h(x.reason.label)}</span>` : ""}`;
+  const iitem = x => `<span class="rk ${x.rank === 1 ? "r1" : ""}">${x.rank}</span><b>${h(iName(x))}</b>${x.reason && x.reason.label ? `<span class="l2"> · ${h(x.reason.label)}</span>` : ""}`;
   const pick = ints.length > 1 ? `<div class="isel"><button class="isel-btn" data-iopen aria-haspopup="listbox" aria-expanded="${!!S.iopen}">${iitem(I)}<span class="car" aria-hidden="true">▾</span></button>${S.iopen
       ? `<ul class="isel-list" role="listbox">${ints.map(x => `<li role="option" tabindex="-1" aria-selected="${x.key === I.key}" class="${x.key === I.key ? "on" : ""}" data-ichip="${h(x.key)}">${iitem(x)}</li>`).join("")}</ul>` : ""}</div>`
     : `<div class="isel"><div class="isel-btn">${iitem(I)}</div></div>`;
