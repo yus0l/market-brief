@@ -35,8 +35,8 @@
    },
    "upSide": "bad",
    "fact": "어제 한국은행이 기준금리를 올렸어요.",
-   "watch": null,
-   "sentence": "어제 한국은행이 기준금리를 올렸어요.",
+   "watch": "시장은 한국 소비자물가 발표를 보고 있어요",
+   "sentence": "어제 한국은행이 기준금리를 올렸어요. 시장은 한국 소비자물가 발표를 보고 있어요",
    "fact_sources": [
     {
      "name": "뉴스웨이 한은 3.25% 인상",
@@ -182,5 +182,204 @@
    ]
   }
  ],
- "events": []
+ "events": [
+  {
+   "id": "2026-11-26-bok",
+   "type": "E1",
+   "chip": "한국 물가",
+   "head": "한국은행이 기준금리를 올렸어요",
+   "kind": "done",
+   "date": "2026-11-26",
+   "dday": false,
+   "real": {
+    "rate": {
+     "dir": "up",
+     "kr": "up"
+    }
+   },
+   "realPath": [
+    [
+     "rate",
+     "fx"
+    ],
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "next": [
+    "fx",
+    "stock"
+   ],
+   "actual": null,
+   "opts": {
+    "a": {
+     "label": "물가 부담이 이어지면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "rate": {
+       "dir": "up",
+       "kr": "up"
+      }
+     },
+     "cond": [
+      [
+       "한국 소비자물가",
+       "up",
+       0
+      ]
+     ],
+     "out": "금리 부담이 이어지는 쪽으로 볼 수 있어요"
+    },
+    "b": {
+     "label": "물가 오름세가 둔화되면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "rate": {
+       "dir": "up",
+       "kr": "up"
+      }
+     },
+     "cond": [
+      [
+       "한국 소비자물가",
+       "down",
+       0
+      ]
+     ],
+     "out": "금리 부담이 줄어드는 쪽으로 볼 수 있어요"
+    }
+   },
+   "judgeKeys": [
+    "kr_base",
+    "ktb3y",
+    "usdkrw"
+   ],
+   "judge": {
+    "interest": {},
+    "items": [
+     [
+      "기준금리",
+      "up",
+      "3.25% · 직전보다 +0.25%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "국고채 3년",
+      "up",
+      "3.62% · 전일보다 +0.04%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "원/달러 환율",
+      "down",
+      "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
+      "good"
+     ]
+    ]
+   },
+   "lean": null,
+   "confirm": [
+    {
+     "label": "먼저",
+     "what": "한국 소비자물가 발표",
+     "when": "일정 확인 전",
+     "date": null,
+     "done": false
+    },
+    {
+     "label": "최종",
+     "what": "금통위 금리 결정",
+     "when": "1/14",
+     "date": "2027-01-14",
+     "done": false
+    }
+   ],
+   "sources": [
+    {
+     "name": "뉴스웨이 한은 3.25% 인상",
+     "url": "https://www.newsway.co.kr/news/view?ud=2026112611020966763"
+    },
+    {
+     "name": "WOW TV 한은 점도표",
+     "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202611260054"
+    },
+    {
+     "name": "파이낸셜뉴스 금통위 인상",
+     "url": "https://www.fnnews.com/news/202611260931178752"
+    }
+   ],
+   "sectorTab": "us",
+   "sectors": {
+    "us": [
+     [
+      "더 크게",
+      [
+       "인터넷·성장주",
+       "유틸리티·리츠"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·금융"
+      ]
+     ]
+    ],
+    "kr": [
+     [
+      "더 크게",
+      [
+       "2차전지",
+       "인터넷·게임",
+       "건설"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·보험"
+      ]
+     ]
+    ]
+   },
+   "watch": {
+    "key": "kr_cpi",
+    "short": "한국 물가",
+    "name": "한국 소비자물가",
+    "value": "10월 전년 대비 2.8%",
+    "dir": "down",
+    "source": {
+     "name": "한국은행 ECOS",
+     "url": "https://ecos.bok.or.kr/"
+    },
+    "next": null,
+    "next_date": null,
+    "high": "물가 부담이 이어지는 쪽",
+    "low": "오름세가 둔화되는 쪽",
+    "hit": null
+   },
+   "question": "금리를 올린 뒤, 물가 부담이 이어질까요?",
+   "result": {
+    "dir": "up",
+    "text": "3.00% → 3.25%",
+    "expect": null,
+    "actual_src": "https://ecos.bok.or.kr/",
+    "expect_src": null
+   },
+   "sub": "일정 확인 전",
+   "trigger": "11/26 기준금리 3.00% → 3.25%",
+   "watchChip": true
+  }
+ ]
 }

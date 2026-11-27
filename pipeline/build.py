@@ -97,7 +97,8 @@ def watch_card(key, hi, lo, facts, today):
         else:
             unit = s["unit"] if s["unit"] in ("%", "원") else ""
             val = f"{s['value']:,.2f}{unit} ({mdd(s['date'])} 기준)"; ch = s["value"] - s["prev"]
-        dirn = "up" if ch > 0 else "down" if ch < 0 else None; src = s["source"]
+        dirn = "up" if ch > 0 else "down" if ch < 0 else None
+        src = {"name": "한국은행 ECOS" if "ecos" in s["source"]["url"] else "FRED", "url": s["source"]["url"]}   # 통계표 번호가 숫자 검사에 걸리지 않게
     nx = next((r for r in sorted(load_schedule(), key=lambda r: r["date"]) if r["code"] == c["sched"] and r.get("verified")
                and (r.get("kst") or r["date"])[:10] >= today.isoformat()), None) if c.get("sched") else None
     nd = (nx.get("kst") or nx["date"])[:10] if nx else None
@@ -130,7 +131,11 @@ def assemble(today, facts, draft, upc, yesterday):
                     rest = [c for c in ev["opts"][k]["cond"] if W["short"] not in c[0] and W["name"] not in c[0]]
                     ev["opts"][k]["cond"] = [[W["name"], d, 0]] + rest[:2]
             first = {"label": "먼저", "what": f"{W['name']} 발표", "when": W["next"] or "일정 확인 전", "date": W["next_date"], "done": False}
-            later = [dict(c, label="최종") for c in ev["confirm"] if W["short"] not in c["what"] and W["name"] not in c["what"]][:1]
+            # 최종 단계 = 이 사건을 낸 기관의 다음 결정 (한국 금리 사건 → 다음 금통위). 일정표에 공식 날짜가 있을 때만
+            DEC = {"BOK": "금통위 금리 결정", "FOMC": "FOMC 금리 결정"}
+            code = e.get("schedule_code")
+            nd = next((r for r in sorted(load_schedule(), key=lambda r: r["date"]) if r["code"] == code and r.get("verified") and r["date"] > ev["date"]), None) if code in DEC else None
+            later = [{"label": "최종", "what": DEC[code], "when": md(nd["date"]), "date": nd["date"], "done": False}] if nd else []
             ev["confirm"] = [first] + later
         if e["kind"] == "upcoming": ev["top"] = f"예상치 확인 전" if not e["expect_src"] else "예상치 출처 있음"
         if e["kind"] == "done":
