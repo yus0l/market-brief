@@ -642,7 +642,8 @@
           "fx",
           "gold",
           "stock",
-          "vix"
+          "vix",
+          "kospi"
          ]
         },
         "dir": {
@@ -702,7 +703,8 @@
          "fx",
          "gold",
          "stock",
-         "vix"
+         "vix",
+         "kospi"
         ]
        },
        "minItems": 2,
@@ -721,7 +723,8 @@
         "fx",
         "gold",
         "stock",
-        "vix"
+        "vix",
+        "kospi"
        ]
       }
      },
@@ -748,7 +751,8 @@
              "fx",
              "gold",
              "stock",
-             "vix"
+             "vix",
+             "kospi"
             ]
            },
            "minItems": 2,
@@ -770,7 +774,8 @@
               "fx",
               "gold",
               "stock",
-              "vix"
+              "vix",
+              "kospi"
              ]
             },
             "dir": {
@@ -882,7 +887,8 @@
              "fx",
              "gold",
              "stock",
-             "vix"
+             "vix",
+             "kospi"
             ]
            },
            "minItems": 2,
@@ -904,7 +910,8 @@
               "fx",
               "gold",
               "stock",
-              "vix"
+              "vix",
+              "kospi"
              ]
             },
             "dir": {

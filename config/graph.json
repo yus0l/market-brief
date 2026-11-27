@@ -8,7 +8,8 @@
   "fx": "달러·환율",
   "gold": "금",
   "stock": "주식",
-  "vix": "공포"
+  "vix": "공포",
+  "kospi": "한국 주식(코스피, 미국 사건 다음 날)"
  },
  "split": [
   "rate",
@@ -67,6 +68,10 @@
   [
    "fx",
    "gold"
+  ],
+  [
+   "stock",
+   "kospi"
   ]
  ],
  "interests": {

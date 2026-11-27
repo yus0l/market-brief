@@ -181,6 +181,7 @@
 /* 판정 뒤집힘 */
 @keyframes ds-flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
 .ds-side.is-flipping{animation:ds-flip .55s var(--ease)}
+.sidetag.is-flipping{animation:ds-flip .55s var(--ease);transform-box:fill-box;transform-origin:center}
 .ds-flip-note{font-size:var(--fs-caption);font-weight:var(--fw-bold);color:var(--meaning);background:var(--meaning-soft);border-radius:var(--r-tag);padding:var(--sp-2) 10px}
 
 /* ⬆ tokens.css 끝 */
@@ -523,9 +524,14 @@
 const N = {   // 원인(왼: 유가·고용) → 전달(가운데: 물가·금리·환율) → 결과(오른: 금·주식·공포)
   oil:{x:58,y:44,t:"유가"}, job:{x:58,y:116,t:"경기·고용",s:"ISM·고용"},
   cpi:{x:176,y:44,t:"물가",s:"CPI"}, rate:{x:176,y:116,t:"금리",s:"10년물",split:true}, fx:{x:176,y:190,t:"달러·환율"},
-  vix:{x:294,y:44,t:"공포",s:"VIX"}, stock:{x:294,y:116,t:"주식",split:true}, gold:{x:294,y:196,t:"금"}
+  vix:{x:294,y:44,t:"공포",s:"VIX"}, stock:{x:294,y:116,t:"주식",split:true}, gold:{x:294,y:196,t:"금"},
+  kospi:{x:294,y:268,t:"한국 주식",usOnly:true}   // 미국 사건만: 결과 끝 "그래서 한국엔?" (02-UX 흐름도 나라 = 사건 나라)
 };
-Object.values(N).forEach(n => { n.w = n.split ? 92 : 80; n.h = n.split ? 60 : 40; });
+Object.values(N).forEach(n => { n.w = n.split ? 92 : 80; n.h = n.split ? 68 : 54; n.split = false; });
+N.rate.big = N.stock.big = true;
+// 칸 아래 실제 지표 이름 = 사건 나라 기준
+const SUBS = { kr:{ cpi:"한국 소비자물가", rate:"기준금리·국고채 3년", job:"한국 고용", stock:"코스피", fx:"원/달러", oil:"WTI", gold:"국제 금값", vix:"미국 VIX", kospi:"코스피" },
+               us:{ cpi:"미국 CPI", rate:"기준금리·10년물", job:"미국 고용", stock:"S&P500", fx:"원/달러", oil:"WTI", gold:"국제 금값", vix:"미국 VIX", kospi:"코스피" } };
 const NG = N;
 // PC 2열에서만 열 사이를 벌려 SVG를 넓힘 (글자 배율은 그대로). FLOW_D = 열 하나당 늘린 간격
 let FLOW_D = 0;
@@ -547,20 +553,22 @@ const ZONES = [["원인",58],["전달",176],["결과",294]], ZONE_LINES = [4,117
 const E = [   // 기획 v4 §4 기본 관계 13개. graph.json과 같은 목록이어야 함 (checkGraph가 확인)
   ["oil","cpi",[[98,38],[136,38]]],
   ["job","cpi",[[98,108],[110,108],[110,50],[136,50]]],
-  ["fx","cpi",[[136,196],[122,196],[122,76],[150,76],[150,64]], { t:"수입 물가", x:122, y:158 }],
+  ["fx","cpi",[[136,196],[122,196],[122,78],[150,78],[150,71]], { t:"수입 물가", x:122, y:158 }],
   ["job","rate",[[98,122],[130,122]]],
-  ["cpi","rate",[[165,64],[165,86]]],
-  ["rate","cpi",[[187,86],[187,64]], { t:"몇 달 뒤", x:214, y:75 }],
+  ["cpi","rate",[[165,71],[165,82]]],
+  ["rate","cpi",[[187,82],[187,71]], { t:"몇 달 뒤", x:214, y:76 }],
   ["rate","gold",[[222,130],[232,130],[232,186],[254,186]]],
   ["rate","stock",[[222,112],[248,112]]],
-  ["rate","fx",[[176,146],[176,170]]],
+  ["rate","fx",[[176,150],[176,163]]],
   ["fx","stock",[[216,178],[242,178],[242,138],[248,138]]],
-  ["vix","stock",[[294,64],[294,86]], null, { both:true }],                          // 11 공포 ↔ 주식 (양방향)
+  ["vix","stock",[[294,71],[294,82]], null, { both:true }],                          // 11 공포 ↔ 주식 (양방향)
   ["job","stock",[[58,136],[58,232],[349,232],[349,124],[340,124]]],                // 12 경기 → 주식: 아래로 돌아가서 교차 0
-  ["fx","gold",[[216,202],[254,202]]]                                               // 13 환율 → 금
+  ["fx","gold",[[216,202],[254,202]]],                                              // 13 환율 → 금
+  ["stock","kospi",[[340,136],[346,136],[346,268],[334,268]], { t:"다음 날", x:322, y:158 }, { usOnly:true }],   // 14 S&P500 → 코스피 (미국 사건만, 명세 §3-5-2)
+  ["fx","kospi",[[176,217],[176,268],[254,268]], null, { usOnly:true }]              // 미국 사건: 원/달러 → 코스피 = 10 환율→주식의 한국 쪽
 ];
 // 보통 관계 방향: +1 같이 움직임, −1 반대로 움직임. 실선 = 두 칸이 실제로 움직였다(원인 뜻 아님)
-const SIGN = { "oil>cpi":1, "job>cpi":1, "fx>cpi":1, "job>rate":1, "cpi>rate":1, "rate>gold":-1, "rate>stock":-1, "rate>fx":1, "fx>stock":-1, "vix>stock":-1, "job>stock":1 };
+const SIGN = { "stock>kospi":1, "fx>kospi":-1, "oil>cpi":1, "job>cpi":1, "fx>cpi":1, "job>rate":1, "cpi>rate":1, "rate>gold":-1, "rate>stock":-1, "rate>fx":1, "fx>stock":-1, "vix>stock":-1, "job>stock":1 };
 const SIGN_C = { kr: { "rate>fx": -1 } };   // 한국 금리 ▲ → 원화 강세 → 원/달러 ▼ 가 보통
 const LPOS = { "rate>stock": [235, 97] };      // 짧은 선: 라벨 아래 끝이 선에서 6px 위 (선 y112 − 6 − 높이 반 9)
 const CNAME = { stock:{ kr:"코스피", us:"S&P 500" }, rate:{ kr:"금리", us:"금리" }, fx:{ kr:"환율", us:"환율" } };
@@ -578,7 +586,7 @@ const WEAK = [["fx","stock"]];          // 미국 → 한국 쪽은 한 단계 �
 const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const C = { up:tok("--dir-up"), down:tok("--dir-down"), acc:tok("--meaning"), edge:tok("--edge-idle"), ink:tok("--text-1"), sub:tok("--text-2"),
             mute:tok("--text-3"), label:tok("--text-2"), amber:tok("--interest"), amberText:tok("--interest-text"),
-            stage:tok("--surface-box"), surf:tok("--surface-1"), sunk:tok("--surface-sunken"), b1:tok("--border-1"), b2:tok("--border-2") };
+            stage:tok("--surface-box"), surf:tok("--surface-1"), sunk:tok("--surface-sunken"), t3:tok("--text-3"), path:"#3A3A3C", base:"#D1D1D6", b1:tok("--border-1"), b2:tok("--border-2") };
 const MONO = tok("--font-mono");
 const has = (list, a, b) => (list || []).some(p => p[0] === a && p[1] === b);
 
@@ -586,7 +594,7 @@ const has = (list, a, b) => (list || []).some(p => p[0] === a && p[1] === b);
 function tri(cx, cy, d, hypo, r = 5) {
   const c = d === "up" ? C.up : C.down;
   const pts = d === "up" ? `${cx},${cy-r} ${cx+r},${cy+r*.75} ${cx-r},${cy+r*.75}` : `${cx},${cy+r} ${cx+r},${cy-r*.75} ${cx-r},${cy-r*.75}`;
-  return hypo ? `<polygon points="${pts}" fill="#fff" stroke="${c}" stroke-width="1.6" stroke-linejoin="round"/>`
+  return hypo ? `<polygon points="${pts}" fill="#fff" stroke="${C.sub}" stroke-width="1.4" stroke-linejoin="round"/>`   // 가정 = 회색 빈 △▽ (색은 실제 ▲▼만)
               : `<polygon points="${pts}" fill="${c}"/>`;
 }
 // 둥근 모서리 직각 경로
@@ -614,7 +622,8 @@ function mergeState(v) {
 
 /* layers: real / hypo / next(다음에 영향받을 수 있는 칸) */
 function flowSVG(v) {
-  const N = Object.fromEntries(Object.entries(NG).map(([k, n]) => [k, Object.assign({}, n, { x: mx(n.x) })]));
+  const US = v.country === "us", H = US ? 306 : 246, CN = US ? "us" : "kr";
+  const N = Object.fromEntries(Object.entries(NG).filter(([k, n]) => US || !n.usOnly).map(([k, n]) => [k, Object.assign({}, n, { x: mx(n.x) })]));
   const st = mergeState(v), CT = contras(v);
   // 칸의 방향색 (미|한 칸은 환율 쪽 연결이면 한국, 아니면 미국 우선)
   const colorOf = (k, side) => {
@@ -623,11 +632,12 @@ function flowSVG(v) {
   };
 
   const lit = E.map(([a, b, pts0, lab0, o5], i) => {
+    if (o5 && o5.usOnly && !US) return null;
     const pts = pts0.map(([x, y]) => [mx(x), y]), lab = lab0 && Object.assign({}, lab0, { x: mx(lab0.x) });
     const both = !!(o5 && o5.both), hit = l => has(l, a, b) || (both && has(l, b, a));
     const real = hit(v.realPath), hyp = !real && hit(v.hypoPath);
     return { a, b, pts, lab, i, real, hyp, both, on: real || hyp, weak: has(WEAK, a, b), contra: real && CT.some(c => c.a === a && c.b === b) };
-  });
+  }).filter(Boolean);
   const on = lit.filter(e => e.on);
   const depth = (e, seen = new Set()) => {
     if (seen.has(e)) return 0; seen.add(e);
@@ -639,40 +649,27 @@ function flowSVG(v) {
   let defs = `<filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#141820" flood-opacity=".07"/></filter>
     <filter id="blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter>
     <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${C.acc}" stop-opacity=".45"/><stop offset=".5" stop-color="${C.acc}"/><stop offset="1" stop-color="${C.acc}" stop-opacity=".35"/></linearGradient>
-    <marker id="mg" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="${C.edge}"/></marker>`;
+    <marker id="mg" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="${C.base}"/></marker>`;
   let body = "";
 
   // 구역: 세로 점선 + 모노 라벨
-  ZONE_LINES.map(mx).forEach(x => body += `<line x1="${x}" y1="18" x2="${x}" y2="242" stroke="${C.b2}" stroke-dasharray="2 4"/>`);
+  ZONE_LINES.map(mx).forEach(x => body += `<line x1="${x}" y1="18" x2="${x}" y2="242" stroke="${C.b2}" stroke-dasharray="2 4"/>`.replace('y2="242"', `y2="${H-4}"`));
   ZONES.forEach(([t, x0]) => { const x = mx(x0); body += `<text x="${x}" y="11" font-family='${MONO}' font-size="11" letter-spacing=".5" text-anchor="middle" fill="${C.label}">${t}</text>`; });
   const zoneEnd = body.length;   // 구역 라벨 아래로 칸·선을 8 내림
 
   // 기본 관계 (옅은 회색, 항상)
   lit.filter(e => !e.on).forEach(e => {
     body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.stage}" stroke-width="6"/>`;   // 교차점 틈
-    body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.edge}" stroke-width="${e.weak?1:1.5}" opacity="${e.weak?.55:1}" marker-end="url(#mg)" ${e.both?'marker-start="url(#mg)"':""}/>`;
+    body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.base}" stroke-width="1" opacity="${e.weak?.55:1}" marker-end="url(#mg)" ${e.both?'marker-start="url(#mg)"':""}/>`;
   });
-  // 관심사 설명 경로: 사실이 아니라 "왜 걱정하는지" 설명. 다른 게 켜지면 30%로 옅게
-  if (v.explain) {
-    defs += `<marker id="mi" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="${C.amber}"/></marker>`;
-    lit.filter(e => has(EXPLAIN, e.a, e.b)).forEach(e => {
-      body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.stage}" stroke-width="6"/>`;
-      body += `<path d="${roundPath(e.pts)}" fill="none" stroke="${C.amber}" stroke-width="2" opacity="${v.explain}" marker-end="url(#mi)"/>`;
-    });
-  }
-  // 켜진 경로: 출발 칸 방향색 → 도착 칸 방향색 그라디언트
+  // 사건 경로: #3A3A3C 1.75px, 실제 = 실선 / 가정 = 점선, 방향은 흐르는 밝은 빛 (02-UX 흐름도 위계)
+  defs += `<marker id="mp" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="${C.path}"/></marker>`;
   on.forEach(e => {
-    const side = (e.a === "fx" || e.b === "fx") ? "kr" : "us";
-    const c1 = colorOf(e.a, side), c2 = colorOf(e.b, side);
-    const [x1, y1] = e.pts[0], [x2, y2] = e.pts[e.pts.length-1];
-    defs += `<linearGradient id="g${e.i}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
-      <marker id="m${e.i}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" fill="${c2}"/></marker>`;
-    const d = roundPath(e.pts), op = e.hyp ? .6 : (e.weak ? .75 : 1);
+    const d = roundPath(e.pts);
     body += `<path d="${d}" fill="none" stroke="${C.stage}" stroke-width="6"/>`;
-    body += `<path d="${d}" fill="none" stroke="url(#g${e.i})" stroke-width="${e.weak?2:2.5}" stroke-linecap="round" opacity="${op}" ${e.hyp?'stroke-dasharray="5 4"':''} marker-end="url(#m${e.i})" ${e.both?`marker-start="url(#m${e.i})"`:""}/>`;
-    // 흐르는 빛 (처음엔 선 밖에 숨어 있음 → 애니메이션이 안 돌아도 안 보임)
-    body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="url(#g${e.i})" stroke-width="7" filter="url(#blur)" opacity="${e.hyp?.45:.7}" stroke-dasharray="0.22 2" stroke-dashoffset="0.22"/>`;
-    body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="1.6" opacity="${e.hyp?.6:.9}" stroke-dasharray="0.12 2" stroke-dashoffset="0.12"/>`;
+    body += `<path d="${d}" fill="none" stroke="${C.path}" stroke-width="1.75" stroke-linecap="round" ${e.hyp?'stroke-dasharray="5 4"':''} marker-end="url(#mp)" ${e.both?'marker-start="url(#mp)"':""}/>`;
+    body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="5" filter="url(#blur)" opacity=".7" stroke-dasharray="0.22 2" stroke-dashoffset="0.22"/>`;
+    body += `<path class="glint" data-depth="${e.depth}" d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="1.4" opacity=".95" stroke-dasharray="0.12 2" stroke-dashoffset="0.12"/>`;
   });
   // 선 위 작은 라벨 (몇 달 뒤 / 수입 물가): 그 선이 켜졌을 때만 (02-UX 요소 점검 2)
   lit.filter(e => e.lab && e.on && !e.contra).forEach(e => {
@@ -681,35 +678,30 @@ function flowSVG(v) {
     body += `<text x="${e.lab.x}" y="${e.lab.y+3.5}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.label}">${e.lab.t}</text>`;
   });
 
-  // 칸
+  // 칸 위계 3단계 (02-UX): 1 핵심 = 사건 칸 하나(테두리+그림자+굵게) / 2 관련 = 경로·다음에 볼 것·관심사(테두리만) / 3 나머지 = 글자만 text-3
+  const pathN = new Set();
+  [...(v.realPath || []), ...(v.hypoPath || [])].forEach(([a, b]) => { pathN.add(a); pathN.add(b); });
+  Object.keys(v.real || {}).forEach(k => pathN.add(k)); Object.keys(v.hypo || {}).forEach(k => pathN.add(k));
   Object.entries(N).forEach(([k, n]) => {
-    const s = st[k] || {}, next = !s.on && (v.next || []).includes(k);
+    const s = st[k] || {}, isNext = (v.next || []).includes(k), isInt = k === INTEREST;
+    const lv = !pathN.size ? 2 : k === v.core ? 1 : (pathN.has(k) || isNext || isInt) ? 2 : 3;
     const { x, y, w, h } = n, L = x - w/2, T = y - h/2, rx = n.split ? 16 : 13;
-    const isStock = k === "stock", isInt = k === INTEREST;
-    body += `<g ${isStock && SHOW_SECTORS ? 'class="tapstock" tabindex="0" role="button" aria-label="주식 칸: 업종별 영향 보기" style="cursor:pointer"' : ''}>`;
-    if (s.on) {   // 켜진 칸: 보라 그라디언트 글로우 링 (가정이면 점선·옅게)
-      body += `<rect x="${L-4}" y="${T-4}" width="${w+8}" height="${h+8}" rx="${rx+4}" fill="none" stroke="url(#ring)" stroke-width="5" opacity="${s.r?.35:.2}" filter="url(#blur)"/>`;
-      body += `<rect x="${L-3}" y="${T-3}" width="${w+6}" height="${h+6}" rx="${rx+3}" fill="none" stroke="url(#ring)" stroke-width="1.6" ${s.r?'':'stroke-dasharray="4 3" opacity=".6"'}/>`;
-    }
-    if (next) body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="none" stroke="${C.b2}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
-    else body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="${C.surf}" stroke="${isInt ? C.amber : C.b1}" stroke-width="${isInt ? 2 : 1}" filter="url(#sh)"/>`;
-    if (next && isInt) body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="none" stroke="${C.amber}" stroke-width="2" stroke-dasharray="4 3"/>`;
-    if (isInt) body += `<text x="${L+2}" y="${T-3.5}" font-family='${MONO}' font-size="11" fill="${C.amberText}">관심사</text>`;
-    const nameFill = next ? C.sub : C.ink;
-    if (n.split) {
-      body += `<text x="${x}" y="${T+16}" font-size="13" text-anchor="middle" font-weight="600" fill="${nameFill}">${n.t}${n.s?` <tspan font-family='${MONO}' font-size="11" font-weight="400" fill="${C.label}">${n.s}</tspan>`:""}</text>`;
-      [["us","미국",-23],["kr","한국",23]].forEach(([m, lab, dx]) => {
-        // 값 있을 때만 옅은 바탕 + ▲▼, 없으면 채움 없이 옅은 "–"
-        if (v.closed && v.closed[m]) body += `<text x="${x+dx}" y="${y+4}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.mute}">휴장</text>`;
-        else if (s[m]) body += `<rect x="${x+dx-19}" y="${y-9}" width="38" height="20" rx="10" fill="${C.sunk}"/>` + tri(x + dx, y + 1, s[m].d, s[m].h, 5) + (s[m].x ? tri(x + dx + 15, y - 9, s[m].x, true, 3.5) : "");
-        else body += `<text x="${x+dx}" y="${y+5}" font-size="13" text-anchor="middle" fill="${C.mute}">–</text>`;
-        body += `<text x="${x+dx}" y="${y+21.5}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.label}">${lab}</text>`;
-      });
-    } else {
-      body += `<text x="${x}" y="${y+(n.s?-2:4)}" font-size="13" text-anchor="middle" font-weight="${s.on?600:500}" fill="${nameFill}">${n.t}</text>`;
-      if (n.s) body += `<text x="${x}" y="${y+13}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.label}">${n.s}</text>`;
-      if (s.dir) body += tri(x + w/2 - 11, y - h/2 + 11, s.dir.d, s.dir.h, 4.5) + (s.dir.x ? tri(x + w/2 - 22, y - h/2 + 11, s.dir.x, true, 3.5) : "");
-    }
+    body += `<g>`;
+    if (lv < 3) body += `<rect x="${L}" y="${T}" width="${w}" height="${h}" rx="${rx}" fill="${C.surf}" stroke="${C.b2}" stroke-width="1" ${lv === 1 ? 'filter="url(#sh)"' : ""}/>`;
+    const lab = k === "stock" && v.sideTag && pathN.has("stock") ? "" : isNext ? "다음에 볼 것" : isInt ? "관심사" : "";   // 칸당 하나, 겹치면 "다음에 볼 것"
+    if (lab) body += `<text x="${L+2}" y="${T-4}" font-family='${MONO}' font-size="11" fill="${C.sub}">${lab}</text>`;
+    const nameFill = lv === 3 ? C.t3 : C.ink, fw = lv === 1 ? 700 : 400, subFill = lv === 3 ? C.t3 : C.sub;
+    const sub = (SUBS[CN][k] || "").split("·").filter(Boolean), dd = s.dir || s[CN], closed = v.closed && v.closed[CN] && (k === "rate" || k === "stock" || k === "kospi");
+    const core = k === v.core && pathN.size;
+    // 상태 글자: 사건 칸 = 예상 대비(도형 없이 색 글자) / 실제 = "▲ 오름" "▼ 내림" / 가정 = 회색 "△ 오를 수 있음"
+    const EXC = { "예상보다 높음": C.up, "예상보다 낮음": C.down, "예상대로": C.sub };
+    const stt = closed ? ["휴장", C.mute] : core && v.expect && EXC[v.expect] ? [v.expect, EXC[v.expect]]
+      : !dd ? null : dd.h ? [`${dd.d === "up" ? "△ 오를" : "▽ 내릴"} 수 있음`, C.sub]
+      : core ? [dd.d === "up" ? "오름" : "내림", dd.d === "up" ? C.up : C.down] : [dd.d === "up" ? "▲ 오름" : "▼ 내림", dd.d === "up" ? C.up : C.down];
+    const lines = 1 + sub.length + (stt ? 1 : 0), y0 = y - (lines - 1) * 13.5 / 2 + 4;
+    body += `<text x="${x}" y="${y0}" font-size="13" text-anchor="middle" font-weight="${fw}" fill="${nameFill}">${n.t}</text>`;
+    sub.forEach((t, i) => body += `<text x="${x}" y="${y0 + 14 + i * 13}" font-size="10.5" text-anchor="middle" fill="${subFill}">${t}</text>`);
+    if (stt) body += `<text x="${x}" y="${y0 + 14 + sub.length * 13 + 1}" font-size="10.5" font-weight="600" text-anchor="middle" fill="${stt[1]}">${stt[0]}</text>`;
     body += `</g>`;
   });
   // "보통과 반대" 라벨: 선 가운데, 흰 바탕 pill + border-2, text-1 (색 새로 안 씀)
@@ -718,14 +710,13 @@ function flowSVG(v) {
     body += `<g class="ctl"><rect x="${x-lw/2}" y="${y-9}" width="${lw}" height="18" rx="9" fill="${C.surf}" stroke="${C.b2}"/>`;
     body += `<text x="${x}" y="${y+4}" font-family='${MONO}' font-size="11" text-anchor="middle" fill="${C.ink}">${t}</text></g>`;
   });
-  const f = N.fx;
-  body += `<text x="${f.x}" y="${f.y+f.h/2+13}" font-size="11" text-anchor="middle" fill="${v.split?C.acc:C.label}" font-weight="${v.split?600:400}">${v.split?"여기서 갈라졌어요":"미국 → 한국 다리"}</text>`;
-  if (v.badge) {   // 주식 칸 아래 "보통 호재 쪽 / 보통 악재 쪽" 배지. 가정=점선 테두리, 실제=채움
-    const b = N.stock, tw = v.badge.text.length * 11.5 + 16, by = b.y + b.h/2 + 5;
-    body += `<rect x="${b.x-tw/2}" y="${by}" width="${tw}" height="20" rx="10" fill="${v.badge.real?C.acc:C.surf}" stroke="${C.acc}" stroke-width="1.4" ${v.badge.real?'':'stroke-dasharray="3 2"'}/>`;
-    body += `<text x="${b.x}" y="${by+14}" font-size="12" font-weight="600" text-anchor="middle" fill="${v.badge.real?'#fff':C.acc}">${v.badge.text}</text>`;
+  if (v.split) { const f = N.fx; body += `<text x="${f.x}" y="${f.y+f.h/2+13}" font-size="11" text-anchor="middle" fill="${C.ink}" font-weight="600">여기서 갈라졌어요</text>`; }
+  if (v.sideTag && pathN.has("stock") && N.stock) {
+    const b = N.stock, t = (v.sideTag.real ? "" : "보통 ") + SIDE[v.sideTag.side], tw = t.length * 11 + 16, by = b.y + b.h/2 + 1;   // 칸 위는 공포 칸과 겹쳐서 바로 아래
+    body += `<g class="${v.sideTag.flipped ? "sidetag is-flipping" : "sidetag"}"><rect x="${b.x-tw/2}" y="${by}" width="${tw}" height="18" rx="9" fill="${v.sideTag.real?C.acc:C.surf}" stroke="${C.acc}" stroke-width="1.4" ${v.sideTag.real?'':'stroke-dasharray="3 2"'}/>`;
+    body += `<text x="${b.x}" y="${by+13}" font-size="11.5" font-weight="600" text-anchor="middle" fill="${v.sideTag.real?'#fff':C.acc}">${t}</text></g>`;
   }
-  return `<svg viewBox="0 0 ${360 + 2*FLOW_D} 246" role="img" aria-label="돈의 흐름도"><defs>${defs}</defs>${body.slice(0, zoneEnd)}<g transform="translate(0,8)">${body.slice(zoneEnd)}</g></svg>`;
+  return `<svg viewBox="0 0 ${360 + 2*FLOW_D} ${H}" role="img" aria-label="돈의 흐름도"><defs>${defs}</defs>${body.slice(0, zoneEnd)}<g transform="translate(0,8)">${body.slice(zoneEnd)}</g></svg>`;
 }
 
 // 영향 흐름: 빛이 출발 → 도착으로 칸 순서대로 지나가고, 잠깐 쉬었다 반복
@@ -800,9 +791,10 @@ function saveURL() {
 }
 function layers(e, I, st) {
   const real = !!e.actual, o = e.actual || S.opt, op = o ? e.opts[o] : null;
-  const v = { real:Object.assign({}, e.real), realPath:[...(e.realPath || [])], next: e.watch && WNODE[e.watch.key] ? [WNODE[e.watch.key]] : [], hypo:{}, hypoPath:[], closed:st.closed, split:!!st.split, country:e.country };   // 점선 테두리 = 다음에 볼 지표 칸 하나
-  if (op && real) { Object.assign(v.real, op.state); v.realPath.push(...op.path); }
-  if (op && !real) { Object.assign(v.hypo, op.state); v.hypoPath.push(...op.path); }
+  const US = e.country === "us", toK = l => (l || []).map(([a, b]) => US && a === "fx" && b === "stock" ? ["fx", "kospi"] : [a, b]);
+  const v = { real:Object.assign({}, e.real), realPath:toK(e.realPath), next: e.watch && WNODE[e.watch.key] ? [WNODE[e.watch.key]] : [], hypo:{}, hypoPath:[], closed:st.closed, split:!!st.split, country:e.country, core: e.core || Object.keys(e.real || {})[0] || (((e.opts || {}).a || {}).path || [[null]])[0][0] };   // 점선 테두리 = 다음에 볼 지표 칸 하나
+  if (op && real) { Object.assign(v.real, op.state); v.realPath.push(...toK(op.path)); }
+  if (op && !real) { Object.assign(v.hypo, op.state); v.hypoPath.push(...toK(op.path)); }
   if (st.split) { v.real.fx = v.real.fx || { dir:"up" }; v.real.stock = Object.assign({}, v.real.stock, st.split); delete v.hypo.stock; }
   ["us","kr"].forEach(m => { if (st.closed && st.closed[m]) ["rate","stock"].forEach(k => { [v.real, v.hypo].forEach(L => { if (L[k]) { L[k] = Object.assign({}, L[k]); delete L[k][m]; } }); }); });
   const ms = mergeState(v), nd = nodeDir(ms[I.node]), idir = nd && nd.d;
@@ -844,6 +836,8 @@ function home() {
   if (S.flip) { const P = D.interests.find(x => x.key === S.flip); const ps = P && layers(e, P, st).opSide; flipped = !!(ps && opSide && ps !== opSide); }
   const fc = flipped ? " is-flipping" : "";
 
+  v.expect = e.result && e.result.expect;
+  v.sideTag = op && via && opSide ? { side: opSide, real, flipped } : null;
   v.explain = (Object.keys(v.real).length || Object.keys(v.hypo).length) ? .3 : 1;
 
   // 위쪽 상태 배너
@@ -867,7 +861,7 @@ function home() {
 
   // 범례: 그 순간 화면에 있는 표시만 (02-UX 정보 정리)
   const hasNext = (v.next || []).some(k => !v.real[k] && !v.hypo[k]);
-  const lg = (v.hypoPath.length ? `<span><i class="sw dash"></i>점선 = 가정</span>` : "") + (hasNext ? `<span><i class="hol"></i>점선 테두리 = 다음에 볼 지표</span>` : "") + (contras(v).length ? `<span class="ctl">보통과 반대 = 평소 관계와 다르게 움직임</span>` : "");
+  const lg = v.hypoPath.length ? `<span><i class="sw dash"></i>점선 = 가정</span>` : "";   // 범례는 필요한 것만 (02-UX)
   const flow = `<div class="flow">${flowSVG(v)}${lg ? `<div class="legend">${lg}</div>` : ""}</div>`;
 
   // 사건 칩: 오늘 → 곧 발표
@@ -900,14 +894,9 @@ function home() {
 
   if (!op && !S.tried) r += `<div class="hint">한쪽을 누르면 위 흐름도에서 어디로 번지는지 보여요</div>`;
   if (!via) r += `<div class="icond none" style="margin-top:12px">이 사건은 ${h(I.name)}와 직접 이어지지 않아요</div>`;
-  if (op) {
-    if (flipped) { const P = D.interests.find(x => x.key === S.flip), ps = layers(e, P, st).opSide; r += `<div class="ds-flip-note" style="margin-top:12px">관심사를 ${h(I.name)}로 바꾸니 힌트가 ${SIDE[ps]} → ${SIDE[opSide]}으로 뒤집혔어요</div>`; }
-    r += `<div class="hintcard ${real ? "real" : ""}">
-      <div class="hc-t">${real ? "이번엔 이렇게 됐어요" : "보통 이렇게 읽어요"}</div>
-      <div class="hc-row">${real && via && idir ? `<span class="cond">${dirWord(I, idir)}${triI(idir)}${I.market_type === "M2" && I.watch && (opSide === "bad" ? I.watch.includes("걱정하고") : I.watch.includes("기대하고")) ? ` 시장이 ${opSide === "bad" ? "걱정" : "기대"}하던 쪽` : ""}</span><span class="arrow">→</span>` : ""}${op.cond.map(([t, d, done, suf]) => `<span class="cond">${h(t)}${!real && !done ? (T2 ? "" : dirText(d)) : triI(d)}${suf ? " " + h(suf) : ""}</span>`).join(op.seq ? `<span class="arrow">→</span>` : `<span class="plus">+</span>`)}
-        ${op.mid ? `<span class="arrow">→</span><span class="cond">${h(op.mid[0])}${real ? triI(op.mid[1]) : dirText(op.mid[1])}</span>` : ""}
-        ${opSide ? `<span class="arrow">→</span><span class="out"><b class="${flipped ? "ds-side is-flipping" : ""}" style="${flipped ? "background:none;padding:0" : ""}">${SIDE[opSide]}</b>${op.out ? " · " + h(op.out) : ""}</span>` : ""}</div>${T2 && e.t2[o] ? `<div class="views">${h(e.t2[o].view)}<div class="vs2">${(e.t2[o].view_sources || []).map(lnk).join("")}</div></div>` : ""}</div>`;
-  }
+  // E9 힌트 카드 삭제: 흐름도 칸 상태 글자 + 주식 칸 쪽 태그가 같은 말 (02-UX "흐름도가 직접 말하게"). E8 뒤집힘 줄만 남김
+  if (op && flipped) { const P = D.interests.find(x => x.key === S.flip), ps = layers(e, P, st).opSide; r += `<div class="ds-flip-note" style="margin-top:16px">관심사를 ${h(I.name)}로 바꾸니 ${SIDE[ps]} → ${SIDE[opSide]}으로 뒤집혔어요</div>`; }
+  if (op && T2 && e.t2[o]) r += `<div class="views" style="margin-top:16px">${h(e.t2[o].view)}<div class="vs2">${(e.t2[o].view_sources || []).map(lnk).join("")}</div></div>`;
 
   // E10 판단할 때 같이 볼 것 = E12 근거 전부(가격 반응 행만, 명세 §3-8) + 크기를 바꾸는 것(§3-10 ③)
   const PR = e.prices || [], SZ = e.size || [];
@@ -962,7 +951,7 @@ function sheetHTML() {
 }
 
 // 개발용 바 (?dev=1): 샘플 상태 파일 바꿔 보기
-const MOCKS = [["today.json","오늘"],["mock/quiet.json","조용한 날"],["mock/release.json","발표 당일"],["mock/split.json","미·한 갈라짐"],["mock/delayed.json","데이터 지연"],["mock/closed.json","휴장"],["mock/interest-change.json","관심사 변경"],["mock/one-interest.json","관심사 1개"],["mock/missing.json","오류"],["mock/t2.json","T2 샘플"]];
+const MOCKS = [["today.json","오늘"],["mock/quiet.json","조용한 날"],["mock/release.json","발표 당일"],["mock/split.json","미·한 갈라짐"],["mock/delayed.json","데이터 지연"],["mock/closed.json","휴장"],["mock/interest-change.json","관심사 변경"],["mock/one-interest.json","관심사 1개"],["mock/missing.json","오류"],["mock/t2.json","T2 샘플"],["mock/us.json","미국 사건 샘플"]];
 function buildDebug() {
   const d = document.getElementById("debug");
   if (Q.get("dev") !== "1") { document.documentElement.classList.add("debug-off", "no-dev"); return; }
