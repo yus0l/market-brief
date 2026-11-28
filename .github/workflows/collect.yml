@@ -32,6 +32,6 @@ jobs:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
       - continue-on-error: true
         run: |
-          git pull --rebase -q
+          git config user.name "collect-bot" && git config user.email "actions@users.noreply.github.com"
           git add data/v4 && git commit -m "v4 data $(TZ=Asia/Seoul date +%F)" || exit 0
-          git push
+          git pull --rebase -q && git push

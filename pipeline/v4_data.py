@@ -103,9 +103,11 @@ def attention_one(key, query, store, today):
                 rec.setdefault("errors", []).append(f"{today} {c} {span}: {e}")
         for d, n in pts or []:
             rec["days"].setdefault(d, {})[c] = n
-    y = (today - dt.timedelta(days=1)).isoformat()            # 공개(08:00) 전 마지막 하루 = 어제(UTC 기준 다 찬 날)
+        print(f"  {key} {c}: {len(pts or [])}일, 마지막 {(pts or [[None]])[-1][0]}", flush=True)
     tot = {d: sum(v.get(c, 0) for c in COUNTRIES) for d, v in rec["days"].items() if all(c in v for c in COUNTRIES)}
-    if y not in tot: return {"z": None, "why": "어제 기사 수를 못 받음"}
+    # 공개(08:00) 전 마지막으로 다 찬 하루 = 어제. GDELT가 하루 늦으면 그제까지 (그보다 오래되면 판단 안 함)
+    y = next((d for d in ((today - dt.timedelta(days=i)).isoformat() for i in (1, 2)) if d in tot), None)
+    if not y: return {"z": None, "why": "어제·그제 기사 수를 못 받음"}
     hist = [n for d, n in sorted(tot.items()) if d < y][-365:]
     base = "1년" if len(hist) >= 300 else "3개월" if len(hist) >= 60 else None
     if not base: return {"z": None, "why": f"평소 값이 {len(hist)}일뿐"}
