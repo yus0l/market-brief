@@ -2,6 +2,305 @@
  "date": "2026-11-28",
  "asof": "2026-11-28 08:00",
  "rep": null,
- "first": null,
- "cases": []
+ "first": "2026-02-28-iran-war-0228",
+ "cases": [
+  {
+   "id": "2026-02-28-iran-war-0228",
+   "kind": "macro",
+   "status": "record",
+   "updated": "2026-04-09",
+   "backfill": true,
+   "asof": "2026-04-09",
+   "event": {
+    "name": "미국·이스라엘의 이란 공습",
+    "date": "2026-02-28",
+    "dates": [
+     {
+      "date": "2026-02-28",
+      "label": "시작"
+     },
+     {
+      "date": "2026-03-17",
+      "label": "다시 확대"
+     },
+     {
+      "date": "2026-04-02",
+      "label": "다시 확대"
+     },
+     {
+      "date": "2026-04-09",
+      "label": "다시 확대"
+     }
+    ],
+    "sources": [
+     {
+      "name": "Euronews",
+      "url": "https://www.euronews.com/2026/02/28/what-does-the-us-israel-attack-on-iran-mean-for-oil-prices"
+     },
+     {
+      "name": "Invezz",
+      "url": "https://invezz.com/news/2026/02/28/us-israel-strikes-on-iran-send-oil-prices-higher-markets-into-risk-mode/"
+     },
+     {
+      "name": "The National",
+      "url": "https://www.thenationalnews.com/business/energy/2026/02/28/us-iran-war-what-will-the-impact-be-on-oil"
+     }
+    ]
+   },
+   "attention": {
+    "z": 2.37,
+    "base": "3개월",
+    "day": "2026-04-08",
+    "count": 2647,
+    "mean": 735.1,
+    "sd": 806.0,
+    "pass": true
+   },
+   "impact": [
+    {
+     "cell": "us_10y",
+     "date": "2026-03-20"
+    },
+    {
+     "cell": "us_2y",
+     "date": "2026-03-12"
+    },
+    {
+     "cell": "wti",
+     "date": "2026-03-02"
+    },
+    {
+     "cell": "brent",
+     "date": "2026-03-02"
+    },
+    {
+     "cell": "usdkrw",
+     "date": "2026-03-04"
+    },
+    {
+     "cell": "dxy",
+     "date": "2026-03-02"
+    },
+    {
+     "cell": "sp500",
+     "date": "2026-03-31"
+    },
+    {
+     "cell": "nasdaq",
+     "date": "2026-03-31"
+    },
+    {
+     "cell": "kospi",
+     "date": "2026-03-03"
+    },
+    {
+     "cell": "vix",
+     "date": "2026-03-06"
+    }
+   ],
+   "flow": [
+    {
+     "id": "start",
+     "kind": "start",
+     "name": "미국·이스라엘의 이란 공습",
+     "date": "2026-02-28",
+     "reason": "원유가 지나는 호르무즈 해협이 막힐 수 있다는 걱정이 퍼졌어요",
+     "sources": [
+      {
+       "name": "Gulf News",
+       "url": "https://gulfnews.com/business/energy/oil-prices-soar-brent-blasts-past-81-as-hormuz-chokepoint-teeters-on-shutdown-amid-us-israel-war-vs-iran-1.500461724"
+      },
+      {
+       "name": "Al Jazeera",
+       "url": "https://www.aljazeera.com/economy/2026/3/9/oil-soars-past-100-a-barrel-amid-iran-war"
+      }
+     ],
+     "parents": [],
+     "dir": 1,
+     "grp": "event"
+    },
+    {
+     "id": "n1",
+     "kind": "past",
+     "cell": "brent",
+     "name": "유가(브렌트)",
+     "grp": "oil",
+     "kr": false,
+     "value": "배럴당 $122.11",
+     "dir": 1,
+     "date": "2026-03-02",
+     "reason": "공급이 줄 거란 걱정에 기름값이 크게 올랐어요",
+     "sources": [
+      {
+       "name": "Al Jazeera",
+       "url": "https://www.aljazeera.com/economy/2026/3/9/oil-soars-past-100-a-barrel-amid-iran-war"
+      },
+      {
+       "name": "Daily Sabah",
+       "url": "https://www.dailysabah.com/business/economy/oil-surges-10-on-iran-conflict-could-jump-to-100-a-barrel-analysts/amp"
+      }
+     ],
+     "link": null,
+     "parents": [
+      "start"
+     ],
+     "value_source": {
+      "name": "FRED DCOILBRENTEU",
+      "url": "https://fred.stlouisfed.org/series/DCOILBRENTEU"
+     },
+     "media": false
+    },
+    {
+     "id": "n2",
+     "kind": "past",
+     "cell": "kospi",
+     "name": "코스피",
+     "grp": "stock_kr",
+     "kr": true,
+     "value": "5,872",
+     "dir": -1,
+     "date": "2026-03-03",
+     "reason": "이란 전면전 걱정에 주식을 팔면서 코스피가 크게 내렸어요",
+     "sources": [
+      {
+       "name": "뉴시스",
+       "url": "https://www.newsis.com/view/NISX20260303_0003533084"
+      },
+      {
+       "name": "뉴스토마토",
+       "url": "https://newstomato.com/ReadNews.aspx?no=1293038"
+      }
+     ],
+     "link": null,
+     "parents": [
+      "start"
+     ],
+     "value_source": {
+      "name": "한국은행 ECOS 802Y001",
+      "url": "https://ecos.bok.or.kr/"
+     },
+     "media": false
+    },
+    {
+     "id": "n3",
+     "kind": "past",
+     "cell": "usdkrw",
+     "name": "원/달러",
+     "grp": "krw",
+     "kr": true,
+     "value": "1,507원",
+     "dir": 1,
+     "date": "2026-03-04",
+     "reason": "전쟁이 길어질 거란 걱정에 원화가 약해져 원/달러가 올랐어요",
+     "sources": [
+      {
+       "name": "뉴시스",
+       "url": "https://www.newsis.com/view/NISX20260309_0003540101"
+      },
+      {
+       "name": "데일리안",
+       "url": "https://www.dailian.co.kr/news/view/1616710/"
+      }
+     ],
+     "link": null,
+     "parents": [
+      "start"
+     ],
+     "value_source": {
+      "name": "한국은행 ECOS 731Y001",
+      "url": "https://ecos.bok.or.kr/"
+     },
+     "media": false
+    }
+   ],
+   "future": {
+    "release": null,
+    "title": "앞으로 이렇게 바뀔 수 있어요",
+    "header": "기름값이 더 오른다면?",
+    "nodes": [
+     {
+      "id": "f1",
+      "kind": "future",
+      "cell": "us_be10",
+      "name": "미국 기대 물가(10년)",
+      "grp": "cpi",
+      "kr": false,
+      "dir": 1,
+      "now": "2.33%",
+      "now_dir": 1,
+      "reason": "기름값은 거의 모든 물건값에 들어가서 물가가 더 오르기 쉬워요",
+      "tag": null,
+      "link": 3,
+      "parent": null,
+      "end": false
+     },
+     {
+      "id": "f2",
+      "kind": "future",
+      "cell": "us_10y",
+      "name": "미국 10년 국채 금리",
+      "grp": "rate_us",
+      "kr": false,
+      "dir": 1,
+      "now": "4.29%",
+      "now_dir": 1,
+      "reason": "물가를 누르려고 금리를 올리기 쉬워서 더 오르기 쉬워요",
+      "tag": null,
+      "link": 4,
+      "parent": "f1",
+      "end": false
+     },
+     {
+      "id": "f3",
+      "kind": "future",
+      "cell": "sp500",
+      "name": "미국 주식(S&P 500)",
+      "grp": "stock_us",
+      "kr": false,
+      "dir": -1,
+      "now": "6,783",
+      "now_dir": -1,
+      "reason": "돈 빌리는 비용이 늘고, 앞으로 벌 돈의 지금 가치가 줄어서요",
+      "tag": "bad",
+      "link": 5,
+      "parent": "f2",
+      "end": true
+     },
+     {
+      "id": "f4",
+      "kind": "future",
+      "cell": "usdkrw",
+      "name": "원/달러",
+      "grp": "krw",
+      "kr": true,
+      "dir": 1,
+      "now": "1,507원",
+      "now_dir": 1,
+      "reason": "미국 금리가 오르면 달러가 강해져서 더 오르기 쉬워요",
+      "tag": null,
+      "link": 10,
+      "parent": "f2",
+      "end": false
+     },
+     {
+      "id": "f5",
+      "kind": "future",
+      "cell": "kospi",
+      "name": "코스피",
+      "grp": "stock_kr",
+      "kr": true,
+      "dir": -1,
+      "now": "5,872",
+      "now_dir": -1,
+      "reason": "이어지는 연결의 근거가 아직 약해서 방향을 말하기 어려워요",
+      "tag": "unknown",
+      "link": 11,
+      "parent": "f4",
+      "end": true
+     }
+    ]
+   },
+   "ended": "2026-04-10"
+  }
+ ]
 }

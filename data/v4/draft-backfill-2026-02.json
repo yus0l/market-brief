@@ -1,28 +1,154 @@
-{"date": "backfill", "_doc": "지난 사례 채우기 (11/28 개발): 2/28 미국·이스라엘의 이란 공습. 출처는 그 무렵 기사",
+{
+ "date": "backfill",
+ "_doc": "지난 사례 채우기 (11/28 개발): 2/28 미국·이스라엘의 이란 공습. 출처는 그 무렵 기사",
  "candidates": [
-  {"key": "iran-war-0228", "name": "미국·이스라엘의 이란 공습", "kind": "macro", "date": "2026-02-28",
-   "sources": [{"name": "Euronews", "url": "https://www.euronews.com/2026/02/28/what-does-the-us-israel-attack-on-iran-mean-for-oil-prices"},
-               {"name": "Invezz", "url": "https://invezz.com/news/2026/02/28/us-israel-strikes-on-iran-send-oil-prices-higher-markets-into-risk-mode/"},
-               {"name": "The National", "url": "https://www.thenationalnews.com/business/energy/2026/02/28/us-iran-war-what-will-the-impact-be-on-oil"}],
-   "gdelt_query": "Iran (strike OR strikes OR war) (oil OR Hormuz)"}],
- "flows": {"iran-war-0228": {
-   "start_reason": {"text": "원유가 지나는 호르무즈 해협이 막힐 수 있다는 걱정이 퍼졌어요",
-     "sources": [{"name": "Gulf News", "url": "https://gulfnews.com/business/energy/oil-prices-soar-brent-blasts-past-81-as-hormuz-chokepoint-teeters-on-shutdown-amid-us-israel-war-vs-iran-1.500461724"},
-                 {"name": "Al Jazeera", "url": "https://www.aljazeera.com/economy/2026/3/9/oil-soars-past-100-a-barrel-amid-iran-war"}]},
+  {
+   "key": "iran-war-0228",
+   "name": "미국·이스라엘의 이란 공습",
+   "kind": "macro",
+   "date": "2026-02-28",
+   "sources": [
+    {
+     "name": "Euronews",
+     "url": "https://www.euronews.com/2026/02/28/what-does-the-us-israel-attack-on-iran-mean-for-oil-prices"
+    },
+    {
+     "name": "Invezz",
+     "url": "https://invezz.com/news/2026/02/28/us-israel-strikes-on-iran-send-oil-prices-higher-markets-into-risk-mode/"
+    },
+    {
+     "name": "The National",
+     "url": "https://www.thenationalnews.com/business/energy/2026/02/28/us-iran-war-what-will-the-impact-be-on-oil"
+    }
+   ],
+   "gdelt_query": "Iran (strike OR strikes OR war) (oil OR Hormuz)",
+   "attention": {
+    "z": -0.98,
+    "base": "1년",
+    "day": "2026-11-27",
+    "count": 36,
+    "mean": 612.6,
+    "sd": 587.9,
+    "pass": false
+   }
+  }
+ ],
+ "flows": {
+  "iran-war-0228": {
+   "start_reason": {
+    "text": "원유가 지나는 호르무즈 해협이 막힐 수 있다는 걱정이 퍼졌어요",
+    "sources": [
+     {
+      "name": "Gulf News",
+      "url": "https://gulfnews.com/business/energy/oil-prices-soar-brent-blasts-past-81-as-hormuz-chokepoint-teeters-on-shutdown-amid-us-israel-war-vs-iran-1.500461724"
+     },
+     {
+      "name": "Al Jazeera",
+      "url": "https://www.aljazeera.com/economy/2026/3/9/oil-soars-past-100-a-barrel-amid-iran-war"
+     }
+    ]
+   },
    "nodes": [
-    {"id": "n1", "cell": "brent", "parents": ["start"], "reason": "공급이 줄 거란 걱정에 기름값이 크게 올랐어요",
-     "reason_sources": [{"name": "Al Jazeera", "url": "https://www.aljazeera.com/economy/2026/3/9/oil-soars-past-100-a-barrel-amid-iran-war"},
-                        {"name": "Daily Sabah", "url": "https://www.dailysabah.com/business/economy/oil-surges-10-on-iran-conflict-could-jump-to-100-a-barrel-analysts/amp"}]},
-    {"id": "n2", "cell": "kospi", "parents": ["start"], "reason": "이란 전면전 걱정에 주식을 팔면서 코스피가 크게 내렸어요",
-     "reason_sources": [{"name": "뉴시스", "url": "https://www.newsis.com/view/NISX20260303_0003533084"},
-                        {"name": "뉴스토마토", "url": "https://newstomato.com/ReadNews.aspx?no=1293038"}]},
-    {"id": "n3", "cell": "usdkrw", "parents": ["start"], "reason": "전쟁이 길어질 거란 걱정에 원화가 약해져 원/달러가 올랐어요",
-     "reason_sources": [{"name": "뉴시스", "url": "https://www.newsis.com/view/NISX20260309_0003540101"},
-                        {"name": "데일리안", "url": "https://www.dailian.co.kr/news/view/1616710/"}]}],
-   "future": {"release_code": null, "header": "기름값이 더 오른다면?", "start": {"cell": "brent", "dir": "up"},
+    {
+     "id": "n1",
+     "cell": "brent",
+     "parents": [
+      "start"
+     ],
+     "reason": "공급이 줄 거란 걱정에 기름값이 크게 올랐어요",
+     "reason_sources": [
+      {
+       "name": "Al Jazeera",
+       "url": "https://www.aljazeera.com/economy/2026/3/9/oil-soars-past-100-a-barrel-amid-iran-war"
+      },
+      {
+       "name": "Daily Sabah",
+       "url": "https://www.dailysabah.com/business/economy/oil-surges-10-on-iran-conflict-could-jump-to-100-a-barrel-analysts/amp"
+      }
+     ]
+    },
+    {
+     "id": "n2",
+     "cell": "kospi",
+     "parents": [
+      "start"
+     ],
+     "reason": "이란 전면전 걱정에 주식을 팔면서 코스피가 크게 내렸어요",
+     "reason_sources": [
+      {
+       "name": "뉴시스",
+       "url": "https://www.newsis.com/view/NISX20260303_0003533084"
+      },
+      {
+       "name": "뉴스토마토",
+       "url": "https://newstomato.com/ReadNews.aspx?no=1293038"
+      }
+     ]
+    },
+    {
+     "id": "n3",
+     "cell": "usdkrw",
+     "parents": [
+      "start"
+     ],
+     "reason": "전쟁이 길어질 거란 걱정에 원화가 약해져 원/달러가 올랐어요",
+     "reason_sources": [
+      {
+       "name": "뉴시스",
+       "url": "https://www.newsis.com/view/NISX20260309_0003540101"
+      },
+      {
+       "name": "데일리안",
+       "url": "https://www.dailian.co.kr/news/view/1616710/"
+      }
+     ]
+    }
+   ],
+   "future": {
+    "release_code": null,
+    "header": "기름값이 더 오른다면?",
+    "start": {
+     "cell": "brent",
+     "dir": "up"
+    },
     "nodes": [
-     {"id": "f1", "cell": "us_be10", "parent": "fstart", "link": 3, "reason": "기름값은 거의 모든 물건값에 들어가서 물가가 더 오르기 쉬워요"},
-     {"id": "f2", "cell": "us_10y", "parent": "f1", "link": 4, "reason": "물가를 누르려고 금리를 올리기 쉬워서 더 오르기 쉬워요"},
-     {"id": "f3", "cell": "sp500", "parent": "f2", "link": 5, "reason": "돈 빌리는 비용이 늘고, 앞으로 벌 돈의 지금 가치가 줄어서요"},
-     {"id": "f4", "cell": "usdkrw", "parent": "f2", "link": 10, "reason": "미국 금리가 오르면 달러가 강해져서 더 오르기 쉬워요"},
-     {"id": "f5", "cell": "kospi", "parent": "f4", "link": 11, "reason": "원화가 약해지면 외국인이 팔기 쉬워서요"}]}}}}
+     {
+      "id": "f1",
+      "cell": "us_be10",
+      "parent": "fstart",
+      "link": 3,
+      "reason": "기름값은 거의 모든 물건값에 들어가서 물가가 더 오르기 쉬워요"
+     },
+     {
+      "id": "f2",
+      "cell": "us_10y",
+      "parent": "f1",
+      "link": 4,
+      "reason": "물가를 누르려고 금리를 올리기 쉬워서 더 오르기 쉬워요"
+     },
+     {
+      "id": "f3",
+      "cell": "sp500",
+      "parent": "f2",
+      "link": 5,
+      "reason": "돈 빌리는 비용이 늘고, 앞으로 벌 돈의 지금 가치가 줄어서요"
+     },
+     {
+      "id": "f4",
+      "cell": "usdkrw",
+      "parent": "f2",
+      "link": 10,
+      "reason": "미국 금리가 오르면 달러가 강해져서 더 오르기 쉬워요"
+     },
+     {
+      "id": "f5",
+      "cell": "kospi",
+      "parent": "f4",
+      "link": 11,
+      "reason": "원화가 약해지면 외국인이 팔기 쉬워서요"
+     }
+    ]
+   }
+  }
+ }
+}
