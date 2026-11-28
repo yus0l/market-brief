@@ -49,9 +49,11 @@ def big_days(pts, calc):
     sd_now = st.pstdev([c for _, c in ch[-WIN:]]) if len(ch) >= WIN else None
     return out, sd_now
 
-def history(today=None):
+def history(today=None, since=None, name="history.json"):
+    """since가 있으면 지난 사례 채우기용: since 이전 1년(표준편차)부터 전부 남김 → data/v4/history-backfill.json"""
     today = today or dt.date.today()
-    start = (today - dt.timedelta(days=560)).isoformat()      # 252거래일 표준편차 + 최근 몇 달 판단
+    start = ((dt.date.fromisoformat(since) if since else today) - dt.timedelta(days=560 if not since else 400)).isoformat()
+    keep_from = since or (today - dt.timedelta(days=200)).isoformat()
     fk, ek = os.environ.get("FRED_API_KEY"), os.environ.get("ECOS_API_KEY")
     out, errs = {}, []
     for k, c in CELLS.items():
@@ -63,12 +65,13 @@ def history(today=None):
         if not pts or len(pts) < WIN + 2:
             errs.append(f"{k}: 값 {len(pts or [])}개 — 1년 표준편차 계산 불가" + ("" if pts or c["src"] != "ecos" or ek else " (ECOS_API_KEY 없음)")); continue
         big, sd = big_days(pts, c["calc"])
-        out[k] = {"points": pts[-200:], "sd": sd, "calc": c["calc"], "big": [b for b in big if b["date"] >= (today - dt.timedelta(days=200)).isoformat()],
+        out[k] = {"points": [p for p in pts if p[0] >= keep_from] if since else pts[-200:], "pre": [p for p in pts if p[0] < keep_from][-5:],
+                  "sd": sd, "calc": c["calc"], "big": [b for b in big if b["date"] >= keep_from],
                   "source": {"name": f"FRED {c['sid']}" if c["src"] == "fred" else f"한국은행 ECOS {c['sid'][0]}",
                              "url": f"https://fred.stlouisfed.org/series/{c['sid']}" if c["src"] == "fred" else "https://ecos.bok.or.kr/"}}
     V4.mkdir(parents=True, exist_ok=True)
     doc = {"date": today.isoformat(), "window": WIN, "k": K, "cells": out, "errors": errs}
-    (V4 / "history.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    (V4 / name).write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return doc
 
 # ── GDELT 기사 양 ───────────────────────────────────────────
@@ -104,6 +107,10 @@ def attention_one(key, query, store, today):
         for d, n in pts or []:
             rec["days"].setdefault(d, {})[c] = n
         print(f"  {key} {c}: {len(pts or [])}일, 마지막 {(pts or [[None]])[-1][0]}", flush=True)
+    return att_z(rec, today)
+
+def att_z(rec, today):
+    """쌓인 하루 기사 수(rec["days"]) → today 공개 기준 주목도. 지난 사례 채우기도 이걸로 (GDELT 다시 안 부름)"""
     tot = {d: sum(v.get(c, 0) for c in COUNTRIES) for d, v in rec["days"].items() if all(c in v for c in COUNTRIES)}
     # 공개(08:00) 전 마지막으로 다 찬 하루 = 어제. GDELT가 하루 늦으면 그제까지 (그보다 오래되면 판단 안 함)
     y = next((d for d in ((today - dt.timedelta(days=i)).isoformat() for i in (1, 2)) if d in tot), None)
@@ -154,6 +161,10 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "history":
         d = history(); print(len(d["cells"]), "cells;", "\n".join(d["errors"]))
+    elif cmd == "history-backfill":   # python3 pipeline/v4_data.py history-backfill 2026-02-01
+        d = history(since=sys.argv[2], name="history-backfill.json"); print(len(d["cells"]), "cells;", "\n".join(d["errors"]))
+    elif cmd == "attention-asof":     # python3 pipeline/v4_data.py attention-asof DRAFT 2026-03-02  (지난 사례: 그날 공개 기준)
+        print(attention(sys.argv[2], dt.date.fromisoformat(sys.argv[3])))
     elif cmd == "sec": print(json.dumps(sec(), ensure_ascii=False)[:400])
     elif cmd == "attention": print(attention(sys.argv[2]))
     elif cmd == "gdelt-check":   # 1년치(12m)가 실제로 받아지는지 — 기획 결정 "안 되면 3개월 기준" 판단용

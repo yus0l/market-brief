@@ -41,8 +41,15 @@ def fmt(v, cell):
 
 class Data:
     """수집값 묶음: 1년 일별(history) · 월간 등(facts) · SEC(nvda)."""
-    def __init__(self, today):
+    def __init__(self, today, backfill=False):
+        """backfill: 지난 사례 채우기 — history-backfill.json을 today(그날 공개 기준)까지만 자름. 월간·SEC 값은 그날 값이 없어 안 씀"""
         self.today = today
+        if backfill:
+            t = today.isoformat()
+            H = (load(V4D / "history-backfill.json", {}) or {}).get("cells", {})
+            self.hist = {k: dict(v, points=[p for p in v["points"] if p[0] < t], big=[b for b in v["big"] if b["date"] < t]) for k, v in H.items()}
+            self.facts, self.nvda = {}, {}
+            return
         self.hist = (load(V4D / "history.json", {}) or {}).get("cells", {})
         f = sorted((ROOT / "data").glob("facts-*.json"))
         self.facts = (load(f[-1], {}) or {}).get("series", {}) if f else {}
@@ -87,16 +94,19 @@ def check_event(c, today, errs):
     if c.get("kind") not in ("macro", "firm"): errs.append(f"[{nm}] kind는 macro/firm"); return False
     return True
 
-def impact(c, D):
-    """② 영향도: 사건 날 이후 시장 칸 하나 이상이 '크게'(지난 1년 표준편차 2배) 움직였나. → [(칸, 날짜)]"""
+def impact(c, D, recent=None):
+    """② 영향도: 시장 칸 하나 이상이 '크게'(지난 1년 표준편차 2배) 움직였나. → [(칸, 날짜)]
+    새 사례 = 사건 날 이후 아무 때나. 이어지는 사례(recent=날짜) = 그 날짜 이후에도 크게 움직였어야 '진행 중'(끝나는 때, 정보설계 v4)"""
     out = []
     for k in IMPACT_FIRM if c.get("kind") == "firm" else IMPACT_MACRO:
-        m = D.move(k, c["date"])
-        if m and m["big"]: out.append((k, m["big"]["date"]))
+        h = D.hist.get(k)
+        if not h: continue
+        bigs = [b for b in h["big"] if b["date"] >= max(c["date"], recent or "")]
+        if bigs: out.append((k, bigs[-1]["date"] if recent else bigs[0]["date"]))
     return out
 
-def precheck(draft, today):
-    D, errs, rows = Data(today), [], []
+def precheck(draft, today, backfill=False):
+    D, errs, rows = Data(today, backfill), [], []
     for c in draft.get("candidates", []):
         ok = check_event(c, today, errs)
         a = c.get("attention") or {}
@@ -215,19 +225,22 @@ def build_future(c, F, flow, D, links, today, errs):
             "title": josa(rel["name"]) + " 중요해요" if rel else "앞으로 이렇게 바뀔 수 있어요", "header": head, "nodes": out}
 
 # ── 사례 저장 ─────────────────────────────────────────────────
-def build(draft_path, today=None):
+def build(draft_path, today=None, backfill=False, store_path=None):
+    """backfill=True: today = 그 사례를 공개했을 날. 같은 규칙으로 검사하고, 사례는 '기록'으로 저장(다른 사례 상태는 안 건드림)."""
     today = today or dt.date.today()
     draft = load(draft_path)
-    D, links, errs = Data(today), load_links(), []
-    store = load(V4W / "cases.json", {"cases": []})
+    D, links, errs = Data(today, backfill), load_links(), []
+    store_path = pathlib.Path(store_path or V4W / "cases.json")
+    store = load(store_path, {"cases": []})
     cases = {x["id"]: x for x in store["cases"]}
     passed = []
     for c in draft.get("candidates", []):
         if not check_event(c, today, errs): continue
         a = c.get("attention") or {}
         if not a.get("pass"): errs.append(f"[{c['name']}] ① 주목도 못 넘음 (z={a.get('z')}, {a.get('base') or a.get('why')})"); continue
-        im = impact(c, D)
-        if not im: errs.append(f"[{c['name']}] ② 영향도: 사건 뒤 크게 움직인 시장 칸 없음"); continue
+        cont = c.get("same_as") in cases and cases[c["same_as"]]["status"] == "live"
+        im = impact(c, D, (today - dt.timedelta(days=4)).isoformat() if cont else None)
+        if not im: errs.append(f"[{c['name']}] ② 영향도: {'최근 4일' if cont else '사건 뒤'} 크게 움직인 시장 칸 없음"); continue
         F = (draft.get("flows") or {}).get(c["key"])
         if not F: errs.append(f"[{c['name']}] 흐름 초안 없음"); continue
         flow = build_flow(c, F, D, links, errs)
@@ -239,26 +252,67 @@ def build(draft_path, today=None):
         old = cases.get(cid)
         dates = (old or {}).get("event", {}).get("dates") or [{"date": c["date"], "label": "시작"}]
         if old and old.get("status") == "record": dates = dates + [{"date": today.isoformat(), "label": "다시 확대"}]
-        cases[cid] = {"id": cid, "kind": c["kind"], "status": "live", "updated": today.isoformat(),
+        cases[cid] = {"id": cid, "kind": c["kind"], "status": "record" if backfill else "live", "updated": today.isoformat(),
+                      **({"backfill": True, "ended": today.isoformat(), "asof": today.isoformat()} if backfill else {}),
                       "event": {"name": c["name"], "date": c["date"], "dates": dates, "sources": c["sources"]},
                       "attention": a, "impact": [{"cell": k, "date": d} for k, d in im], "flow": flow, "future": fut}
         passed.append((a.get("z") or 0, cid))
     live_today = {cid for _, cid in passed}
-    for cid, x in cases.items():                     # 끝나는 때: 오늘 기준을 못 넘은 진행 중 사례 → 기록(갱신 멈춤)
+    for cid, x in cases.items() if not backfill else []:                     # 끝나는 때: 오늘 기준을 못 넘은 진행 중 사례 → 기록(갱신 멈춤)
         if x["status"] == "live" and cid not in live_today: x["status"] = "record"; x["ended"] = today.isoformat()
-    rep = max(passed)[1] if passed else None
+    rep = (max(passed)[1] if passed else None) if not backfill else store.get("rep")
     order = sorted(cases.values(), key=lambda x: x["event"]["dates"][-1]["date"], reverse=True)
     first = rep or (order[0]["id"] if order else None)
     out = {"date": today.isoformat(), "asof": f"{today.isoformat()} 08:00", "rep": rep, "first": first, "cases": order}
+    if backfill: out.update(date=store.get("date", out["date"]), asof=store.get("asof", out["asof"]))
     V4W.mkdir(parents=True, exist_ok=True); V4D.mkdir(parents=True, exist_ok=True)
-    (V4W / "cases.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    store_path.parent.mkdir(parents=True, exist_ok=True)
+    store_path.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     log = {"date": today.isoformat(), "passed": [cid for _, cid in passed], "rep": rep, "errors": errs}
-    (V4D / f"log-{today.isoformat()}.json").write_text(json.dumps(log, ensure_ascii=False, indent=1), encoding="utf-8")
+    (V4D / f"log-{'backfill-' if backfill else ''}{today.isoformat()}.json").write_text(json.dumps(log, ensure_ascii=False, indent=1), encoding="utf-8")
     return log
+
+def backfill_sim(draft_path, start, end):
+    """지난 사례 채우기: start~end 날마다 '그날 08:00 공개' 기준으로 같은 규칙(주목도·영향도·한국 영향·칸 검사)을 돌린다.
+    주목도는 data/v4/attention.json에 쌓인 하루 기사 수로 계산(GDELT 다시 안 부름). 마지막 진행 중 모습을 '기록'으로 cases.json에 넣는다."""
+    from v4_data import att_z
+    draft = load(draft_path); att = load(V4D / "attention.json", {})
+    tmp_store = V4D / "backfill-store.json"; tmp_store.unlink(missing_ok=True)
+    tmp_draft = V4D / "backfill-draft.json"
+    d, days = dt.date.fromisoformat(start), []
+    while d <= dt.date.fromisoformat(end):
+        live = {x["id"]: x for x in (load(tmp_store, {"cases": []})["cases"]) if x["status"] == "live"}
+        for c in draft["candidates"]:
+            c["attention"] = att_z(att[c["key"]], d) if c["key"] in att else {"z": None, "why": "기사 수 없음"}
+            cid = f"{c['date']}-{c['key']}"
+            if cid in live or any(x["id"] == cid for x in load(tmp_store, {"cases": []})["cases"]): c["same_as"] = cid
+        tmp_draft.write_text(json.dumps(draft, ensure_ascii=False), encoding="utf-8")
+        log = build(tmp_draft, d, backfill=True, store_path=tmp_store)
+        # backfill 모드는 상태를 '기록'으로 저장하므로, 시뮬레이션 중엔 진행 중으로 되돌려 끝나는 때를 판단
+        st_ = load(tmp_store)
+        for x in st_["cases"]:
+            if x["id"] in log["passed"]: x["status"] = "live"; x.pop("ended", None)
+            elif x["status"] == "live" or (x.get("backfill") and not x.get("closed")): x["status"] = "record"; x["closed"] = True; x["ended"] = x.get("ended") or d.isoformat()
+        tmp_store.write_text(json.dumps(st_, ensure_ascii=False), encoding="utf-8")
+        days.append((d.isoformat(), log["passed"], [e for e in log["errors"] if "①" in e or "②" in e or "③" in e][:2]))
+        d += dt.timedelta(days=1)
+    real = load(V4W / "cases.json", {"cases": []}); have = {x["id"]: x for x in real["cases"]}
+    for x in load(tmp_store, {"cases": []})["cases"]:
+        x.update(status="record", backfill=True); x.pop("closed", None); have[x["id"]] = x
+    real["cases"] = sorted(have.values(), key=lambda x: x["event"]["dates"][-1]["date"], reverse=True)
+    if not real.get("first") and real["cases"]: real["first"] = real["cases"][0]["id"]
+    (V4W / "cases.json").write_text(json.dumps(real, ensure_ascii=False, indent=1), encoding="utf-8")
+    tmp_store.unlink(missing_ok=True); tmp_draft.unlink(missing_ok=True)
+    return days
 
 if __name__ == "__main__":
     cmd, arg = (sys.argv + ["", ""])[1:3]
     if cmd == "precheck":
         rows, errs = precheck(load(arg), dt.date.today()); print(json.dumps(rows, ensure_ascii=False, indent=1)); print("\n".join(errs))
     elif cmd == "build": print(json.dumps(build(arg), ensure_ascii=False, indent=1))
+    elif cmd == "backfill": print(json.dumps(build(arg, dt.date.fromisoformat(sys.argv[3]), backfill=True), ensure_ascii=False, indent=1))
+    elif cmd == "backfill-sim":   # python3 pipeline/v4.py backfill-sim DRAFT 2026-03-01 2026-04-30
+        for row in backfill_sim(arg, sys.argv[3], sys.argv[4]): print(row)
+    elif cmd == "precheck-asof":
+        rows, errs = precheck(load(arg), dt.date.fromisoformat(sys.argv[3]), backfill=True); print(json.dumps(rows, ensure_ascii=False, indent=1)); print("\n".join(errs))
     else: print(__doc__)

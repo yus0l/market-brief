@@ -1,0 +1,29 @@
+# v4 지난 사례 채우기: 과거 사건을 같은 규칙(주목도·영향도·한국 영향·칸 검사)으로 날마다 돌려 '기록' 사례로 넣는다 (11/28)
+name: v4-backfill
+on:
+  workflow_dispatch:
+    inputs:
+      draft: { description: "data/v4/draft-backfill-*.json", required: true }
+      since: { description: "1년 값을 자를 시작일 (사건 한 달 전쯤)", required: true }
+      start: { description: "날마다 돌릴 첫날", required: true }
+      end:   { description: "마지막 날", required: true }
+permissions: { contents: write }
+concurrency: { group: v4-attention }
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: |
+          python3 pipeline/v4_data.py history-backfill "${{ inputs.since }}"
+          python3 pipeline/v4_data.py attention "${{ inputs.draft }}"
+          python3 pipeline/v4.py backfill-sim "${{ inputs.draft }}" "${{ inputs.start }}" "${{ inputs.end }}"
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
+      - run: |
+          git config user.name "collect-bot" && git config user.email "actions@users.noreply.github.com"
+          git add data/v4 web/v4/cases.json && git commit -m "v4 backfill ${{ inputs.start }}~${{ inputs.end }}" || exit 0
+          git pull --rebase -q && git push

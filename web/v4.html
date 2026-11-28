@@ -113,7 +113,9 @@ function render(D) {
   const cases = D.cases || [];
   const pick = Q.get("case");
   const C = cases.find(c => c.id === pick) || cases.find(c => c.id === D.first) || cases[0];
-  let r = `<div class="asof">${h(asofText(D.asof))}${MOCK ? `<span class="sample">샘플 데이터</span>` : ""}</div>`;
+  // {기준 시각}: 기록 사례는 갱신을 멈춘 날 기준 (값이 그날 값이라서)
+  const asof = C && C.status === "record" && C.updated ? C.updated + " 08:00" : D.asof;
+  let r = `<div class="asof">${h(asofText(asof))}${MOCK ? `<span class="sample">샘플 데이터</span>` : ""}</div>`;
   if (!C) { app.innerHTML = r + `<div class="empty">아직 쌓인 사례가 없어요</div>`; return; }
   const E = C.event, ds = E.dates || [{date: E.date}];
   const when = ds.length > 1 ? ds.map(d => `${md(d.date)} ${h(d.label || "")}`).join(" · ") : `${md(ds[0].date)}부터`;
