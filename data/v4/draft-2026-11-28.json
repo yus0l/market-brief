@@ -1,11 +1,57 @@
-{"date": "2026-11-28",
+{
+ "date": "2026-11-28",
  "candidates": [
-  {"key": "nvda-q3-fy27", "name": "엔비디아 3분기 실적 발표", "kind": "firm", "date": "2026-11-17",
-   "sources": [{"name": "Shacknews", "url": "https://www.shacknews.com/article/151384/nvidia-nvda-q3-2027-earnings-results"},
-               {"name": "Stock Titan", "url": "https://www.stocktitan.net/articles/nvidia-q3-fiscal-2027-earnings-revenue-outlook"}],
-   "gdelt_query": "nvidia (earnings OR revenue OR guidance)"},
-  {"key": "bok-hike-1126", "name": "한국은행 기준금리 3.25%로 인상", "kind": "macro", "date": "2026-11-26",
-   "sources": [{"name": "이투데이", "url": "https://www.etoday.co.kr/news/view/2652786"},
-               {"name": "Central Banking", "url": "https://www.centralbanking.com/central-banks/monetary-policy/7953780/bank-of-korea-raises-rates-to-highest-level-since-2012"}],
-   "gdelt_query": "\"Bank of Korea\" (rate OR hike)"}
- ]}
+  {
+   "key": "nvda-q3-fy27",
+   "name": "엔비디아 3분기 실적 발표",
+   "kind": "firm",
+   "date": "2026-11-17",
+   "sources": [
+    {
+     "name": "Shacknews",
+     "url": "https://www.shacknews.com/article/151384/nvidia-nvda-q3-2027-earnings-results"
+    },
+    {
+     "name": "Stock Titan",
+     "url": "https://www.stocktitan.net/articles/nvidia-q3-fiscal-2027-earnings-revenue-outlook"
+    }
+   ],
+   "gdelt_query": "nvidia (earnings OR revenue OR guidance)",
+   "attention": {
+    "z": -1.59,
+    "base": "1년",
+    "day": "2026-11-27",
+    "count": 11,
+    "mean": 116.4,
+    "sd": 66.3,
+    "pass": false
+   }
+  },
+  {
+   "key": "bok-hike-1126",
+   "name": "한국은행 기준금리 3.25%로 인상",
+   "kind": "macro",
+   "date": "2026-11-26",
+   "sources": [
+    {
+     "name": "이투데이",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
+    },
+    {
+     "name": "Central Banking",
+     "url": "https://www.centralbanking.com/central-banks/monetary-policy/7953780/bank-of-korea-raises-rates-to-highest-level-since-2012"
+    }
+   ],
+   "gdelt_query": "\"Bank of Korea\" (rate OR hike)",
+   "attention": {
+    "z": -0.47,
+    "base": "3개월",
+    "day": "2026-11-27",
+    "count": 2,
+    "mean": 9.1,
+    "sd": 15.3,
+    "pass": false
+   }
+  }
+ ]
+}
