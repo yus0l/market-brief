@@ -87,10 +87,10 @@ ok("주목도 미달 → 사례 아님", not log["passed"])
 # 7. 다시 넘으면 기존 사례에 날짜 이어 붙임
 log, out = run(draft(cand={"same_as": "2026-11-19-k"}))
 c = next(x for x in out["cases"] if x["id"] == "2026-11-19-k")
-ok("다시 확대 매체 2곳 없음 → 안 붙임", c["status"] == "record" and len(c["event"]["dates"]) == 1)
+ok("다시 주목 매체 2곳 없음 → 안 붙임", c["status"] == "record" and len(c["event"]["dates"]) == 1)
 log, out = run(draft(cand={"same_as": "2026-11-19-k", "attention": {"pass": True, "z": 3.0, "day": "2026-11-27"}, "reexpand": {"2026-11-27": S2}}))
 c = next(x for x in out["cases"] if x["id"] == "2026-11-19-k")
-ok("다시 확대 → 날짜 추가", c["status"] == "live" and len(c["event"]["dates"]) == 2 and c["event"]["dates"][1] == {"date": "2026-11-27", "label": "다시 확대"})
+ok("다시 주목 → 날짜 추가", c["status"] == "live" and len(c["event"]["dates"]) == 2 and c["event"]["dates"][1] == {"date": "2026-11-27", "label": "다시 주목"})
 
 # 8. 사건 출처 1곳·해석 이름은 사례 아님
 log, _ = run(draft(cand={"key": "k3", "sources": S2[:1]})); ok("사건 출처 1곳 → 아님", not log["passed"])
