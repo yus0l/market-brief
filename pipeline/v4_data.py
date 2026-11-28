@@ -95,8 +95,12 @@ def gdelt_daily(query, country, span):
 def attention_one(key, query, store, today):
     """후보 하나 → {z, base, today, mean, sd}. 받은 값은 store(data/v4/attention.json)에 날짜별로 쌓는다."""
     rec = store.setdefault(key, {"query": query, "days": {}})
+    if rec.get("query") != query: rec.update(days={}, errors=[])   # 검색어가 바뀌면 쌓인 값은 다른 뜻 → 비움
     rec["query"] = query
     for c in COUNTRIES:
+        have = sorted(d for d, v in rec["days"].items() if c in v)
+        if len(have) >= 300 and have[-1] >= (today - dt.timedelta(days=1)).isoformat():   # 이미 1년치 + 어제까지 있음 → 안 부름 (요청 제한 아낌)
+            print(f"  {key} {c}: 있음 {len(have)}일", flush=True); continue
         pts = None
         for span in ("12m", "3m"):
             try:

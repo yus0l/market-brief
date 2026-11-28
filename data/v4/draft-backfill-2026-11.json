@@ -21,7 +21,7 @@
      "url": "https://political.org/2026/11/05/ai-stock-wipeout-sends-sp-500-down-4-4-in-worst-day-since-april-2025-erasing-post-midterm-rally/"
     }
    ],
-   "gdelt_query": "(AI OR Nvidia OR chip) (stocks OR selloff) (\"data center\" OR midterm)",
+   "gdelt_query": "(AI OR Nvidia OR chip) (stocks OR selloff) (midterm OR moratorium OR Democrats)",
    "attention": {
     "z": -0.85,
     "base": "3개월",
