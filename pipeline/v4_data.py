@@ -90,6 +90,9 @@ def gdelt_daily(query, country, span):
     by = {}
     for p in (d.get("timeline") or [{}])[0].get("data", []):
         day = f"{p['date'][:4]}-{p['date'][4:6]}-{p['date'][6:8]}"; by[day] = by.get(day, 0) + int(p["value"])
+    if by:   # 3m 응답은 기사 0개인 날을 빼고 준다 → 빈 날 = 0으로 채움 (12m 응답은 원래 다 줌)
+        d0, d1 = dt.date.fromisoformat(min(by)), dt.date.fromisoformat(max(by))
+        while d0 <= d1: by.setdefault(d0.isoformat(), 0); d0 += dt.timedelta(days=1)
     return sorted(by.items())
 
 def attention_one(key, query, store, today):
