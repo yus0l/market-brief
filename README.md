@@ -10,6 +10,17 @@
 - **주의**: 키는 GitHub Secrets만(FRED_API_KEY·ECOS_API_KEY). 키 없이 로컬에서 build.py 그냥 돌리면 오늘 날짜 빈 파일 생김 → 과거 날짜 재조립은 날짜 고정 실행기로. 스키마 바꾸면 `python3 pipeline/generate.py`·`python3 pipeline/v2.py`로 다시 내보내기. 큰 변경 전 versions/에 백업. 검사 `python3 pipeline/test_build.py`("bad:" 줄은 정상 부정 예시)·`test_v2.py`.
 - **결정 대기**: BANNED "매도"가 사실 "외국인 순매도"도 막음(PM). holidays.json 2027 미입력.
 
+## v4 사례 화면 (`?b=1`, 11/28 개발 착수)
+기준: `../../01-정보설계.md` 맨 위 v4 · `../../02-화면.md` · `../../01-연결표.md`. v1 매일 실행·기본 화면은 그대로.
+- **화면**: `web/v4.html` (index.html이 `?b=1`이면 여기로 넘김. 예전 B 타임라인은 `?b=v3`). 데이터 `web/v4/cases.json`, `?mock=1` = `web/v4/mock.json`(02-화면 금 사례 목업)
+- **칸·연결표**: `pipeline/v4_cells.py` — 수집 칸 목록(CELLS)·연결표 번호 ↔ 칸 묶음·방향(LINK_MAP). `01-연결표.md`가 바뀌면 `python3 pipeline/v4_cells.py links` → `config/links-v4.json` (로컬에서만, 원본 md가 저장소 밖)
+- **수집**: `pipeline/v4_data.py` — `history`(FRED·ECOS 1년+ 일별 → 표준편차 2배 '크게' 날짜), `sec`(엔비디아, Secrets `SEC_USER_AGENT`), `attention`(GDELT 기사 양, US·KS, 1년치 안 되면 3개월), `gdelt-check`. collect.yml 07:10 뒤 단계로 붙음(실패해도 v1 무관)
+- **검사·조립**: `pipeline/v4.py` — `precheck`(①주목도 ②영향도) → `build`(칸 검사·③한국 영향·앞으로·태그·사례 상태 → cases.json + `data/v4/log-날짜.json`)
+- **AI 지시문**: `pipeline/routine-prompt-v4.md` — 아직 예약 실행 미연결(사용자 화면 확인 뒤)
+- **시험**: `python3 pipeline/test_v4.py` (키·네트워크 없이 14개)
+- **정한 것**: 금·업종 지수는 media 칸(매체 2곳 같은 숫자), '크게' 판단 안 함. 기업 주가 칸 없음. 연결표 1(WGC 한 곳)·11(⚠)은 약함 → 앞으로 끝 칸이면 미지수
+- **모르는 것**: GDELT 1년치가 GitHub에서 받아지는지(`data/v4/gdelt-check.json`), 기사 양 기준으로 실제 사례가 몇 개 나오는지
+
 ## 폴더
 | 경로 | 내용 |
 |---|---|

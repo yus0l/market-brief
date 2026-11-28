@@ -19,3 +19,19 @@ jobs:
           git config user.name "collect-bot" && git config user.email "actions@users.noreply.github.com"
           git add data/facts-*.json && git commit -m "facts $(TZ=Asia/Seoul date +%F)" || exit 0
           git push
+      # v4 (?b=1 사례): 1년 일별 값·SEC 재무·GDELT 기간 확인. 실패해도 위 v1 수집에는 영향 없음
+      - id: v4
+        continue-on-error: true
+        run: |
+          python3 pipeline/v4_data.py history
+          python3 pipeline/v4_data.py sec || echo "SEC 실패 — 건너뜀"
+          python3 pipeline/v4_data.py gdelt-check || echo "GDELT 확인 실패 — 건너뜀"
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+      - continue-on-error: true
+        run: |
+          git pull --rebase -q
+          git add data/v4 && git commit -m "v4 data $(TZ=Asia/Seoul date +%F)" || exit 0
+          git push

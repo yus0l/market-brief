@@ -22,6 +22,8 @@
   --dir-up:              #FF3B30;  /* Apple systemRed */
   --dir-down:            #007AFF;  /* Apple systemBlue */
   --dir-flat:            #C7C7CC;  /* Apple systemGray3 */
+  --dir-up-text:         #D70015;  /* v4 값 글자용 고대비 (02-화면.md 토큰 추가, 11/28) — --dir-up은 점·아이콘만 */
+  --dir-down-text:       #0040DD;  /* v4 값 글자용 고대비 */
   /* 2) 의미 = 해석. 호재 쪽/악재 쪽, 선택됨 */
   --meaning:             #5856D6;  /* Apple systemIndigo */
   --meaning-soft:        #EEEEFB;  /* systemIndigo 10% on white */

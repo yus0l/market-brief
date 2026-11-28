@@ -1,0 +1,474 @@
+{
+ "_doc": "01-연결표.md에서 자동 생성 (pipeline/v4_cells.py links). 직접 고치지 말 것. weak = ⚠ 또는 서로 다른 출처(도메인) 2곳 미만 → 앞으로 칸이면 미지수",
+ "links": [
+  {
+   "id": 1,
+   "link": "불안 ↑ → 금 ↑",
+   "line": "전쟁·위기로 불안하면 안전자산인 금을 찾는 사람이 늘어요",
+   "why": "금은 망하지 않는 자산으로 여겨져 위기 때 수요가 몰림",
+   "breaks": "불안과 함께 금리·달러가 크게 오르면 그쪽 힘이 더 셀 수 있음",
+   "sources": [
+    {
+     "name": "World Gold Council – 지정학 위험과 금",
+     "url": "https://www.gold.org/goldhub/research/investment-commentary?page=56"
+    },
+    {
+     "name": "WGC – 2026 1분기 전망",
+     "url": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q1-2026/outlook"
+    }
+   ],
+   "status": "출처 1곳 계열(WGC)뿐 → 독립 출처 1곳 더 필요",
+   "weak": true,
+   "a": [
+    "vix",
+    "event"
+   ],
+   "b": [
+    "gold"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 2,
+   "link": "금리(실질) ↑ → 금 ↓",
+   "line": "금리가 오르면 이자가 없는 금을 들고 있는 손해가 커져요",
+   "why": "금은 이자가 없어 예금·채권과 비교하면 \"놓치는 이자\"가 기회비용",
+   "breaks": "2022~2023년엔 실질금리가 크게 올라도 금이 버팀 — 중앙은행 금 매입·지정학 위험 때문",
+   "sources": [
+    {
+     "name": "RBC Wealth Management – Gold's regime change",
+     "url": "https://www.rbcwealthmanagement.com/en-us/insights/golds-regime-change"
+    },
+    {
+     "name": "Bloomberg 칼럼(NBER 연구 인용)",
+     "url": "https://www.wealthmanagement.com/alternative-investments/gold-is-no-longer-a-good-hedge-against-bad-times"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "rate_us"
+   ],
+   "b": [
+    "gold"
+   ],
+   "s": -1,
+   "sym": true
+  },
+  {
+   "id": 3,
+   "link": "유가 ↑ → 물가 ↑",
+   "line": "기름값이 오르면 운송·생산비가 올라 물가를 밀어 올려요",
+   "why": "에너지는 거의 모든 물건값에 들어감",
+   "breaks": "물가 기대가 안정된 나라·시기엔 영향이 작고 오래가지 않음(약 2년 뒤 사라짐). 에너지 수출국·수입국이 다름",
+   "sources": [
+    {
+     "name": "IMF WP/17/196",
+     "url": "https://www.imf.org/-/media/files/publications/wp/2017/wp17196.pdf.md"
+    },
+    {
+     "name": "BIS Bulletin 131",
+     "url": "https://www.bis.org/publ/bisbull131.pdf"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "oil"
+   ],
+   "b": [
+    "cpi",
+    "cpi_kr"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 4,
+   "link": "물가 ↑ → 금리 ↑",
+   "line": "물가가 오르면 중앙은행이 물가를 누르려고 금리를 올리기 쉬워요",
+   "why": "중앙은행 목표가 물가 안정(한국은행 연 2%)",
+   "breaks": "경기가 크게 식으면 물가가 올라도 금리를 못 올릴 수 있음",
+   "sources": [
+    {
+     "name": "KB Think – 물가·금리·환율",
+     "url": "https://kbthink.com/main/asset-management/moneyclass/edu-guide/price-level.html"
+    },
+    {
+     "name": "KDI 경제정보센터",
+     "url": "https://eiec.kdi.re.kr/material/pageoneView.do?idx=1537"
+    }
+   ],
+   "status": "중앙은행 원문 출처로 바꾸기",
+   "weak": false,
+   "a": [
+    "cpi"
+   ],
+   "b": [
+    "rate_us"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 5,
+   "link": "금리 ↑ → 주식 ↓",
+   "line": "금리가 오르면 빌리는 비용이 늘고 미래 이익의 가치가 줄어요",
+   "why": "미래 이익을 지금 가치로 바꿀 때 금리로 깎음 + 채권이 더 매력적",
+   "breaks": "금리가 오른 이유가 \"경기가 좋아서\"면 이익 증가가 상쇄",
+   "sources": [
+    {
+     "name": "HKUST Business School",
+     "url": "https://bm.hkust.edu.hk/bizinsight/2022/08/stock-surprises-impact-interest-rate-fluctuations-stock-prices"
+    },
+    {
+     "name": "Kiplinger",
+     "url": "https://kiplinger.com/investing/how-interest-rates-impact-stock-prices"
+    }
+   ],
+   "status": "중앙은행·학술 출처 1곳 더",
+   "weak": false,
+   "a": [
+    "rate_us",
+    "rate_kr"
+   ],
+   "b": [
+    "stock_us",
+    "stock_kr",
+    "sector"
+   ],
+   "s": -1,
+   "sym": true
+  },
+  {
+   "id": 6,
+   "link": "고용·임금 ↑ → 물가 ↑",
+   "line": "일자리와 임금이 늘면 쓰는 돈이 늘어 물가가 오르기 쉬워요",
+   "why": "임금 오름 → 소비·기업 비용 오름 (필립스 곡선)",
+   "breaks": "최근 수십 년 연결이 약해짐 — 실업률이 낮아도 물가가 안 오른 시기 많음. 임금과는 아직 뚜렷, 물가와는 약함",
+   "sources": [
+    {
+     "name": "Brookings – Phillips curve",
+     "url": "https://www.brookings.edu/articles/the-hutchins-center-explains-the-phillips-curve"
+    },
+    {
+     "name": "CBPP",
+     "url": "https://www.cbpp.org/research/economy/the-increasing-benefits-and-diminished-costs-of-running-a-high-pressure-labor"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "jobs"
+   ],
+   "b": [
+    "cpi"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 7,
+   "link": "원화 약세 → 물가 ↑",
+   "line": "원화가 약해지면 수입품 값이 올라 물가가 오르기 쉬워요",
+   "why": "수입 원자재·제품을 원화로 더 많이 내야 함",
+   "breaks": "기업이 이익을 줄여 값을 안 올리기도 함. 원화가 약해질 때가 강해질 때보다 영향이 큼(비대칭)",
+   "sources": [
+    {
+     "name": "한국은행 보고서 보도(2025.2, 환율 10%↑ → 물가 0.35%p↑, 9개월 뒤 최대)",
+     "url": "https://www.asiae.co.kr/en/article/2025022622392606596"
+    },
+    {
+     "name": "한국은행 WP 2014(Ahn·Park)",
+     "url": "https://econpapers.repec.org/RePEc:bok:wpaper:1411"
+    }
+   ],
+   "status": "한국은행 원문 링크로 바꾸기",
+   "weak": false,
+   "a": [
+    "krw"
+   ],
+   "b": [
+    "cpi_kr"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 8,
+   "link": "경기·고용 강함 → 금리 ↑(덜 내림)",
+   "line": "경기가 뜨거우면 중앙은행이 금리를 덜 내리거나 올리기 쉬워요",
+   "why": "과열 → 물가 걱정 → 중앙은행이 돈줄을 죔",
+   "breaks": "물가가 이미 안정돼 있으면 고용이 강해도 금리를 안 올림",
+   "sources": [
+    {
+     "name": "NBER w29910 (2022년 임금 6.5%와 금리 인상)",
+     "url": "https://www.nber.org/system/files/working_papers/w29910/w29910.pdf"
+    },
+    {
+     "name": "연준 이사 연설 2025.2",
+     "url": "https://www.federalreserve.gov/newsevents/speech/files/kugler20250220a.pdf"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "jobs"
+   ],
+   "b": [
+    "rate_us"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 9,
+   "link": "금리 ↑ → (시간이 지나) 물가 ↓",
+   "line": "금리를 올리면 1년 반~2년쯤 뒤 물가 오름세가 꺾이기 쉬워요",
+   "why": "빌리는 비용 ↑ → 소비·투자 ↓ → 물가 압력 ↓",
+   "breaks": "걸리는 시간이 들쭉날쭉(4~29개월). 바로 효과가 나지 않음",
+   "sources": [
+    {
+     "name": "샌프란시스코 연준 Economic Letter 2024-10",
+     "url": "https://www.frbsf.org/research-and-insights/publications/economic-letter/2024/04/how-quickly-do-prices-respond-to-monetary-policy"
+    },
+    {
+     "name": "세인트루이스 연준",
+     "url": "https://www.stlouisfed.org/publications/regional-economist/2023/may/examining-long-variable-lags-monetary-policy"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "rate_us"
+   ],
+   "b": [
+    "cpi"
+   ],
+   "s": -1,
+   "sym": false,
+   "slow": true
+  },
+  {
+   "id": 10,
+   "link": "미국 금리 ↑ → 달러 강세 → 원/달러 ↑",
+   "line": "미국 금리가 오르면 달러가 강해져 원/달러가 오르기 쉬워요",
+   "why": "금리 차이 → 돈이 이자 높은 쪽으로",
+   "breaks": "금리 차이보다 \"세계 투자자의 위험 선호\"가 더 클 때가 많음",
+   "sources": [
+    {
+     "name": "IMF 블로그 2024.7",
+     "url": "https://www.imf.org/en/Blogs/Articles/2024/07/22/financial-stability-implications-of-emerging-market-currency-developments"
+    },
+    {
+     "name": "BIS Quarterly Review 2024.9",
+     "url": "https://www.bis.org/publ/qtrpdf/r_qt2409d.htm"
+    }
+   ],
+   "status": "초안 완료. 한국 금리 ↑ → 원화 강세 방향은 따로 조사",
+   "weak": false,
+   "a": [
+    "rate_us"
+   ],
+   "b": [
+    "dollar",
+    "krw"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 11,
+   "link": "원화 약세 → 외국인 매도 → 코스피 ↓",
+   "line": "원화가 약해지면 외국인은 환율 손해 때문에 한국 주식을 팔기 쉬워요",
+   "why": "외국인은 달러로 수익을 계산 — 원화 약세 = 환차손",
+   "breaks": "2026 하반기엔 원화 강세에도 외국인 매도 — 상관이 크게 약해졌다는 분석",
+   "sources": [
+    {
+     "name": "머니투데이 2026.6",
+     "url": "https://mt.co.kr/stock/2026/06/04/2026060411201651250"
+    },
+    {
+     "name": "세계일보 2026.10",
+     "url": "https://www.segye.com/newsView/20261013505356"
+    }
+   ],
+   "status": "⚠ 언론·증권사만 → 한국은행·거래소 자료 필요. 그 전엔 \"미지수\" 쪽으로",
+   "weak": true,
+   "a": [
+    "krw"
+   ],
+   "b": [
+    "stock_kr"
+   ],
+   "s": -1,
+   "sym": true
+  },
+  {
+   "id": 12,
+   "link": "공포(VIX) ↑ ↔ 주식 ↓",
+   "line": "불안이 커지면 주식을 팔고, 주식이 떨어지면 불안이 커져요",
+   "why": "VIX = 앞으로 30일 S&P500이 얼마나 흔들릴지에 대한 옵션 시장의 예상",
+   "breaks": "VIX는 \"얼마나 흔들릴지\"이지 방향이 아님. 함께 오르는 때도 있음",
+   "sources": [
+    {
+     "name": "Britannica Money – VIX",
+     "url": "https://britannica.com/money/cboe-volatility-index"
+    },
+    {
+     "name": "S&P Dow Jones Indices – VIX 소개",
+     "url": "https://spglobal.com/spdji/en/vix-intro"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "vix"
+   ],
+   "b": [
+    "stock_us",
+    "stock_kr"
+   ],
+   "s": -1,
+   "sym": true
+  },
+  {
+   "id": 13,
+   "link": "경기 ↑ → 기업 이익 ↑ → 주식 ↑",
+   "line": "경기가 좋으면 기업 이익이 늘어 주가에 보탬이 되기 쉬워요",
+   "why": "주가는 결국 앞으로의 이익을 반영",
+   "breaks": "**짧게는 거의 안 맞음**(경제성장과 주가 상관 약함, 때로 반대). 긴 기간에서만 이익과 주가가 같이 감",
+   "sources": [
+    {
+     "name": "CFA Institute 2026 (150년 데이터)",
+     "url": "https://blogs.cfainstitute.org/investor/2026/01/08/what-earnings-explain-and-what-they-dont-insights-from-150-years-of-market-data"
+    },
+    {
+     "name": "보스턴 연준",
+     "url": "https://www.bostonfed.org/-/media/Documents/neer/neer292c.pdf"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "growth"
+   ],
+   "b": [
+    "stock_us",
+    "stock_kr"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 14,
+   "link": "달러 약세 → 금 ↑",
+   "line": "달러가 약해지면 달러로 매기는 금값이 오르기 쉬워요",
+   "why": "금은 달러로 거래 — 달러 약세면 다른 나라 돈으로 싸짐",
+   "breaks": "비대칭(약달러 때 오름 폭이 더 큼). 2025년엔 신흥국 중앙은행 금 매입으로 연결이 깨짐",
+   "sources": [
+    {
+     "name": "WGC – Gold tracks the dollar",
+     "url": "https://www.gold.org/goldhub/research/investment-update-gold-tracks-dollar-rates-take-back-seat"
+    },
+    {
+     "name": "CME Group 2025",
+     "url": "https://www.cmegroup.com/openmarkets/metals/2025/Gold-and-the-US-Dollar-An-Evolving-Relationship.hideRightRail.hideHeader.hideSubnav.hideFooter.hideAddThisExt.html"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "dollar"
+   ],
+   "b": [
+    "gold"
+   ],
+   "s": -1,
+   "sym": true
+  },
+  {
+   "id": 15,
+   "link": "미국 주식 → 다음 날 코스피",
+   "line": "미국 장이 끝난 뒤 한국 장이 열려, 미국 움직임이 다음 날 이어지곤 해요",
+   "why": "시차 — 밤사이 미국 소식이 한국 시초가에 반영",
+   "breaks": "주로 **시초가**에 반영되고 장중엔 되돌리기도 함. 연구마다 결과가 갈림",
+   "sources": [
+    {
+     "name": "KDI School – Transmission of Stock Returns (Korea)",
+     "url": "https://archives.kdischool.ac.kr/handle/11125/28874"
+    },
+    {
+     "name": "KoreaScience 2010",
+     "url": "https://koreascience.kr/article/JAKO201006755715664.page"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "stock_us"
+   ],
+   "b": [
+    "stock_kr"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 16,
+   "link": "실적이 예상보다 좋음/나쁨 → 그 회사 주가",
+   "line": "실적이 시장 예상보다 좋으면 주가에 호재, 나쁘면 악재로 읽히기 쉬워요",
+   "why": "주가는 \"예상\"을 이미 반영 → 예상과의 **차이**에 반응",
+   "breaks": "큰 회사는 발표 당일 바로 반영되고 그 뒤 추세는 거의 없음(2000년대 이후). 실적이 좋아도 앞으로 전망(가이던스)이 나쁘면 내리기도 함 — 가이던스는 따로 조사",
+   "sources": [
+    {
+     "name": "Ball & Brown 이후 PEAD 리뷰 (Graz 2020)",
+     "url": "https://static.uni-graz.at/fileadmin/sowi/Working_Paper/2020-04_Fink.pdf"
+    },
+    {
+     "name": "UCLA Anderson Review",
+     "url": "https://anderson-review.ucla.edu/is-post-earnings-announcement-drift-a-thing-again"
+    }
+   ],
+   "status": "초안 완료",
+   "weak": false,
+   "a": [
+    "nvda_fin"
+   ],
+   "b": [
+    "company"
+   ],
+   "s": 1,
+   "sym": true
+  },
+  {
+   "id": 17,
+   "link": "업계 대표 기업 실적 → 같은 업종 회사들",
+   "line": "업계 대표 회사의 실적은 같은 업종 회사 주가도 같이 움직이게 하기 쉬워요",
+   "why": "같은 업종은 수요·사이클을 공유 → 대표 기업 실적이 업종 전체 신호",
+   "breaks": "시장이 과하게 따라 움직였다가 그 회사 실적 발표 때 되돌리기도 함",
+   "sources": [
+    {
+     "name": "Hann·Kim·Zheng – bellwether 효과",
+     "url": "https://escholarship.org/content/qt4nb6h1cv/qt4nb6h1cv.pdf?t=owblwy"
+    },
+    {
+     "name": "Stanford GSB – intra-industry transfers",
+     "url": "https://www.gsb.stanford.edu/faculty-research/working-papers/intra-industry-information-transfers-associated-earnings-releases"
+    }
+   ],
+   "status": "초안 완료. 반도체 직접 연구는 못 찾음",
+   "weak": false,
+   "a": [
+    "nvda_fin",
+    "event"
+   ],
+   "b": [
+    "sector"
+   ],
+   "s": 1,
+   "sym": true
+  }
+ ]
+}

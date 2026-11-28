@@ -1,0 +1,21 @@
+{"_doc": "화면 확인용 목업 (?b=1&mock=1). 02-화면.md 금 사례를 옮김 — 값·출처는 예시, 실제 데이터 아님",
+ "date": "2026-11-28", "asof": "2026-11-28 08:00", "rep": "m1", "first": "m1",
+ "cases": [
+  {"id": "m1", "kind": "macro", "status": "live", "event": {"name": "중동 전쟁 시작", "date": "2026-11-20", "dates": [{"date": "2026-11-20", "label": "시작"}]},
+   "flow": [
+    {"id": "start", "kind": "start", "name": "중동 전쟁 시작", "date": "2026-11-20", "reason": "원유가 지나는 길이 막힐 수 있다는 걱정이 퍼졌어요", "parents": []},
+    {"id": "n1", "kind": "past", "name": "유가(WTI)", "value": "배럴당 $82.24", "dir": 1, "date": "2026-11-20", "reason": "공급이 줄 거란 걱정에 기름값이 올랐어요", "parents": ["start"]},
+    {"id": "n2", "kind": "past", "name": "항공 업종", "value": "지수 312", "dir": -1, "date": null, "reason": "기름값이 가장 큰 비용이라 부담이 커졌어요", "parents": ["n1"]},
+    {"id": "n3", "kind": "past", "name": "미국 기대 물가(10년)", "value": "2.35%", "dir": 1, "date": "2026-11-21", "reason": "기름값이 오르자 앞으로 물가가 더 오를 거란 걱정이 커졌어요", "parents": ["n1"]},
+    {"id": "n4", "kind": "past", "name": "미국 10년 국채 금리", "value": "4.85%", "dir": 1, "date": "2026-11-22", "reason": "물가 걱정에 금리 인하가 늦어질 거란 기사가 늘며 금리가 올랐어요", "parents": ["n3"]},
+    {"id": "n5", "kind": "past", "name": "금", "value": "온스당 $2,610", "dir": -1, "date": null, "reason": "금리가 올라 이자 없는 금을 들고 있는 손해가 커져 금값이 내렸어요", "parents": ["n4"]},
+    {"id": "n6", "kind": "past", "name": "원/달러", "value": "1,412원", "dir": 1, "date": "2026-11-22", "reason": "미국 금리가 오르며 달러가 강해져 원/달러가 올랐어요", "parents": ["n4"]}],
+   "future": {"release": {"code": "US_CPI", "name": "미국 물가 발표", "date": "2026-12-10", "md": "12/10"}, "title": "미국 물가 발표가 중요해요",
+    "header": "물가가 예상보다 높게 나온다면?",
+    "nodes": [
+     {"id": "f1", "name": "미국 10년 국채 금리", "now": "4.85%", "now_dir": 1, "dir": 1, "tag": null, "reason": "물가를 누르려고 금리 인하가 더 늦어질 수 있어서 더 오르기 쉬워요", "parent": null},
+     {"id": "f2", "name": "미국 주식(S&P 500)", "now": "7,183", "now_dir": -1, "dir": -1, "tag": "bad", "reason": "돈 빌리는 비용이 늘고, 앞으로 벌 돈의 지금 가치가 줄어서요", "parent": "f1"},
+     {"id": "f3", "name": "원/달러", "now": "1,412원", "now_dir": 1, "dir": 1, "tag": null, "reason": "미국 금리가 오르면 달러가 강해져 더 오르기 쉬워요", "parent": "f1"},
+     {"id": "f4", "name": "코스피", "now": "4,711", "now_dir": -1, "dir": -1, "tag": "unknown", "reason": "원화 약세와 외국인 매매의 연결이 최근 약해져서 방향을 말하기 어려워요", "parent": "f3"}]}},
+  {"id": "m2", "kind": "macro", "status": "record", "event": {"name": "미국 물가 발표", "date": "2026-11-05", "dates": [{"date": "2026-11-05", "label": "시작"}]}, "flow": [], "future": null},
+  {"id": "m3", "kind": "firm", "status": "record", "event": {"name": "엔비디아 실적 발표", "date": "2026-10-22", "dates": [{"date": "2026-10-22", "label": "시작"}]}, "flow": [], "future": null}]}

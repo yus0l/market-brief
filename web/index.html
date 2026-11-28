@@ -1127,7 +1127,9 @@ function home() {
 
 /* ───────── B 풀이 순서 (?b=1, 01-명세 §1-1-4 · 02-UX "B 풀이 순서 배치") ─────────
    흐름도 주인 = 관심사. ① 무슨 일 → ② 어디로 번지나 → ③ 무엇과 비교하나 → ④ 뭘 보면 갈리나 */
-const BMODE = Q.get("b") === "1";
+// ?b=1 = v4 사례 화면(02-화면.md, 11/28). 예전 B(v3 타임라인)는 ?b=v3
+if (Q.get("b") === "1") location.replace("v4.html" + location.search);
+const BMODE = Q.get("b") === "v3";
 // v2 데이터(정보설계 v3): ?b=1은 today-v2.json이 있으면 그걸 읽음(수동 실행분), ?v2mock=1이면 목업
 let V2 = null;
 if (BMODE) fetch(Q.get("v2mock") === "1" ? "mock/v2-topics.json" : "today-v2.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null)

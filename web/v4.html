@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시장 사례</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* v4 사례 화면 — 02-화면.md (11/28 확정). 카드·박스 없음, 세로선 위 점 + 글자 */
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg);color:var(--text-1);font-family:var(--font-sans);-webkit-text-size-adjust:100%}
+main{max-width:430px;margin:0 auto;padding:16px 20px 48px}
+.asof{font-size:var(--fs-caption);color:var(--text-2)}
+.sample{font-size:var(--fs-caption);color:var(--interest-text);margin-left:6px}
+.ev{margin-top:20px}
+.evd{display:flex;align-items:center;gap:8px;font-size:var(--fs-label);color:var(--text-2)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:var(--r-tag);background:var(--interest-soft);color:var(--interest-text);font-size:12px;font-weight:600}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--interest)}
+.rec{color:var(--text-2);font-size:12px}
+.evn{font-size:26px;font-weight:700;line-height:var(--lh-tight);margin:6px 0 0;letter-spacing:-.01em}
+.sec{margin-top:32px}
+.sub{font-size:var(--fs-label);color:var(--text-2)}
+.st{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:var(--fs-display);font-weight:700;margin:2px 0 16px;line-height:var(--lh-tight)}
+.rel{font-size:12px;font-weight:600;padding:3px 8px;border-radius:var(--r-tag);background:var(--surface-box);color:var(--text-2)}
+.cond{font-size:16px;font-weight:600;margin:0 0 12px}
+/* 흐름: 세로선 */
+.flow{position:relative}
+.row{position:relative;padding:0 0 18px 26px}
+.row::before{content:"";position:absolute;left:5px;top:14px;bottom:-2px;border-left:1.5px solid var(--text-1)}
+.flow.fut .row::before{border-left:1.5px dashed var(--edge-idle)}
+.row.last::before{display:none}
+.dot{position:absolute;left:0;top:3px;width:12px;height:12px;border-radius:50%;background:var(--text-1)}
+.dot.start{background:var(--interest);box-shadow:0 0 0 3px var(--interest-soft)}
+.dot.hollow{background:var(--color-bg);border:2px solid var(--meaning)}
+.dot.unk{background:var(--color-bg);border:2px solid var(--text-3)}
+/* 끝나는 가지: └ 꺾인 선 + 들여쓰기 */
+.row.br{padding-left:48px}
+.row.br .dot{left:22px}
+.row.br .elbow{position:absolute;left:5px;top:-8px;width:16px;height:17px;border-left:1.5px solid var(--edge-idle);border-bottom:1.5px solid var(--edge-idle);border-bottom-left-radius:4px}
+.flow.fut .row.br .elbow{border-color:var(--edge-idle)}
+.date{font-size:var(--fs-caption);color:var(--text-2);line-height:1.2;margin-bottom:2px}
+.l1{display:flex;align-items:baseline;gap:8px}
+.nm{font-size:var(--fs-title);font-weight:600;line-height:var(--lh-tight)}
+.tag{font-size:12px;font-weight:600;padding:1px 6px;border-radius:4px;background:var(--meaning-soft);color:var(--meaning);white-space:nowrap}
+.tag.unk{background:var(--surface-box);color:var(--text-2)}
+.val{margin-left:auto;font-size:var(--fs-section);font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px}
+.val .up{color:var(--dir-up-text)} .val .down{color:var(--dir-down-text)} .val .flat{color:var(--text-2)}
+.why{font-size:14px;color:var(--text-2);line-height:1.45;margin-top:3px}
+/* 지난 사례 */
+.past a{display:flex;align-items:center;gap:12px;height:52px;border-top:1px solid var(--border-1);color:inherit;text-decoration:none}
+.past a:last-child{border-bottom:1px solid var(--border-1)}
+.past .pd{font-family:var(--font-mono);font-size:var(--fs-label);color:var(--text-2);width:44px}
+.past .pn{flex:1;font-size:var(--fs-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.past .ps{font-size:var(--fs-label);color:var(--text-2)}
+.empty{margin-top:40px;color:var(--text-2);font-size:var(--fs-body)}
+</style>
+</head>
+<body>
+<main id="app"><div class="asof">불러오는 중…</div></main>
+<script>
+const Q = new URLSearchParams(location.search);
+const MOCK = Q.get("mock") === "1";
+const h = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[c]);
+const md = d => d ? `${+d.slice(5, 7)}/${+d.slice(8, 10)}` : "";
+const ARW = d => d > 0 ? `<span class="up">▲</span>` : d < 0 ? `<span class="down">▼</span>` : d === 0 ? `<span class="flat">–</span>` : "";
+const TAG = {good: "호재", bad: "악재", unknown: "미지수"};
+
+function asofText(a) {
+  const m = /^(\d{4})-(\d\d)-(\d\d)(?: (\d\d:\d\d))?/.exec(a || ""); if (!m) return "";
+  const d = new Date(+m[1], m[2] - 1, +m[3]);
+  return `${+m[2]}/${+m[3]}(${"일월화수목금토"[d.getDay()]})${m[4] ? " " + m[4] : ""} 기준`;
+}
+
+// 칸 배치: 다음 칸이 있는 칸은 세로선 위, 그 자리에서 끝나는 가지(형제가 있는 잎)는 부모 바로 아래 └ 들여쓰기 (02-화면.md 갈라짐)
+function layout(nodes, parentsOf) {
+  const kids = {}; nodes.forEach(n => parentsOf(n).forEach(p => (kids[p] = kids[p] || []).push(n.id)));
+  const leaf = n => !(kids[n.id] || []).length;
+  const out = [], placed = new Set();
+  const isBranch = n => leaf(n) && n !== nodes[nodes.length - 1] && parentsOf(n).length === 1 && (kids[parentsOf(n)[0]] || []).length > 1;
+  for (const n of nodes) {
+    if (placed.has(n.id) || isBranch(n)) continue;
+    out.push({n, br: false}); placed.add(n.id);
+    for (const c of kids[n.id] || []) {
+      const cn = nodes.find(x => x.id === c);
+      if (cn && isBranch(cn) && !placed.has(c)) { out.push({n: cn, br: true}); placed.add(c); }
+    }
+  }
+  nodes.forEach(n => { if (!placed.has(n.id)) out.push({n, br: isBranch(n)}); });
+  return out;
+}
+
+function pastRow({n, br}, last) {
+  const dot = n.kind === "start" ? "start" : "";
+  const val = n.kind === "start" ? "" : `<span class="val">${h(n.value)} ${ARW(n.dir)}</span>`;
+  return `<div class="row${br ? " br" : ""}${last ? " last" : ""}">${br ? `<span class="elbow"></span>` : ""}<span class="dot ${dot}"></span>
+    ${n.date ? `<div class="date">${md(n.date)}</div>` : ""}
+    <div class="l1"><span class="nm">${h(n.name)}</span>${val}</div>
+    <div class="why">${h(n.reason)}</div></div>`;
+}
+
+function futRow({n, br}, last) {
+  const dot = n.tag === "unknown" ? "unk" : "hollow";
+  const tag = n.tag && n.reason ? `<span class="tag${n.tag === "unknown" ? " unk" : ""}">${TAG[n.tag]}</span>` : "";   // 이유 없으면 태그 안 그림
+  const val = n.now ? `<span class="val">지금 ${h(n.now)} ${ARW(n.now_dir)}</span>` : "";
+  return `<div class="row${br ? " br" : ""}${last ? " last" : ""}">${br ? `<span class="elbow"></span>` : ""}<span class="dot ${dot}"></span>
+    <div class="l1"><span class="nm">${h(n.name)}</span>${tag}${val}</div>
+    <div class="why">${h(n.reason)}</div></div>`;
+}
+
+function render(D) {
+  const app = document.getElementById("app");
+  const cases = D.cases || [];
+  const pick = Q.get("case");
+  const C = cases.find(c => c.id === pick) || cases.find(c => c.id === D.first) || cases[0];
+  let r = `<div class="asof">${h(asofText(D.asof))}${MOCK ? `<span class="sample">샘플 데이터</span>` : ""}</div>`;
+  if (!C) { app.innerHTML = r + `<div class="empty">아직 쌓인 사례가 없어요</div>`; return; }
+  const E = C.event, ds = E.dates || [{date: E.date}];
+  const when = ds.length > 1 ? ds.map(d => `${md(d.date)} ${h(d.label || "")}`).join(" · ") : `${md(ds[0].date)}부터`;
+  r += `<section class="ev"><div class="evd"><span>${when}</span>${C.status === "live" ? `<span class="badge">진행 중</span>` : `<span class="rec">기록</span>`}</div>
+    <h1 class="evn">${h(E.name)}</h1></section>`;
+
+  const F = C.flow || [];
+  if (F.length) {
+    const L = layout(F, n => n.parents || []);
+    r += `<section class="sec"><div class="sub">지금까지</div><div class="st">이렇게 이어졌어요</div><div class="flow">${L.map((x, i) => pastRow(x, i === L.length - 1)).join("")}</div></section>`;
+  }
+  const U = C.future;
+  if (U && (U.nodes || []).length) {
+    const L = layout(U.nodes, n => n.parent ? [n.parent] : []);
+    r += `<section class="sec"><div class="sub">앞으로</div><div class="st"><span>${h(U.title)}</span>${U.release ? `<span class="rel">${md(U.release.date)} 발표 예정</span>` : ""}</div>
+      <div class="cond">${h(U.header)}</div><div class="flow fut">${L.map((x, i) => futRow(x, i === L.length - 1)).join("")}</div></section>`;
+  }
+  const others = cases.filter(c => c !== C);
+  if (others.length) {
+    const q = id => { const p = new URLSearchParams(location.search); p.set("case", id); return "?" + p; };
+    r += `<section class="sec past"><div class="st">지난 사례</div>${others.map(c => `<a href="${h(q(c.id))}"><span class="pd">${md(c.event.date)}</span><span class="pn">${h(c.event.name)}</span><span class="ps">${c.status === "live" ? "진행 중" : "기록"} ›</span></a>`).join("")}</section>`;
+  }
+  app.innerHTML = r;
+  document.title = E.name + " · 시장 사례";
+}
+
+fetch(MOCK ? "v4/mock.json" : "v4/cases.json", {cache: "no-store"}).then(r => r.ok ? r.json() : {cases: []})
+  .then(render).catch(() => render({cases: []}));
+</script>
+</body>
+</html>

@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: 화면 스크립트 문법 검사 (깨진 화면 공개 방지)
         run: sed -n '/<script>/,/<\/script>/p' web/index.html | sed '1d;$d' > /tmp/page.js && node --check /tmp/page.js
+          sed -n '/<script>/,/<\/script>/p' web/v4.html | sed '1d;$d' > /tmp/v4.js && node --check /tmp/v4.js
       - uses: actions/upload-pages-artifact@v3
         with: { path: web }
       - id: d1
