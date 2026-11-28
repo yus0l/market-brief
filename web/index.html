@@ -898,6 +898,13 @@ function playFlow() {
 
 /* ───────── 데이터: today.json (매일 08:00 공개본). 화면은 이 파일만 읽는다 ───────── */
 const SIDE = { good:"호재", bad:"악재" };
+// 지연 배너: 공개본 날짜가 한국 오늘보다 앞이면 "어제 기준" (생성이 안 돈 날은 build가 status를 못 씀, 검수 11/28)
+function withStale(s) {
+  s = Object.assign({}, s || {});
+  const kst = new Date(Date.now() + 9 * 36e5).toISOString().slice(0, 10);
+  if (!s.delayed && !D.mock && D.date && D.date < kst) s.delayed = D.date;
+  return s;
+}
 // 쪽 태그 이유 (명세 §3-11-2): K표 행(조건 줄)의 reason. 이유 없으면 null → 태그 숨김
 function kReason(node, dir, side, cur) {
   const KT = D.ktags || {};
@@ -1005,7 +1012,7 @@ function home() {
   if (LOAD === "loading") return skeleton();
   if (LOAD === "error") return `<div class="ds-banner" style="margin-top:12px"><span>지금 데이터를 불러오지 못했어요</span><button data-retry>다시 시도</button></div>`;
   if (BMODE) return homeB();
-  const st = D.status || {}, I = curIntN();
+  const st = withStale(D.status), I = curIntN();
   INTEREST = I.node; EXPLAIN = I.explain || [];
   const e = cur(), L = layers(e, I, st), { v, real, o, op, via, idir, opSide } = L;
   const past = e.kind === "done" && e.date && D.date && e.date < D.date;   // 지난 사건 (결과 확인 남음)
@@ -1081,7 +1088,7 @@ function home() {
   r += `<hr class="pdiv">`;
   if (PR.length || SZ.length) {
     r += `<div class="judge"><div class="jh"><h4>판단할 때 같이 볼 것</h4></div>` + PR.map(x => `<div class="jrow"><span class="jn">${h(x.name)}</span>
-      <span class="side ${x.note ? "none cnt0" : x.side || "none"}">${x.note ? h(x.note) : x.side ? SIDE[x.side] + (x.weak ? " · 약하게" : "") : "—"}</span><span class="jv">${triI(x.dir)}${x.value == null ? "값 확인 전" : h(x.value)}</span></div>`).join("");
+      <span class="side ${x.note ? "none cnt0" : (x.side && x.reason) ? x.side : "none"}">${x.note ? h(x.note) : x.side && x.reason ? SIDE[x.side] + (x.weak ? " · 약하게" : "") + " · " + h(x.reason) : "—"}</span><span class="jv">${triI(x.dir)}${x.value == null ? "값 확인 전" : h(x.value)}</span></div>`).join("");
     if (SZ.length) r += `<div class="szh">크기를 바꾸는 것</div>` + SZ.map(z => `<div class="szrow">${h(z.text)} · ${refs(z.sources)}</div>`).join("");
     r += `</div>`;
   }
@@ -1161,7 +1168,7 @@ const bWhy = (k, c) => { const w = (D.why || {})[k]; return w && typeof w === "o
 const bName = (k, c) => k === "kospi" ? "코스피" : k === "rate" ? (c === "us" ? "미국 10년 국채 금리" : "한국 3년 국채 금리") : (SUBS[c] && SUBS[c][k] && ["stock", "fx"].includes(k) ? SUBS[c][k] : (CTRY_N.includes(k) ? CPFX(c) : "") + ((NG[k] && NG[k].t) || k));
 function homeB() {
   // B v4 (02-UX "B v4", 01-정보설계 v3): 화면의 모든 정보는 {관심사}가 정한다. 변수 없으면 줄·단계가 사라짐
-  const st = D.status || {};
+  const st = withStale(D.status);
   INTEREST = null; EXPLAIN = [];
   const TP = V2 && V2.topics ? V2.topics.map(normTopic) : D.topics && D.topics.length ? D.topics.map(normTopic) : topicsFromV1();
   const am = (D.asof || "").match(/^(\d{1,2})\/(\d{1,2})/), tm = ((D.asof || "").match(/\d{1,2}:\d{2}/) || [""])[0];
