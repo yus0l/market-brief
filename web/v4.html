@@ -54,13 +54,6 @@ main{max-width:430px;margin:0 auto;padding:16px 20px 48px}
 .past .pn{flex:1;font-size:var(--fs-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .past .ps{font-size:var(--fs-label);color:var(--text-2)}
 .empty{margin-top:40px;color:var(--text-2);font-size:var(--fs-body)}
-/* 오늘의 이슈 (02-화면.md): 머리만 작고 조용하게, 주황 안 씀 */
-.quiet{font-size:13px;color:var(--text-2);margin-bottom:6px}
-.badge.issue{background:var(--surface-sunken);color:var(--text-2)}
-.badge.issue::before{display:none}
-.ev.issue .evn{font-size:22px;font-weight:600}
-.ev.issue ~ .sec .dot.start{background:var(--text-3);box-shadow:none}
-.nomove{font-size:15px;color:var(--text-2);margin-top:32px}
 </style>
 </head>
 <body>
@@ -119,25 +112,18 @@ function render(D) {
   const app = document.getElementById("app");
   const cases = D.cases || [];
   const pick = Q.get("case");
-  // 첫 화면: 진행 중 사례 → 없으면 {오늘의 이슈} → 없으면 가장 최근 기록 사례 (01 v4)
-  const I = D.issue && !pick ? D.issue : null;
-  const C = I || cases.find(c => c.id === pick) || cases.find(c => c.id === D.first) || cases[0];
+  const C = cases.find(c => c.id === pick) || cases.find(c => c.id === D.first) || cases[0];
   // {기준 시각}: 기록 사례는 갱신을 멈춘 날 기준 (값이 그날 값이라서)
   const asof = C && C.status === "record" && C.updated ? C.updated + " 08:00" : D.asof;
-  const ISS = C && C.status === "issue";
   let r = `<div class="asof">${h(asofText(asof))}${MOCK ? `<span class="sample">샘플 데이터</span>` : ""}</div>`;
   if (!C) { app.innerHTML = r + `<div class="empty">아직 쌓인 사례가 없어요</div>`; return; }
   const E = C.event, ds = E.dates || [{date: E.date}];
   const when = ds.length > 1 ? ds.map(d => `${md(d.date)} ${h(d.label || "")}`).join(" · ") : `${md(ds[0].date)}부터`;
-  r += ISS
-    ? `<section class="ev issue"><div class="quiet">오늘은 큰 사건이 없어요</div><div class="evd"><span class="badge issue">오늘의 이슈</span><span>${md(E.date)}</span></div>
-    <h1 class="evn">${h(E.name)}</h1></section>`
-    : `<section class="ev"><div class="evd"><span>${when}</span>${C.status === "live" ? `<span class="badge">진행 중</span>` : `<span class="rec">기록</span>`}</div>
+  r += `<section class="ev"><div class="evd"><span>${when}</span>${C.status === "live" ? `<span class="badge">진행 중</span>` : `<span class="rec">기록</span>`}</div>
     <h1 class="evn">${h(E.name)}</h1></section>`;
 
   const F = C.flow || [];
-  if (ISS && F.length < 2) r += `<div class="nomove">시장은 아직 크게 움직이지 않았어요</div>`;
-  else if (F.length) {
+  if (F.length) {
     const L = layout(F, n => n.parents || []);
     r += `<section class="sec"><div class="sub">지금까지</div><div class="st">이렇게 이어졌어요</div><div class="flow">${L.map((x, i) => pastRow(x, i === L.length - 1)).join("")}</div></section>`;
   }

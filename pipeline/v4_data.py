@@ -40,14 +40,12 @@ def changes(pts, calc):
     """[(날짜, 값)] → [(날짜, 하루 변화)]. diff = %p, log = %(로그 수익률×100)."""
     return [(pts[i][0], (pts[i][1] - pts[i - 1][1]) if calc == "diff" else math.log(pts[i][1] / pts[i - 1][1]) * 100) for i in range(1, len(pts))]
 
-def big_days(pts, calc, k=None):
-    """하루 변화가 그날 이전 252거래일 표준편차 × k(기본 K=2) 이상인 날. → [(날짜, 변화, σ, 방향, 배수)] 와 오늘 σ.
-    k=1: 오늘의 이슈 '평소보다 많이' 칸 (정보설계 v4 {오늘의 이슈})"""
-    k = K if k is None else k
+def big_days(pts, calc):
+    """하루 변화가 그날 이전 252거래일 표준편차 × K 이상인 날. → [(날짜, 변화, σ, 방향)] 와 오늘 σ."""
     ch = changes(pts, calc); out = []
     for i in range(WIN, len(ch)):
         sd = st.pstdev([c for _, c in ch[i - WIN:i]])
-        if sd and abs(ch[i][1]) >= k * sd: out.append({"date": ch[i][0], "chg": round(ch[i][1], 4), "sd": round(sd, 4), "dir": 1 if ch[i][1] > 0 else -1, "x": round(abs(ch[i][1]) / sd, 2)})
+        if sd and abs(ch[i][1]) >= K * sd: out.append({"date": ch[i][0], "chg": round(ch[i][1], 4), "sd": round(sd, 4), "dir": 1 if ch[i][1] > 0 else -1})
     sd_now = st.pstdev([c for _, c in ch[-WIN:]]) if len(ch) >= WIN else None
     return out, sd_now
 
@@ -69,7 +67,6 @@ def history(today=None, since=None, name="history.json"):
         big, sd = big_days(pts, c["calc"])
         out[k] = {"points": [p for p in pts if p[0] >= keep_from] if since else pts[-200:], "pre": [p for p in pts if p[0] < keep_from][-5:],
                   "sd": sd, "calc": c["calc"], "big": [b for b in big if b["date"] >= keep_from],
-                  "notable": [b for b in big_days(pts, c["calc"], 1)[0] if b["date"] >= keep_from],
                   "source": {"name": f"FRED {c['sid']}" if c["src"] == "fred" else f"한국은행 ECOS {c['sid'][0]}",
                              "url": f"https://fred.stlouisfed.org/series/{c['sid']}" if c["src"] == "fred" else "https://ecos.bok.or.kr/"}}
     V4.mkdir(parents=True, exist_ok=True)

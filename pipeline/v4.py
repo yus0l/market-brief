@@ -47,7 +47,7 @@ class Data:
         if backfill:
             t = today.isoformat()
             H = (load(V4D / "history-backfill.json", {}) or {}).get("cells", {})
-            self.hist = {k: dict(v, points=[p for p in v["points"] if p[0] < t], big=[b for b in v["big"] if b["date"] < t], notable=[b for b in v.get("notable", []) if b["date"] < t]) for k, v in H.items()}
+            self.hist = {k: dict(v, points=[p for p in v["points"] if p[0] < t], big=[b for b in v["big"] if b["date"] < t]) for k, v in H.items()}
             self.facts, self.nvda = {}, {}
             return
         self.hist = (load(V4D / "history.json", {}) or {}).get("cells", {})
@@ -64,7 +64,7 @@ class Data:
         if not s: return None
         v = s["yoy"] if c.get("yoy") and s.get("yoy") is not None else s["value"]
         return {"value": v, "text": fmt(v, cell) if not c.get("yoy") else f"{v:.1f}%", "date": s.get("date") or s.get("end"), "source": s.get("source")}
-    def move(self, cell, since, key="big"):
+    def move(self, cell, since):
         """사건 날 이후: 방향(사건 전날 대비 +1/-1/0)과 처음 '크게' 움직인 날. 매일 값이 없는 칸은 마지막 발표가 사건 뒤인지로."""
         c = CELLS.get(cell)
         if cell in self.hist:
@@ -72,8 +72,7 @@ class Data:
             before = [v for d, v in pts if d < since]
             if not before: return None
             last, base = pts[-1][1], before[-1]
-            big = next((b for b in h.get(key, []) if b["date"] >= since), None)
-            if key == "notable" and big: big = max((b for b in h["notable"] if b["date"] >= since), key=lambda b: b["x"])  # 큰 순서용: 가장 많이 움직인 날
+            big = next((b for b in h["big"] if b["date"] >= since), None)
             tol = (h["sd"] or 0) * 0.25          # 옆걸음: 사건 전날과 차이가 하루 표준편차의 1/4 안 (값 단위 맞춤: log 칸은 %)
             diff = (last - base) if h["calc"] == "diff" else (last / base - 1) * 100
             return {"dir": 0 if abs(diff) <= tol else 1 if diff > 0 else -1, "big": big, "daily": True}
@@ -114,8 +113,6 @@ def precheck(draft, today, backfill=False):
         im = impact(c, D) if ok else []
         rows.append({"key": c.get("key"), "name": c.get("name"), "event_ok": ok, "attention": a.get("pass"), "z": a.get("z"), "base": a.get("base"),
                      "impact": im, "write_flow": bool(ok and a.get("pass") and im)})
-    if not any(r["write_flow"] for r in rows):   # 오늘의 이슈 후보 (1위가 흐름을 못 쓰면 2위도 쓴다)
-        for r in sorted((r for r in rows if r["event_ok"] and r["z"] is not None), key=lambda r: -r["z"])[:2]: r["write_flow"] = "issue"
     return rows, errs
 
 # ── 흐름 검사·조립 ─────────────────────────────────────────────
@@ -125,7 +122,7 @@ def node_value(n, D):
     if m.get("value") and len(doms(m.get("sources"))) >= 2: return {"value": None, "text": m["value"], "date": None, "source": m["sources"], "media": True}
     return None
 
-def build_flow(c, F, D, links, errs, issue=False):
+def build_flow(c, F, D, links, errs):
     """지금까지 흐름. 규칙: 칸마다 이유 필수(근거 = 매체 2곳만) · 연결 근거(연결표 방향 맞음 또는 매체 2곳) · 수집 칸은 사건 뒤 '크게' 움직인 날이 있어야 함."""
     nm, since = c["name"], c["date"]
     sr = F.get("start_reason") or {}
@@ -140,9 +137,9 @@ def build_flow(c, F, D, links, errs, issue=False):
         val = node_value(n, D)
         if not val: errs.append(f"[{nm}] {lab}: 값 없음(수집값 또는 매체 2곳 같은 숫자) — 뺌"); continue
         if n.get("cell") in CELLS:
-            m = D.move(n["cell"], since, "notable" if issue else "big")
+            m = D.move(n["cell"], since)
             if not m: errs.append(f"[{nm}] {lab}: 사건 전 값 없음 — 뺌"); continue
-            if m["daily"] and not m["big"]: errs.append(f"[{nm}] {lab}: 사건 뒤 {'평소보다 많이(1배)' if issue else '크게(2배)'} 움직인 날 없음 — 뺌"); continue
+            if m["daily"] and not m["big"]: errs.append(f"[{nm}] {lab}: 사건 뒤 '크게' 움직인 날 없음 — 뺌"); continue
             if not m["daily"] and not m.get("released"): errs.append(f"[{nm}] {lab}: 사건 뒤 새 발표 없음 — 뺌"); continue
             d, date = m["dir"], (m["big"] or {}).get("date")
         else:
@@ -163,13 +160,8 @@ def build_flow(c, F, D, links, errs, issue=False):
         x = {"id": n["id"], "kind": "past", "cell": n.get("cell"), "name": CELLS[n["cell"]]["name"] if n.get("cell") in CELLS else n["media"]["name"],
              "grp": g, "kr": CELLS[n["cell"]]["kr"] if n.get("cell") in CELLS else (n.get("media") or {}).get("country") == "kr",
              "value": val["text"], "dir": d, "date": date, "reason": n["reason"], "sources": n.get("reason_sources") or [],
-             "link": L["id"] if L else None, "parents": [p["id"] for p in par], "value_source": val["source"], "media": bool(val.get("media")),
-             "x": (m["big"] or {}).get("x") if n.get("cell") in CELLS else None}
+             "link": L["id"] if L else None, "parents": [p["id"] for p in par], "value_source": val["source"], "media": bool(val.get("media"))}
         nodes.append(x); by[x["id"]] = x
-    if issue:   # 오늘의 이슈: 큰 순서로 (위 칸보다 앞으로 오지 않게 — 깊이 먼저, 같은 깊이 안에서 배수 큰 순)
-        depth = {"start": 0}
-        for n in nodes[1:]: depth[n["id"]] = 1 + max(depth.get(p, 0) for p in n["parents"])
-        nodes = [nodes[0]] + sorted(nodes[1:], key=lambda n: (depth[n["id"]], -(n.get("x") or 0)))
     return nodes
 
 def ok_reason(t, past=False, end=None):
@@ -265,37 +257,18 @@ def build(draft_path, today=None, backfill=False, store_path=None):
                       "event": {"name": c["name"], "date": c["date"], "dates": dates, "sources": c["sources"]},
                       "attention": a, "impact": [{"cell": k, "date": d} for k, d in im], "flow": flow, "future": fut}
         passed.append((a.get("z") or 0, cid))
-    issue = None
-    if not passed and not backfill:   # {오늘의 이슈}: 진행 중 사례가 없는 날, 범위 안 사건 중 기사 급증 배수 1위 (사례 아님 · 목록에 안 쌓음)
-        ranked = sorted((c for c in draft.get("candidates", []) if (c.get("attention") or {}).get("z") is not None and check_event(c, today, [])),
-                        key=lambda c: -c["attention"]["z"])
-        for c in ranked:
-            F = (draft.get("flows") or {}).get(c["key"])
-            if not F: errs.append(f"[{c['name']}] 오늘의 이슈 후보지만 흐름 초안 없음 — 다음 후보"); continue
-            ie = []
-            flow = build_flow(c, F, D, links, ie, issue=True)
-            if not flow: errs += ie; errs.append(f"[{c['name']}] 오늘의 이슈: 시작 칸 이유/매체 2곳 없음 — 다음 후보"); continue
-            errs += [f"(오늘의 이슈) {e}" for e in ie]
-            fut = build_future(c, F, flow, D, links, today, errs)
-            issue = {"id": f"issue-{today.isoformat()}-{c['key']}", "kind": c["kind"], "status": "issue", "updated": today.isoformat(),
-                     "event": {"name": c["name"], "date": c["date"], "dates": [{"date": c["date"]}], "sources": c["sources"]},
-                     "attention": c["attention"], "flow": flow, "future": fut}
-            break
     live_today = {cid for _, cid in passed}
     for cid, x in cases.items() if not backfill else []:                     # 끝나는 때: 오늘 기준을 못 넘은 진행 중 사례 → 기록(갱신 멈춤)
         if x["status"] == "live" and cid not in live_today: x["status"] = "record"; x["ended"] = today.isoformat()
     rep = (max(passed)[1] if passed else None) if not backfill else store.get("rep")
     order = sorted(cases.values(), key=lambda x: x["event"]["dates"][-1]["date"], reverse=True)
     first = rep or (order[0]["id"] if order else None)
-    if issue: first = issue["id"]
-    out = {"date": today.isoformat(), "asof": f"{today.isoformat()} 08:00", "rep": rep, "first": first, "issue": issue, "cases": order}
-    if backfill:
-        out.update(date=store.get("date", out["date"]), asof=store.get("asof", out["asof"]), issue=store.get("issue"))
-        if store.get("issue") and not store.get("rep"): out["first"] = store["issue"]["id"]
+    out = {"date": today.isoformat(), "asof": f"{today.isoformat()} 08:00", "rep": rep, "first": first, "cases": order}
+    if backfill: out.update(date=store.get("date", out["date"]), asof=store.get("asof", out["asof"]))
     V4W.mkdir(parents=True, exist_ok=True); V4D.mkdir(parents=True, exist_ok=True)
     store_path.parent.mkdir(parents=True, exist_ok=True)
     store_path.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
-    log = {"date": today.isoformat(), "passed": [cid for _, cid in passed], "rep": rep, "issue": issue and issue["id"], "errors": errs}
+    log = {"date": today.isoformat(), "passed": [cid for _, cid in passed], "rep": rep, "errors": errs}
     (V4D / f"log-{'backfill-' if backfill else ''}{today.isoformat()}.json").write_text(json.dumps(log, ensure_ascii=False, indent=1), encoding="utf-8")
     return log
 
