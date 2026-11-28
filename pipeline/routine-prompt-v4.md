@@ -15,7 +15,7 @@
    - `start_reason`: 사건이 왜 시장에 퍼졌나 한 줄, 과거형 "…했어요/…퍼졌어요" + 서로 다른 매체 2곳
    - `nodes`: 사건 뒤 실제로 움직인 칸. 각 `{id, cell 또는 media, parents, reason, reason_sources, link}`
      - `cell` = `pipeline/v4_cells.py` CELLS 키(값·방향·날짜는 코드가 채움). 거기 없는 칸(금·업종 지수 등)은 `media: {name, grp(gold/sector/…), value(화면 표기 그대로, 예: "온스당 $2,610"), dir(up/down/flat), country(us/kr), sources(서로 다른 매체 2곳이 같은 숫자)}`
-     - `reason`: 그 칸이 **왜 움직였나** 과거형 한 줄(40자 안팎, "…해서 …했어요"). 서로 다른 매체 2곳(`reason_sources`) 또는 `config/links-v4.json` 연결 번호(`link`). 못 찾으면 그 칸을 쓰지 않는다
+     - `reason`: 그 칸이 **왜 움직였나** 과거형 한 줄(40자 안팎, "…해서 …했어요"). 근거는 **서로 다른 매체 2곳(`reason_sources`)만** 인정 — 연결표(`config/links-v4.json`)는 이유의 근거가 아니다(칸 사이 연결·앞으로 칸에만). 매체 2곳을 못 찾으면 그 칸을 쓰지 않는다
      - 칸 하나가 여러 칸으로 갈라지고(`parents` 같은 칸), 여러 칸이 하나로 합쳐질 수 있다(`parents` 여럿 — 이유에 두 원인을 같이 씀)
    - `future`: 앞으로 = 하나의 흐름
      - `release_code`: `config/schedule-2027.json`에서 흐름 칸과 관련된 30일 안 `verified` 발표 코드(없으면 null)

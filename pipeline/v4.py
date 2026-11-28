@@ -113,7 +113,7 @@ def node_value(n, D):
     return None
 
 def build_flow(c, F, D, links, errs):
-    """지금까지 흐름. 규칙: 칸마다 이유 필수 · 연결 근거(연결표 방향 맞음 또는 매체 2곳) · 수집 칸은 사건 뒤 '크게' 움직인 날이 있어야 함."""
+    """지금까지 흐름. 규칙: 칸마다 이유 필수(근거 = 매체 2곳만) · 연결 근거(연결표 방향 맞음 또는 매체 2곳) · 수집 칸은 사건 뒤 '크게' 움직인 날이 있어야 함."""
     nm, since = c["name"], c["date"]
     sr = F.get("start_reason") or {}
     if not ok_reason(sr.get("text"), past=True) or len(doms(sr.get("sources"))) < 2:
@@ -144,8 +144,9 @@ def build_flow(c, F, D, links, errs):
             L = None
         src2 = len(doms(n.get("reason_sources"))) >= 2
         if not (L or src2): errs.append(f"[{nm}] {lab}: 연결 근거 없음(연결표 방향 안 맞음 + 매체 2곳 미만) — 뺌"); continue
-        if not ok_reason(n.get("reason"), past=True) or (not src2 and not L):
-            errs.append(f"[{nm}] {lab}: 왜 움직였나 없음/말투(과거형) — 뺌"); continue
+        # 이유 근거 = 서로 다른 매체 2곳만 (연결표는 '보통 이렇게 이어진다'일 뿐 — 연결에만 씀, 기획 11/28 · 정보설계 v4 .이유)
+        if not ok_reason(n.get("reason"), past=True) or not src2:
+            errs.append(f"[{nm}] {lab}: 왜 움직였나 없음/말투(과거형)/매체 2곳 미만 — 뺌"); continue
         x = {"id": n["id"], "kind": "past", "cell": n.get("cell"), "name": CELLS[n["cell"]]["name"] if n.get("cell") in CELLS else n["media"]["name"],
              "grp": g, "kr": CELLS[n["cell"]]["kr"] if n.get("cell") in CELLS else (n.get("media") or {}).get("country") == "kr",
              "value": val["text"], "dir": d, "date": date, "reason": n["reason"], "sources": n.get("reason_sources") or [],

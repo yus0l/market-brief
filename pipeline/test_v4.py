@@ -30,8 +30,8 @@ def draft(**kw):
     c.update(kw.pop("cand", {}))
     F = {"start_reason": {"text": "물가가 예상보다 크게 올랐어요", "sources": S2},
          "nodes": [{"id": "n1", "cell": "us_10y", "parents": ["start"], "reason": "금리 인하가 늦어질 거란 기사가 늘며 금리가 올랐어요", "reason_sources": S2},
-                   {"id": "n2", "cell": "sp500", "parents": ["n1"], "reason": "돈 빌리는 비용이 늘 거란 걱정에 주식이 내렸어요"},
-                   {"id": "n3", "cell": "usdkrw", "parents": ["n1"], "reason": "달러가 강해지며 원/달러가 올랐어요"}],
+                   {"id": "n2", "cell": "sp500", "parents": ["n1"], "reason": "돈 빌리는 비용이 늘 거란 걱정에 주식이 내렸어요", "reason_sources": S2},
+                   {"id": "n3", "cell": "usdkrw", "parents": ["n1"], "reason": "달러가 강해지며 원/달러가 올랐어요", "reason_sources": S2}],
          "future": {"release_code": None, "header": "원화가 더 약해진다면?", "start": {"cell": "usdkrw", "dir": "up"},
                     "nodes": [{"id": "f1", "cell": "kospi", "parent": "fstart", "link": 11, "reason": "외국인이 팔기 쉬워서요"}]}}
     F.update(kw.pop("flow", {}))
@@ -60,6 +60,12 @@ ok("발표 없음 → 기본 타이틀", c["future"]["title"] == "앞으로 이�
 _, out = run(draft(flow={"nodes": [{"id": "n1", "cell": "us_10y", "parents": ["start"], "reason": "", "reason_sources": S2},
                                    {"id": "n3", "cell": "usdkrw", "parents": ["start"], "reason": "달러가 강해지며 원/달러가 올랐어요", "reason_sources": S2}]}))
 ok("이유 없는 칸 제외", [n["id"] for n in out["cases"][0]["flow"]] == ["start", "n3"])
+
+# 2-2. 연결표만 있고 이유 매체 2곳이 없으면 빠진다 (기획 11/28: 이유 근거 = 매체 2곳만)
+_, out = run(draft(flow={"nodes": [{"id": "n1", "cell": "us_10y", "parents": ["start"], "reason": "금리 인하가 늦어질 거란 기사가 늘며 금리가 올랐어요", "reason_sources": S2},
+                                   {"id": "n2", "cell": "sp500", "parents": ["n1"], "reason": "돈 빌리는 비용이 늘 거란 걱정에 주식이 내렸어요"},
+                                   {"id": "n3", "cell": "usdkrw", "parents": ["n1"], "reason": "달러가 강해지며 원/달러가 올랐어요", "reason_sources": S2}]}))
+ok("연결표만 있는 이유 → 칸 제외", [n["id"] for n in out["cases"][0]["flow"]] == ["start", "n1", "n3"])
 
 # 3. 연결표 방향이 안 맞고 매체 2곳도 없으면 빠진다 (금리↑ → 주식↑ 이라고 우김)
 L = find_link("rate_us", 1, "stock_us", 1, load_links())
