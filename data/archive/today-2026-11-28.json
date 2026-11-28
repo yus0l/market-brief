@@ -1,0 +1,918 @@
+{
+ "judge_keys_all": [
+  "kr_base",
+  "ktb3y",
+  "usdkrw"
+ ],
+ "upcoming_keys": [
+  "kr_cpi",
+  "us_jobs"
+ ],
+ "date": "2026-11-28",
+ "asof": "11/28 12:52",
+ "mock": false,
+ "status": {
+  "delayed": null,
+  "quiet": false,
+  "split": null,
+  "closed": {
+   "us": false,
+   "kr": false
+  },
+  "rankChange": null
+ },
+ "interests": [
+  {
+   "key": "cpi",
+   "node": "cpi",
+   "name": "물가",
+   "rank": 1,
+   "reason": {
+    "type": "mention",
+    "label": null
+   },
+   "upSide": "bad",
+   "fact": "11/10 미국 10월 소비자물가가 전월보다 0.4% 올랐어요.",
+   "watch": "시장은 12/10 미국 CPI가 더 오를지 지켜보고 있어요",
+   "market_type": "M1",
+   "market_sources": [
+    {
+     "name": "BLS 발표일정",
+     "url": "https://www.bls.gov/schedule/"
+    }
+   ],
+   "moves": [],
+   "sentence": "11/10 미국 10월 소비자물가가 전월보다 0.4% 올랐어요. 시장은 12/10 미국 CPI가 더 오를지 지켜보고 있어요",
+   "fact_sources": [
+    {
+     "name": "StockAnalysis",
+     "url": "https://stockanalysis.com/news/us-cpi-rises-october-2026/"
+    },
+    {
+     "name": "XTB",
+     "url": "https://www.xtb.com/int/market-analysis/news-and-research/breaking-us-cpi-data-higher-than-expected-wall-street-reacts"
+    }
+   ],
+   "trigger_sources": [],
+   "explain": [
+    [
+     "cpi",
+     "rate"
+    ],
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "Axios",
+     "url": "https://www.axios.com/2026/11/09/stocks-inflation-fed"
+    },
+    {
+     "name": "247WallSt",
+     "url": "https://247wallst.com/investing/2026/11/10/stock-market-today-hotter-cpi-reading-hasnt-deterred-stocks-from-rising/"
+    },
+    {
+     "name": "StockAnalysis",
+     "url": "https://stockanalysis.com/news/us-cpi-rises-october-2026/"
+    },
+    {
+     "name": "MarketPulse",
+     "url": "https://www.marketpulse.com/markets/us-inflation-keeps-pressure-on-the-fed-as-nvidias-selloff-spreads/"
+    }
+   ],
+   "next_rel": {
+    "date": "2026-12-10",
+    "md": "12/10",
+    "name": "미국 CPI",
+    "code": "US_CPI",
+    "series": "us_cpi"
+   }
+  },
+  {
+   "key": "job",
+   "node": "job",
+   "name": "경기",
+   "rank": 2,
+   "reason": {
+    "type": "event",
+    "label": "미국 고용 12/4"
+   },
+   "upSide": "good",
+   "fact": "11/6 미국 10월 실업률이 4.1%로 내렸어요.",
+   "watch": "시장은 12/4 미국 고용이 더 늘지 지켜보고 있어요",
+   "market_type": "M1",
+   "market_sources": [
+    {
+     "name": "BLS 발표일정",
+     "url": "https://www.bls.gov/schedule/"
+    }
+   ],
+   "moves": [],
+   "sentence": "11/6 미국 10월 실업률이 4.1%로 내렸어요. 시장은 12/4 미국 고용이 더 늘지 지켜보고 있어요",
+   "fact_sources": [
+    {
+     "name": "ABC7",
+     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
+    },
+    {
+     "name": "TheStreet",
+     "url": "https://pro.thestreet.com/market-commentary/october-payrolls-top-every-forecast-as-unemployment-falls-back-to-4-1"
+    }
+   ],
+   "trigger_sources": [],
+   "explain": [
+    [
+     "job",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "ABC7",
+     "url": "https://abc7news.com/story/us-employers-added-surprising-165000-jobs-october-unemployment-rate-dipped-41/20020018/"
+    },
+    {
+     "name": "TheStreet",
+     "url": "https://pro.thestreet.com/market-commentary/october-payrolls-top-every-forecast-as-unemployment-falls-back-to-4-1"
+    },
+    {
+     "name": "FoxBusiness",
+     "url": "https://www.foxbusiness.com/economy/us-jobs-report-october-2026"
+    },
+    {
+     "name": "ABC11",
+     "url": "https://abc11.com/story/us-continues-generate-jobs-inflation-is-eroding-spending-power-millions-americans/20024536/"
+    }
+   ],
+   "next_rel": {
+    "date": "2026-12-04",
+    "md": "12/4",
+    "name": "미국 고용",
+    "code": "US_JOBS",
+    "series": "us_jobs"
+   }
+  },
+  {
+   "key": "rate",
+   "node": "rate",
+   "name": "금리",
+   "rank": 3,
+   "reason": {
+    "type": "mention",
+    "label": null
+   },
+   "upSide": "bad",
+   "fact": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요.",
+   "watch": "시장은 12/10 FOMC 금리 결정을 지켜보고 있어요",
+   "market_type": "M1",
+   "market_sources": [
+    {
+     "name": "Fed FOMC 일정",
+     "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    }
+   ],
+   "moves": [],
+   "sentence": "11/26 한국은행이 기준금리를 3.00%에서 3.25%로 올렸어요. 시장은 12/10 FOMC 금리 결정을 지켜보고 있어요",
+   "fact_sources": [
+    {
+     "name": "한국은행 ECOS",
+     "url": "https://ecos.bok.or.kr/"
+    }
+   ],
+   "trigger_sources": [],
+   "explain": [
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "sources": [
+    {
+     "name": "Devdiscourse",
+     "url": "https://www.devdiscourse.com/article/international/3997937-analysis-bond-investors-are-thinking-less-about-the-fed-and-more-about-ai-deficits"
+    },
+    {
+     "name": "InvestingLive",
+     "url": "https://investinglive.com/education/what-could-stop-the-fed-raising-rates-in-december/"
+    },
+    {
+     "name": "Bizwatch",
+     "url": "https://news.bizwatch.co.kr/article/finance/2026/11/06/0021"
+    },
+    {
+     "name": "MTN",
+     "url": "https://news.mtn.co.kr/news-detail/2026082711001767395"
+    }
+   ],
+   "next_rel": {
+    "date": "2026-12-10",
+    "md": "12/10",
+    "name": "FOMC 금리 결정",
+    "code": "FOMC",
+    "series": null
+   }
+  }
+ ],
+ "events": [
+  {
+   "id": "2026-11-26-bok",
+   "type": "E1",
+   "chip": "한국 물가",
+   "head": "한국은행이 기준금리를 올렸어요",
+   "kind": "done",
+   "date": "2026-11-26",
+   "dday": false,
+   "real": {
+    "rate": {
+     "dir": "up",
+     "kr": "up"
+    },
+    "stock": {
+     "kr": "up"
+    },
+    "fx": {
+     "kr": "down"
+    }
+   },
+   "realPath": [
+    [
+     "rate",
+     "fx"
+    ],
+    [
+     "rate",
+     "stock"
+    ]
+   ],
+   "next": [
+    "fx",
+    "stock"
+   ],
+   "actual": null,
+   "opts": {
+    "a": {
+     "label": "한국 물가가 예상보다 높으면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "rate": {
+       "dir": "up",
+       "kr": "up"
+      }
+     },
+     "cond": [
+      [
+       "한국 소비자물가",
+       "up",
+       0
+      ]
+     ],
+     "out": "금리 부담이 이어지는 쪽으로 볼 수 있어요"
+    },
+    "b": {
+     "label": "한국 물가가 예상보다 낮으면",
+     "path": [
+      [
+       "rate",
+       "cpi"
+      ]
+     ],
+     "state": {
+      "rate": {
+       "dir": "up",
+       "kr": "up"
+      }
+     },
+     "cond": [
+      [
+       "한국 소비자물가",
+       "down",
+       0
+      ]
+     ],
+     "out": "금리 부담이 줄어드는 쪽으로 볼 수 있어요"
+    }
+   },
+   "judgeKeys": [
+    "kr_base",
+    "ktb3y",
+    "usdkrw"
+   ],
+   "judge": {
+    "interest": {},
+    "items": [
+     [
+      "기준금리",
+      "up",
+      "3.25% · 직전보다 +0.25%p (11/26 기준)",
+      "bad"
+     ],
+     [
+      "국고채 3년",
+      "up",
+      "3.69% · 전일보다 +0.06%p (11/27 기준)",
+      "bad"
+     ],
+     [
+      "원/달러 환율",
+      "down",
+      "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
+      "good"
+     ]
+    ]
+   },
+   "lean": {
+    "pos": 40,
+    "side": null,
+    "text": "사건 뒤 시장 반응이 엇갈려요",
+    "basis": "위 시장 움직임 3개를 셌어요 · 약하게는 반만"
+   },
+   "confirm": [
+    {
+     "label": "먼저",
+     "what": "한국 소비자물가 발표",
+     "when": "12/2",
+     "date": "2026-12-02",
+     "done": false
+    },
+    {
+     "label": "최종",
+     "what": "금통위 금리 결정",
+     "when": "1/14",
+     "date": "2027-01-14",
+     "done": false
+    }
+   ],
+   "sources": [
+    {
+     "name": "이투데이 한은 3.25% 인상",
+     "url": "https://www.etoday.co.kr/news/view/2652786"
+    },
+    {
+     "name": "아주경제 한은 의결문",
+     "url": "https://www.ajunews.com/view/20261126102907668"
+    },
+    {
+     "name": "네이트 한은 소수의견",
+     "url": "https://m.news.nate.com/view/20261126n13055"
+    }
+   ],
+   "sectorTab": "us",
+   "sectors": {
+    "us": [
+     [
+      "더 크게",
+      [
+       "인터넷·성장주",
+       "유틸리티·리츠"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·금융"
+      ]
+     ]
+    ],
+    "kr": [
+     [
+      "더 크게",
+      [
+       "2차전지",
+       "인터넷·게임",
+       "건설"
+      ]
+     ],
+     [
+      "덜",
+      [
+       "은행·보험"
+      ]
+     ]
+    ]
+   },
+   "watch": {
+    "key": "kr_cpi",
+    "short": "한국 물가",
+    "name": "한국 소비자물가",
+    "value": "10월 전년 대비 2.8%",
+    "dir": "down",
+    "source": {
+     "name": "한국은행 ECOS",
+     "url": "https://ecos.bok.or.kr/"
+    },
+    "next": "12/2",
+    "next_date": "2026-12-02",
+    "high": "물가 부담이 이어지는 쪽",
+    "low": "오름세가 둔화되는 쪽",
+    "hit": null
+   },
+   "question": "12/2 한국 소비자물가가 다시 오를까요?",
+   "ktype": null,
+   "etype": "T1",
+   "t2": null,
+   "outlook": null,
+   "size": [],
+   "result": {
+    "dir": "up",
+    "text": "3.00% → 3.25%",
+    "expect": null,
+    "actual_src": "https://ecos.bok.or.kr/",
+    "expect_src": null
+   },
+   "sub": "12/2",
+   "country": "kr",
+   "trigger": "11/26 기준금리 3.00% → 3.25%",
+   "watchChip": true,
+   "prices": [
+    {
+     "name": "국고채 3년",
+     "dir": "up",
+     "value": "3.69% · 전일보다 +0.06%p (11/27 기준)",
+     "side": "bad",
+     "weak": false,
+     "counted": true,
+     "note": null
+    },
+    {
+     "name": "코스피",
+     "dir": "up",
+     "value": "4,915.68 · 전일보다 +4.34% (11/27 기준)",
+     "side": "good",
+     "weak": false,
+     "counted": true,
+     "note": null
+    },
+    {
+     "name": "원/달러 환율",
+     "dir": "down",
+     "value": "1,342.70원 · 전일보다 -0.09% (11/27 기준)",
+     "side": "good",
+     "weak": true,
+     "counted": true,
+     "note": null
+    }
+   ]
+  }
+ ],
+ "now": {
+  "kr": {
+   "cpi": "down",
+   "rate": "up",
+   "fx": "down",
+   "stock": "up",
+   "oil": "up",
+   "vix": "down"
+  },
+  "us": {
+   "cpi": "up",
+   "rate": "down",
+   "job": "up",
+   "fx": "down",
+   "stock": "down",
+   "oil": "up",
+   "vix": "down",
+   "kospi": "up"
+  }
+ },
+ "nowv": {
+  "kr": {
+   "cpi": {
+    "val": "전년 대비 2.8%",
+    "date": "10월",
+    "dir": "down",
+    "iso": null,
+    "stale": false
+   },
+   "rate": {
+    "val": "3.69%",
+    "date": "11/27",
+    "dir": "up",
+    "iso": "2026-11-27",
+    "stale": false
+   },
+   "fx": {
+    "val": "1,343원",
+    "date": "11/27",
+    "dir": "down",
+    "iso": "2026-11-27",
+    "stale": false
+   },
+   "stock": {
+    "val": "4,915.68",
+    "date": "11/27",
+    "dir": "up",
+    "iso": "2026-11-27",
+    "stale": false
+   },
+   "oil": {
+    "val": "82.24",
+    "date": "11/24",
+    "dir": "up",
+    "iso": "2026-11-24",
+    "stale": true
+   },
+   "vix": {
+    "val": "26.80",
+    "date": "11/26",
+    "dir": "down",
+    "iso": "2026-11-26",
+    "stale": false
+   },
+   "rate_base": {
+    "val": "3.25%",
+    "date": "11/26",
+    "dir": "up",
+    "iso": "2026-11-26",
+    "stale": false,
+    "chg": {
+     "from": "3.00%",
+     "md": "11/26",
+     "iso": "2026-11-26"
+    }
+   }
+  },
+  "us": {
+   "cpi": {
+    "val": "전년 대비 4.1%",
+    "date": "10월",
+    "dir": "up",
+    "iso": "2026-10-01",
+    "stale": false
+   },
+   "rate": {
+    "val": "4.85%",
+    "date": "11/25",
+    "dir": "down",
+    "iso": "2026-11-25",
+    "stale": false
+   },
+   "job": {
+    "val": "+16.5만 명",
+    "date": "10월",
+    "dir": "up",
+    "iso": "2026-10-01",
+    "stale": false
+   },
+   "fx": {
+    "val": "1,343원",
+    "date": "11/27",
+    "dir": "down",
+    "iso": "2026-11-27",
+    "stale": false
+   },
+   "stock": {
+    "val": "7,182.78",
+    "date": "11/25",
+    "dir": "down",
+    "iso": "2026-11-25",
+    "stale": false
+   },
+   "oil": {
+    "val": "82.24",
+    "date": "11/24",
+    "dir": "up",
+    "iso": "2026-11-24",
+    "stale": true
+   },
+   "vix": {
+    "val": "26.80",
+    "date": "11/26",
+    "dir": "down",
+    "iso": "2026-11-26",
+    "stale": false
+   },
+   "kospi": {
+    "val": "4,915.68",
+    "date": "11/27",
+    "dir": "up",
+    "iso": "2026-11-27",
+    "stale": false
+   },
+   "rate_base": {
+    "val": "4.00%",
+    "date": "11/27",
+    "dir": "up",
+    "iso": "2026-11-27",
+    "stale": false,
+    "chg": {
+     "from": "3.75%",
+     "md": "9/17",
+     "iso": "2026-09-17"
+    }
+   }
+  }
+ },
+ "sv": {
+  "us_cpi": {
+   "val": "전년 대비 4.1%",
+   "date": "10월",
+   "dir": "up",
+   "iso": "2026-10-01",
+   "stale": false
+  },
+  "us_ppi": {
+   "val": "전년 대비 12.8%",
+   "date": "10월",
+   "dir": "up",
+   "iso": "2026-10-01",
+   "stale": false
+  },
+  "us_jobs": {
+   "val": "+16.5만 명",
+   "date": "10월",
+   "dir": "up",
+   "iso": "2026-10-01",
+   "stale": false
+  },
+  "us_10y": {
+   "val": "4.85%",
+   "date": "11/25",
+   "dir": "down",
+   "iso": "2026-11-25",
+   "stale": false
+  },
+  "us_base": {
+   "val": "4.00%",
+   "date": "11/27",
+   "dir": "up",
+   "iso": "2026-11-27",
+   "stale": false,
+   "chg": {
+    "from": "3.75%",
+    "md": "9/17",
+    "iso": "2026-09-17"
+   }
+  },
+  "vix": {
+   "val": "26.80",
+   "date": "11/26",
+   "dir": "down",
+   "iso": "2026-11-26",
+   "stale": false
+  },
+  "wti": {
+   "val": "82.24",
+   "date": "11/24",
+   "dir": "up",
+   "iso": "2026-11-24",
+   "stale": true
+  },
+  "sp500": {
+   "val": "7,182.78",
+   "date": "11/25",
+   "dir": "down",
+   "iso": "2026-11-25",
+   "stale": false
+  },
+  "kr_base": {
+   "val": "3.25%",
+   "date": "11/26",
+   "dir": "up",
+   "iso": "2026-11-26",
+   "stale": false,
+   "chg": {
+    "from": "3.00%",
+    "md": "11/26",
+    "iso": "2026-11-26"
+   }
+  },
+  "usdkrw": {
+   "val": "1,343원",
+   "date": "11/27",
+   "dir": "down",
+   "iso": "2026-11-27",
+   "stale": false
+  },
+  "ktb3y": {
+   "val": "3.69%",
+   "date": "11/27",
+   "dir": "up",
+   "iso": "2026-11-27",
+   "stale": false
+  },
+  "kospi": {
+   "val": "4,915.68",
+   "date": "11/27",
+   "dir": "up",
+   "iso": "2026-11-27",
+   "stale": false
+  },
+  "kr_cpi": {
+   "val": "전년 대비 2.8%",
+   "date": "10월",
+   "dir": "down",
+   "iso": null,
+   "stale": false
+  }
+ },
+ "ktags": {
+  "K1": {
+   "label": "물가 예상보다 높음",
+   "node": "cpi",
+   "dir": "up",
+   "sure": "bad",
+   "reason": "물가가 안 잡히면 중앙은행이 금리를 덜 내리거나 올릴 수 있어서"
+  },
+  "K2": {
+   "label": "물가 예상보다 낮음",
+   "node": "cpi",
+   "dir": "down",
+   "sure": "good",
+   "reason": "물가가 잡히면 금리를 내릴 여유가 생겨서"
+  },
+  "K3": {
+   "label": "고용·ISM 예상보다 좋음",
+   "node": "job",
+   "dir": "up",
+   "conds": [
+    {
+     "text": "금리 걱정 시점으로 보면",
+     "side": "bad",
+     "note": "금리 인하가 늦어져서",
+     "interest": [
+      "rate",
+      "cpi"
+     ],
+     "reason": "경기가 뜨거우면 금리 인하가 늦어져서"
+    },
+    {
+     "text": "경기 걱정 시점으로 보면",
+     "side": "good",
+     "interest": [
+      "job"
+     ],
+     "reason": "기업이 벌 돈이 늘어날 신호라서"
+    }
+   ]
+  },
+  "K4": {
+   "label": "고용·ISM 예상보다 나쁨",
+   "node": "job",
+   "dir": "down",
+   "conds": [
+    {
+     "text": "금리 걱정 시점으로 보면",
+     "side": "good",
+     "note": "금리 인하 기대",
+     "interest": [
+      "rate",
+      "cpi"
+     ],
+     "reason": "금리를 내릴 이유가 생겨서"
+    },
+    {
+     "text": "경기 걱정 시점으로 보면",
+     "side": "bad",
+     "interest": [
+      "job"
+     ],
+     "reason": "기업 이익이 줄어들 신호라서"
+    }
+   ]
+  },
+  "K5": {
+   "label": "기준금리 예상보다 더 올림 · 덜 내림",
+   "node": "rate",
+   "dir": "up",
+   "sure": "bad",
+   "reason": "돈 빌리는 비용이 늘고, 미래에 벌 돈의 지금 가치가 작아져서"
+  },
+  "K5-2": {
+   "label": "기준금리 예상대로 (인상·동결·인하)",
+   "node": "rate",
+   "none": true,
+   "note": "태그 없음 — E2 아래 앞으로 방향 한 줄(§3-10 ①)"
+  },
+  "K6": {
+   "label": "기준금리 예상보다 더 내림",
+   "node": "rate",
+   "dir": "down",
+   "conds": [
+    {
+     "text": "금리 걱정 시점으로 보면",
+     "side": "good",
+     "interest": [
+      "rate",
+      "cpi"
+     ],
+     "reason": "돈 빌리는 비용이 줄어서"
+    },
+    {
+     "text": "7일 안에 고용·ISM이 예상보다 나빴거나 정례 회의 밖 긴급 인하면",
+     "side": "bad",
+     "note": "경기가 나빠서 내린 거라",
+     "interest": [
+      "job"
+     ],
+     "code": "K4 7일 이력 또는 일정표 밖 인하",
+     "reason": "경기가 생각보다 나쁘다는 신호라서"
+    }
+   ]
+  },
+  "K7": {
+   "label": "시장 금리 급등",
+   "node": "rate",
+   "dir": "up",
+   "sure": "bad",
+   "market": true,
+   "reason": "안전한 채권 이자가 매력적이 되고 빌리는 비용도 늘어서"
+  },
+  "K8": {
+   "label": "유가 급등",
+   "node": "oil",
+   "dir": "up",
+   "conds": [
+    {
+     "text": "전쟁·감산 같은 공급 차질이랑 같이 나오면",
+     "side": "bad",
+     "interest": [],
+     "reason": "기업 비용과 물가가 같이 올라서"
+    },
+    {
+     "text": "경기 회복으로 수요가 느는 소식이랑 같이 나오면",
+     "side": "good",
+     "interest": [],
+     "reason": "경기가 좋아 기름을 많이 쓰는 거라서"
+    }
+   ]
+  },
+  "K9": {
+   "label": "원화 약세",
+   "node": "fx",
+   "dir": "up",
+   "kospiOnly": true,
+   "conds": [
+    {
+     "text": "외국인 매도 소식이랑 같이 나오면",
+     "side": "bad",
+     "interest": [],
+     "reason": "외국인이 한국 주식을 팔고 나가는 흐름이라서"
+    },
+    {
+     "text": "7일 안 수출 지표가 예상보다 좋았으면",
+     "side": "good",
+     "note": "코스피 대형주는 수출 비중이 커서",
+     "interest": [],
+     "reason": "달러로 번 돈을 원화로 바꾸면 더 많아져서"
+    }
+   ]
+  },
+  "K10": {
+   "label": "공포 급등",
+   "node": "vix",
+   "dir": "up",
+   "sure": "bad",
+   "reason": "불안해진 투자자들이 주식을 팔고 있다는 뜻이라서"
+  },
+  "K11": {
+   "label": "실적 예상보다 좋음",
+   "sure": "good",
+   "reason": "회사가 예상보다 돈을 더 벌어서"
+  },
+  "K12": {
+   "label": "실적 예상보다 나쁨",
+   "sure": "bad",
+   "reason": "회사가 예상보다 돈을 덜 벌어서"
+  }
+ },
+ "holidays": {
+  "us_bond": [
+   "2026-11-26",
+   "2026-12-25"
+  ],
+  "us_stock": [
+   "2026-11-26",
+   "2026-12-25"
+  ],
+  "kr": [
+   "2026-12-25",
+   "2026-12-31"
+  ]
+ },
+ "why": {
+  "oil>cpi": "기름값이 오르면 운송·생산비가 올라 물가를 밀어 올려요",
+  "job>cpi": "일자리와 임금이 늘면 쓰는 돈이 늘어 물가가 오르기 쉬워요",
+  "fx>cpi": "원화가 약해지면 수입품 값이 올라요",
+  "job>rate": "경기가 뜨거우면 중앙은행이 금리를 덜 내리거나 올려요",
+  "cpi>rate": "물가가 오르면 중앙은행이 물가를 누르려고 금리를 올려요",
+  "rate>cpi": "금리를 올리면 몇 달 뒤 소비가 줄어 물가 오름세가 둔화돼요",
+  "rate>gold": "금리가 오르면 이자가 없는 금의 매력이 줄어요",
+  "rate>stock": "금리가 오르면 빌리는 비용이 늘고 미래 이익의 가치가 줄어요",
+  "rate>fx": {
+   "us": "미국 금리가 오르면 달러가 강해져 원/달러가 오르기 쉬워요",
+   "kr": "한국 금리가 오르면 원화가 강해져 원/달러가 내려가기 쉬워요"
+  },
+  "fx>stock": "원화가 약해질 때 외국인 매도가 함께 나타나는 경우가 많아요",
+  "vix>stock": "불안이 커지면 주식을 팔고, 주식이 떨어지면 불안이 커져요",
+  "job>stock": "경기가 좋으면 기업 이익이 늘어요",
+  "fx>gold": "달러가 여러 나라 돈보다 약해지면 금값이 오르기 쉬워요",
+  "stock>kospi": "미국 장이 끝난 뒤 한국 장이 열려 다음 날 이어지곤 해요"
+ }
+}
