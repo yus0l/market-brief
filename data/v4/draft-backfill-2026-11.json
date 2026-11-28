@@ -23,12 +23,12 @@
    ],
    "gdelt_query": "(AI OR Nvidia OR chip) (stocks OR selloff) (midterm OR moratorium OR Democrats)",
    "attention": {
-    "z": -0.56,
-    "base": "3개월",
+    "z": -0.44,
+    "base": "1년",
     "day": "2026-11-27",
     "count": 0,
-    "mean": 8.9,
-    "sd": 15.8,
+    "mean": 3.7,
+    "sd": 8.4,
     "pass": false
    }
   },
@@ -53,12 +53,12 @@
    ],
    "gdelt_query": "Nvidia (Huang OR CEO) (resign OR resigns OR resignation OR resigned)",
    "attention": {
-    "z": 0.36,
+    "z": 0.39,
     "base": "1년",
     "day": "2026-11-27",
     "count": 9,
-    "mean": 3.0,
-    "sd": 16.5,
+    "mean": 2.8,
+    "sd": 15.9,
     "pass": false
    }
   },
@@ -83,12 +83,12 @@
    ],
    "gdelt_query": "Nvidia Huang (return OR returns OR reinstated OR reinstates)",
    "attention": {
-    "z": 0.47,
+    "z": 0.51,
     "base": "1년",
     "day": "2026-11-27",
     "count": 21,
-    "mean": 8.1,
-    "sd": 27.3,
+    "mean": 7.5,
+    "sd": 26.4,
     "pass": false
    }
   }

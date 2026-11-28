@@ -2,8 +2,152 @@
  "date": "2026-11-28",
  "asof": "2026-11-28 08:00",
  "rep": null,
- "first": "2026-11-23-nvda-ceo-return-1123",
+ "first": "2026-11-05-ai-selloff-1105",
  "cases": [
+  {
+   "id": "2026-11-05-ai-selloff-1105",
+   "kind": "macro",
+   "status": "record",
+   "updated": "2026-11-26",
+   "backfill": true,
+   "asof": "2026-11-26",
+   "event": {
+    "name": "미국 AI 주식 급락",
+    "date": "2026-11-05",
+    "dates": [
+     {
+      "date": "2026-11-05",
+      "label": "시작"
+     },
+     {
+      "date": "2026-11-11",
+      "label": "다시 확대"
+     },
+     {
+      "date": "2026-11-21",
+      "label": "다시 확대"
+     },
+     {
+      "date": "2026-11-25",
+      "label": "다시 확대"
+     }
+    ],
+    "sources": [
+     {
+      "name": "KPTV(AP)",
+      "url": "https://www.kptv.com/2026/11/05/brutal-sell-off-ai-stocks-sends-wall-street-reeling-sp-500-sees-worst-day-since-2025-liberation-day-tariffs/"
+     },
+     {
+      "name": "The Next Web",
+      "url": "https://thenextweb.com/news/ai-stocks-sell-off-nasdaq-correction"
+     },
+     {
+      "name": "Political.org",
+      "url": "https://political.org/2026/11/05/ai-stock-wipeout-sends-sp-500-down-4-4-in-worst-day-since-april-2025-erasing-post-midterm-rally/"
+     }
+    ]
+   },
+   "attention": {
+    "z": 4.06,
+    "base": "1년",
+    "day": "2026-11-25",
+    "count": 37,
+    "mean": 3.6,
+    "sd": 8.2,
+    "pass": true
+   },
+   "impact": [
+    {
+     "cell": "sp500",
+     "date": "2026-11-23"
+    },
+    {
+     "cell": "nasdaq",
+     "date": "2026-11-23"
+    },
+    {
+     "cell": "vix",
+     "date": "2026-11-23"
+    }
+   ],
+   "flow": [
+    {
+     "id": "start",
+     "kind": "start",
+     "name": "미국 AI 주식 급락",
+     "date": "2026-11-05",
+     "reason": "중간선거 뒤 데이터센터 건설이 막힐 수 있다는 걱정이 퍼졌어요",
+     "sources": [
+      {
+       "name": "KPTV(AP)",
+       "url": "https://www.kptv.com/2026/11/05/brutal-sell-off-ai-stocks-sends-wall-street-reeling-sp-500-sees-worst-day-since-2025-liberation-day-tariffs/"
+      },
+      {
+       "name": "The Next Web",
+       "url": "https://thenextweb.com/news/ai-stocks-sell-off-nasdaq-correction"
+      }
+     ],
+     "parents": [],
+     "dir": 1,
+     "grp": "event"
+    },
+    {
+     "id": "n1",
+     "kind": "past",
+     "cell": "nasdaq",
+     "name": "미국 주식(나스닥)",
+     "grp": "stock_us",
+     "kr": false,
+     "value": "23,586",
+     "dir": -1,
+     "date": "2026-11-05",
+     "reason": "AI 기술주를 한꺼번에 팔면서 나스닥이 크게 내렸어요",
+     "sources": [
+      {
+       "name": "KPTV(AP)",
+       "url": "https://www.kptv.com/2026/11/05/brutal-sell-off-ai-stocks-sends-wall-street-reeling-sp-500-sees-worst-day-since-2025-liberation-day-tariffs/"
+      },
+      {
+       "name": "Political.org",
+       "url": "https://political.org/2026/11/05/ai-stock-wipeout-sends-sp-500-down-4-4-in-worst-day-since-april-2025-erasing-post-midterm-rally/"
+      }
+     ],
+     "link": null,
+     "parents": [
+      "start"
+     ],
+     "value_source": {
+      "name": "FRED NASDAQCOM",
+      "url": "https://fred.stlouisfed.org/series/NASDAQCOM"
+     },
+     "media": false
+    }
+   ],
+   "future": {
+    "release": null,
+    "title": "앞으로 이렇게 바뀔 수 있어요",
+    "header": "미국 기술주가 더 내린다면?",
+    "nodes": [
+     {
+      "id": "f1",
+      "kind": "future",
+      "cell": "kospi",
+      "name": "코스피",
+      "grp": "stock_kr",
+      "kr": true,
+      "dir": -1,
+      "now": "4,698",
+      "now_dir": -1,
+      "reason": "한국 주식은 미국 주식을 따라 움직이기 쉬워서요",
+      "tag": "bad",
+      "link": 15,
+      "parent": null,
+      "end": true
+     }
+    ]
+   },
+   "ended": "2026-11-27"
+  },
   {
    "id": "2026-11-23-nvda-ceo-return-1123",
    "kind": "firm",
@@ -36,12 +180,12 @@
     ]
    },
    "attention": {
-    "z": 3.0,
+    "z": 3.13,
     "base": "1년",
     "day": "2026-11-26",
     "count": 89,
-    "mean": 7.9,
-    "sd": 27.0,
+    "mean": 7.3,
+    "sd": 26.1,
     "pass": true
    },
    "impact": [
@@ -131,150 +275,6 @@
     ]
    },
    "ended": "2026-11-28"
-  },
-  {
-   "id": "2026-11-05-ai-selloff-1105",
-   "kind": "macro",
-   "status": "record",
-   "updated": "2026-11-25",
-   "backfill": true,
-   "asof": "2026-11-25",
-   "event": {
-    "name": "미국 AI 주식 급락",
-    "date": "2026-11-05",
-    "dates": [
-     {
-      "date": "2026-11-05",
-      "label": "시작"
-     }
-    ],
-    "sources": [
-     {
-      "name": "KPTV(AP)",
-      "url": "https://www.kptv.com/2026/11/05/brutal-sell-off-ai-stocks-sends-wall-street-reeling-sp-500-sees-worst-day-since-2025-liberation-day-tariffs/"
-     },
-     {
-      "name": "The Next Web",
-      "url": "https://thenextweb.com/news/ai-stocks-sell-off-nasdaq-correction"
-     },
-     {
-      "name": "Political.org",
-      "url": "https://political.org/2026/11/05/ai-stock-wipeout-sends-sp-500-down-4-4-in-worst-day-since-april-2025-erasing-post-midterm-rally/"
-     }
-    ]
-   },
-   "attention": {
-    "z": 2.78,
-    "base": "3개월",
-    "day": "2026-11-24",
-    "count": 49,
-    "mean": 7.7,
-    "sd": 14.9,
-    "pass": true
-   },
-   "impact": [
-    {
-     "cell": "us_10y",
-     "date": "2026-11-10"
-    },
-    {
-     "cell": "us_2y",
-     "date": "2026-11-05"
-    },
-    {
-     "cell": "usdkrw",
-     "date": "2026-11-09"
-    },
-    {
-     "cell": "sp500",
-     "date": "2026-11-05"
-    },
-    {
-     "cell": "nasdaq",
-     "date": "2026-11-05"
-    },
-    {
-     "cell": "vix",
-     "date": "2026-11-05"
-    }
-   ],
-   "flow": [
-    {
-     "id": "start",
-     "kind": "start",
-     "name": "미국 AI 주식 급락",
-     "date": "2026-11-05",
-     "reason": "중간선거 뒤 데이터센터 건설이 막힐 수 있다는 걱정이 퍼졌어요",
-     "sources": [
-      {
-       "name": "KPTV(AP)",
-       "url": "https://www.kptv.com/2026/11/05/brutal-sell-off-ai-stocks-sends-wall-street-reeling-sp-500-sees-worst-day-since-2025-liberation-day-tariffs/"
-      },
-      {
-       "name": "The Next Web",
-       "url": "https://thenextweb.com/news/ai-stocks-sell-off-nasdaq-correction"
-      }
-     ],
-     "parents": [],
-     "dir": 1,
-     "grp": "event"
-    },
-    {
-     "id": "n1",
-     "kind": "past",
-     "cell": "nasdaq",
-     "name": "미국 주식(나스닥)",
-     "grp": "stock_us",
-     "kr": false,
-     "value": "23,734",
-     "dir": -1,
-     "date": "2026-11-05",
-     "reason": "AI 기술주를 한꺼번에 팔면서 나스닥이 크게 내렸어요",
-     "sources": [
-      {
-       "name": "KPTV(AP)",
-       "url": "https://www.kptv.com/2026/11/05/brutal-sell-off-ai-stocks-sends-wall-street-reeling-sp-500-sees-worst-day-since-2025-liberation-day-tariffs/"
-      },
-      {
-       "name": "Political.org",
-       "url": "https://political.org/2026/11/05/ai-stock-wipeout-sends-sp-500-down-4-4-in-worst-day-since-april-2025-erasing-post-midterm-rally/"
-      }
-     ],
-     "link": null,
-     "parents": [
-      "start"
-     ],
-     "value_source": {
-      "name": "FRED NASDAQCOM",
-      "url": "https://fred.stlouisfed.org/series/NASDAQCOM"
-     },
-     "media": false
-    }
-   ],
-   "future": {
-    "release": null,
-    "title": "앞으로 이렇게 바뀔 수 있어요",
-    "header": "미국 기술주가 더 내린다면?",
-    "nodes": [
-     {
-      "id": "f1",
-      "kind": "future",
-      "cell": "kospi",
-      "name": "코스피",
-      "grp": "stock_kr",
-      "kr": true,
-      "dir": -1,
-      "now": "5,006",
-      "now_dir": -1,
-      "reason": "한국 주식은 미국 주식을 따라 움직이기 쉬워서요",
-      "tag": "bad",
-      "link": 15,
-      "parent": null,
-      "end": true
-     }
-    ]
-   },
-   "ended": "2026-11-26"
   },
   {
    "id": "2026-02-28-iran-war-0228",
