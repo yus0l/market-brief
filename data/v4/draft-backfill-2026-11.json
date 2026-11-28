@@ -21,7 +21,16 @@
      "url": "https://political.org/2026/11/05/ai-stock-wipeout-sends-sp-500-down-4-4-in-worst-day-since-april-2025-erasing-post-midterm-rally/"
     }
    ],
-   "gdelt_query": "(AI OR Nvidia OR chip) (stocks OR selloff) (\"data center\" OR midterm)"
+   "gdelt_query": "(AI OR Nvidia OR chip) (stocks OR selloff) (\"data center\" OR midterm)",
+   "attention": {
+    "z": -0.85,
+    "base": "3개월",
+    "day": "2026-11-27",
+    "count": 4,
+    "mean": 23.0,
+    "sd": 22.3,
+    "pass": false
+   }
   },
   {
    "key": "nvda-ceo-resign-1112",
@@ -42,7 +51,11 @@
      "url": "https://www.forbes.com/sites/fionariley/2026/11/12/nvidia-sinks-11-at-open-after-jensen-huang-resigns-pushing-market-cap-below-microsoft/"
     }
    ],
-   "gdelt_query": "Nvidia (Huang OR CEO) (resign OR resigns OR resignation OR resigned)"
+   "gdelt_query": "Nvidia (Huang OR CEO) (resign OR resigns OR resignation OR resigned)",
+   "attention": {
+    "z": null,
+    "why": "어제·그제 기사 수를 못 받음"
+   }
   },
   {
    "key": "nvda-ceo-return-1123",
@@ -63,7 +76,16 @@
      "url": "https://www.ddaily.co.kr/page/view/2026112416301704270"
     }
    ],
-   "gdelt_query": "Nvidia Huang (return OR returns OR reinstated OR reinstates)"
+   "gdelt_query": "Nvidia Huang (return OR returns OR reinstated OR reinstates)",
+   "attention": {
+    "z": 0.47,
+    "base": "1년",
+    "day": "2026-11-27",
+    "count": 21,
+    "mean": 8.1,
+    "sd": 27.3,
+    "pass": false
+   }
   }
  ],
  "flows": {
