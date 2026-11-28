@@ -10,7 +10,8 @@
    - 후보마다: `key`(영문 소문자-하이픈), `name`(사건 이름만, 해석·예측 없이. 예: "중동 전쟁 시작"), `kind`(`macro`/`firm`), `date`(사건이 처음 일어난 날, YYYY-MM-DD), `sources`(서로 다른 매체 2곳 이상 `{name,url}`), `gdelt_query`(GDELT 검색어, 영어. 예: `(Iran OR Israel) (oil OR crude)`)
    - `data/v4/draft-YYYY-MM-DD.json`에 `{"date": …, "candidates": […]}`로 쓴다
 2. `python3 pipeline/v4_data.py attention data/v4/draft-YYYY-MM-DD.json` → `python3 pipeline/v4.py precheck data/v4/draft-YYYY-MM-DD.json`
-   - `write_flow: true`인 후보만 3단계로. 하나도 없으면 4단계(build)만 돌린다 — 진행 중 사례가 `기록`으로 바뀐다
+   - `write_flow: true`인 후보만 3단계로
+   - 하나도 없으면 `write_flow: "issue"`인 후보(기사 급증 배수 1·2위)의 흐름을 3단계대로 쓴다 → **{오늘의 이슈}** (사례 아님, 목록에 안 쌓임). 지금까지 칸은 '평소보다 많이'(1년 표준편차 1배) 움직인 칸이면 되고, 이유는 똑같이 매체 2곳. 진행 중 사례는 4단계에서 `기록`으로 바뀐다
 3. **흐름** (검색 8회, 후보마다): 같은 파일 `flows.{key}`에 쓴다
    - `start_reason`: 사건이 왜 시장에 퍼졌나 한 줄, 과거형 "…했어요/…퍼졌어요" + 서로 다른 매체 2곳
    - `nodes`: 사건 뒤 실제로 움직인 칸. 각 `{id, cell 또는 media, parents, reason, reason_sources, link}`

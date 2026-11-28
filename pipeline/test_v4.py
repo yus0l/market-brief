@@ -95,4 +95,18 @@ log, _ = run(draft(cand={"key": "k3", "sources": S2[:1]})); ok("사건 출처 1�
 # 9. 조사
 ok("조사 가/이", v4.josa("미국 CPI") == "미국 CPI가" and v4.josa("미국 물가 발표") == "미국 물가 발표가" and v4.josa("금통위 결정") == "금통위 결정이")
 
+# 10. 오늘의 이슈: 사례가 없는 날 z 1위 · 1배 칸 · 목록에 안 쌓임
+for k in H: H[k]["notable"] = v4_data.big_days(H[k]["points"], H[k]["calc"], 1)[0]
+(v4.V4D / "history.json").write_text(json.dumps({"cells": H}), encoding="utf-8")
+(v4.V4W / "cases.json").unlink()
+d = draft(cand={"attention": {"pass": False, "z": 1.2, "base": "3개월"}})
+d["candidates"].append(dict(d["candidates"][0], key="k9", name="미국 고용 발표", attention={"pass": False, "z": 0.4}))
+d["flows"]["k9"] = d["flows"]["k"]
+log, out = run(d)
+I = out.get("issue") or {}
+ok("오늘의 이슈 = z 1위", not log["passed"] and I.get("event", {}).get("name") == "미국 물가 급등" and out["first"] == I.get("id"))
+ok("오늘의 이슈는 목록에 안 쌓임", out["cases"] == [])
+ok("오늘의 이슈 칸 = 1배 이상", [n["id"] for n in I.get("flow", [])][:2] == ["start", "n1"])
+rows, _ = v4.precheck(d, T); ok("precheck: 사례 없으면 이슈 후보 흐름 쓰기", [r["write_flow"] for r in rows] == ["issue", "issue"])
+
 print("\n실패", fails); sys.exit(1 if fails else 0)
