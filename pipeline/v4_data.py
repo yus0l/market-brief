@@ -78,7 +78,7 @@ COUNTRIES = ["US", "KS"]           # GDELT 나라 코드(FIPS): 미국 US, 한�
 def gdelt_daily(query, country, span):
     """그 나라 매체의 하루 기사 수 [(날짜, 수)]. 요청 제한(5초에 1번)을 지킨다."""
     q = urllib.parse.urlencode({"query": f"{query} sourcecountry:{country}", "mode": "timelinevolraw", "format": "json", "timespan": span})
-    for wait in (6, 20, 60):
+    for wait in (10, 40, 120):   # 공식 한도는 5초에 1번이지만 GitHub 공용 IP에선 더 막힘 (11/28 gdelt-check)
         time.sleep(wait)
         try: d = get(f"{GDELT}?{q}", timeout=60); break
         except urllib.error.HTTPError as e:
@@ -128,7 +128,7 @@ def attention(draft_path, today=None):
 # ── SEC 엔비디아 재무 ───────────────────────────────────────
 NVDA_CIK = "0001045810"
 def sec():
-    ua = os.environ.get("SEC_USER_AGENT")
+    ua = (os.environ.get("SEC_USER_AGENT") or "").strip()   # Secrets에 붙여 넣을 때 끝 줄바꿈이 들어가면 헤더 오류
     if not ua: print("SEC_USER_AGENT 없음 — 건너뜀"); return None
     d = get(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{NVDA_CIK}.json", ua=ua)
     gaap, out = d["facts"]["us-gaap"], {}

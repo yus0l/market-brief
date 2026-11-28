@@ -1,0 +1,20 @@
+# v4 주목도: 초안(draft)의 사건 후보마다 GDELT 기사 양을 받아 draft에 붙인다. 로컬·예약 실행 환경에서 GDELT가 막혀서 GitHub에서 돌림 (11/28)
+name: v4-attention
+on:
+  workflow_dispatch:
+    inputs: { draft: { description: "data/v4/draft-YYYY-MM-DD.json", required: true } }
+permissions: { contents: write }
+concurrency: { group: v4-attention }
+jobs:
+  attention:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python3 pipeline/v4_data.py attention "${{ inputs.draft }}" && python3 pipeline/v4.py precheck "${{ inputs.draft }}"
+      - run: |
+          git config user.name "collect-bot" && git config user.email "actions@users.noreply.github.com"
+          git pull --rebase -q
+          git add data/v4 && git commit -m "v4 attention $(TZ=Asia/Seoul date +%F)" || exit 0
+          git push
