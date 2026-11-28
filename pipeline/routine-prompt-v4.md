@@ -5,7 +5,7 @@
 
 0. `git fetch origin main && git checkout -B main origin/main`. `data/v4/history.json`의 date가 오늘 또는 어제인지 본다. 아니면 멈춘다(07:10 수집이 안 돈 날).
 1. **사건 후보** (검색 4회): 최근 24시간 미국·한국 주요 매체에서 크게 다뤄진 일 중 범위 안의 것, 최대 4개.
-   - 범위: 거시 경제(물가·금리·고용·경기·유가·환율·중앙은행·지정학의 경제 영향) / 기업 펀더멘털은 **엔비디아만**(실적·매출·영업이익·현금흐름·부채)
+   - 범위: **주제 제한 없음** — 세 기준(주목도·영향도·한국 영향)을 넘으면 무엇이든 (11/28 사용자). 기업 일이면 `kind: firm`, 그 밖은 `macro`. 기업 재무 칸은 엔비디아만, 기업 주가 칸은 없음
    - `web/v4/cases.json`에서 status가 `live`인 사례는 **모두** 후보에 다시 넣고 `same_as`에 그 id를 쓴다(계속 진행 중인지 코드가 다시 판단)
    - 후보마다: `key`(영문 소문자-하이픈), `name`(사건 이름만, 해석·예측 없이. 예: "중동 전쟁 시작"), `kind`(`macro`/`firm`), `date`(사건이 처음 일어난 날, YYYY-MM-DD), `sources`(서로 다른 매체 2곳 이상 `{name,url}`), `gdelt_query`(GDELT 검색어, 영어. 예: `(Iran OR Israel) (oil OR crude)`)
    - `data/v4/draft-YYYY-MM-DD.json`에 `{"date": …, "candidates": […]}`로 쓴다

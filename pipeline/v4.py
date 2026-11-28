@@ -297,10 +297,18 @@ def backfill_sim(draft_path, start, end):
         days.append((d.isoformat(), log["passed"], [e for e in log["errors"] if "①" in e or "②" in e or "③" in e][:2]))
         d += dt.timedelta(days=1)
     real = load(V4W / "cases.json", {"cases": []}); have = {x["id"]: x for x in real["cases"]}
+    # 마지막 날이 오늘(또는 어제)이고 그날도 넘은 사례 = 지금도 진행 중 → '진행 중'으로 둔다. 나머지는 기록
+    last = days[-1] if days else (None, [], [])
+    still = set(last[1]) if last[0] and dt.date.fromisoformat(last[0]) >= dt.date.today() - dt.timedelta(days=1) else set()
     for x in load(tmp_store, {"cases": []})["cases"]:
-        x.update(status="record", backfill=True); x.pop("closed", None); have[x["id"]] = x
+        x.update(status="live" if x["id"] in still else "record", backfill=True); x.pop("closed", None)
+        if x["id"] in still: x.pop("ended", None)
+        have[x["id"]] = x
     real["cases"] = sorted(have.values(), key=lambda x: x["event"]["dates"][-1]["date"], reverse=True)
-    if not real.get("first") and real["cases"]: real["first"] = real["cases"][0]["id"]
+    lives = [x for x in real["cases"] if x["status"] == "live"]
+    if lives:   # 대표 = 기사 급증 배수 큰 것
+        real["rep"] = max(lives, key=lambda x: (x.get("attention") or {}).get("z") or 0)["id"]; real["first"] = real["rep"]
+    elif real["cases"]: real["first"] = real["cases"][0]["id"]
     (V4W / "cases.json").write_text(json.dumps(real, ensure_ascii=False, indent=1), encoding="utf-8")
     tmp_store.unlink(missing_ok=True); tmp_draft.unlink(missing_ok=True)
     return days

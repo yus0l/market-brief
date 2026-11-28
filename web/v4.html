@@ -20,6 +20,7 @@ main{max-width:430px;margin:0 auto;padding:16px 20px 48px}
 .rec{color:var(--text-2);font-size:12px}
 .evn{font-size:26px;font-weight:700;line-height:var(--lh-tight);margin:6px 0 0;letter-spacing:-.01em}
 .sec{margin-top:32px}
+.sec.now{margin-top:20px}
 .sub{font-size:var(--fs-label);color:var(--text-2)}
 .st{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:var(--fs-display);font-weight:700;margin:2px 0 16px;line-height:var(--lh-tight)}
 .rel{font-size:12px;font-weight:600;padding:3px 8px;border-radius:var(--r-tag);background:var(--surface-box);color:var(--text-2)}
@@ -125,7 +126,7 @@ function render(D) {
   const F = C.flow || [];
   if (F.length) {
     const L = layout(F, n => n.parents || []);
-    r += `<section class="sec"><div class="sub">지금까지</div><div class="st">이렇게 이어졌어요</div><div class="flow">${L.map((x, i) => pastRow(x, i === L.length - 1)).join("")}</div></section>`;
+    r += `<section class="sec now"><div class="flow">${L.map((x, i) => pastRow(x, i === L.length - 1)).join("")}</div></section>`;
   }
   const U = C.future;
   if (U && (U.nodes || []).length) {
