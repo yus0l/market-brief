@@ -1,6 +1,6 @@
 {
  "date": "backfill",
- "_doc": "지난 사례 채우기 (11/28 개발): 2/28 미국·이스라엘의 이란 공습. 출처는 그 무렵 기사",
+ "_doc": "지난 사례 채우기 (11/28 개발): 2/28 미국·이스라엘의 이란 공습. 출처는 그 무렵 기사 · 다시 확대 근거(11/28 기획 규칙): 3/16 호르무즈 봉쇄·걸프 석유시설 공격, 4/8 휴전. 4/1은 매체 2곳 못 찾아 안 붙임. 날짜는 한국 시간(공습 2/28 오후)",
  "candidates": [
   {
    "key": "iran-war-0228",
@@ -30,6 +30,28 @@
     "mean": 612.6,
     "sd": 587.9,
     "pass": false
+   },
+   "reexpand": {
+    "2026-03-16": [
+     {
+      "name": "Business Day(Reuters)",
+      "url": "https://www.businessday.co.za/world/2026-03-16-israel-plans-weeks-more-war-as-hormuz-closure-sends-oil-above-100/"
+     },
+     {
+      "name": "Bloomberg",
+      "url": "https://www.bloomberg.com/news/videos/2026-03-16/iran-strikes-gulf-oil-hub-as-allies-resist-trump-hormuz-plan"
+     }
+    ],
+    "2026-04-08": [
+     {
+      "name": "Semafor",
+      "url": "https://www.semafor.com/article/04/08/2026/oil-drops-on-iran-us-ceasefire-news"
+     },
+     {
+      "name": "The National",
+      "url": "https://www.thenationalnews.com/business/energy/2026/04/08/oil-prices-drop-after-two-week-us-iran-ceasefire-announced/"
+     }
+    ]
    }
   }
  ],

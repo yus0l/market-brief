@@ -7,7 +7,8 @@
 1. **사건 후보** (검색 4회): 최근 24시간 미국·한국 주요 매체에서 크게 다뤄진 일 중 범위 안의 것, 최대 4개.
    - 범위: **주제 제한 없음** — 세 기준(주목도·영향도·한국 영향)을 넘으면 무엇이든 (11/28 사용자). 기업 일이면 `kind: firm`, 그 밖은 `macro`. 기업 재무 칸은 엔비디아만, 기업 주가 칸은 없음
    - `web/v4/cases.json`에서 status가 `live`인 사례는 **모두** 후보에 다시 넣고 `same_as`에 그 id를 쓴다(계속 진행 중인지 코드가 다시 판단)
-   - 후보마다: `key`(영문 소문자-하이픈), `name`(사건 이름만, 해석·예측 없이. 예: "중동 전쟁 시작"), `kind`(`macro`/`firm`), `date`(사건이 처음 일어난 날, YYYY-MM-DD), `sources`(서로 다른 매체 2곳 이상 `{name,url}`), `gdelt_query`(GDELT 검색어, 영어. 예: `(Iran OR Israel) (oil OR crude)`)
+   - 최근 `기록` 사례와 같은 사건이 다시 크게 다뤄지면 `same_as`에 그 id, `reexpand: {"어제 날짜": [매체 2곳 {name,url}]}` — 어제 늘어난 기사가 **같은 사건**이라는 서로 다른 매체 2곳. 없으면 "다시 확대"를 붙이지 않는다(비슷한 다른 사건 기사가 섞여 늘어난 날 제외)
+   - 후보마다: `key`(영문 소문자-하이픈), `name`(사건 이름만, 해석·예측 없이. 예: "중동 전쟁 시작"), `kind`(`macro`/`firm`), `date`(사건이 **처음 공개된 때를 한국 시간으로** 바꾼 날, YYYY-MM-DD. 예: 미국 동부 11/12 08:00 발표 = 한국 11/12 22:00 → 2026-11-12), `sources`(서로 다른 매체 2곳 이상 `{name,url}`), `gdelt_query`(GDELT 검색어, 영어. 예: `(Iran OR Israel) (oil OR crude)`)
    - `data/v4/draft-YYYY-MM-DD.json`에 `{"date": …, "candidates": […]}`로 쓴다
 2. `python3 pipeline/v4_data.py attention data/v4/draft-YYYY-MM-DD.json` → `python3 pipeline/v4.py precheck data/v4/draft-YYYY-MM-DD.json`
    - `write_flow: true`인 후보만 3단계로. 하나도 없으면 4단계(build)만 돌린다 — 진행 중 사례가 `기록`으로 바뀐다

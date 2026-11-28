@@ -250,8 +250,13 @@ def build(draft_path, today=None, backfill=False, store_path=None):
             errs.append(f"[{c['name']}] ③ 한국 영향: 흐름이 한국 칸까지 안 이어짐 — 사례 아님"); continue
         cid = c.get("same_as") if c.get("same_as") in cases else f"{c['date']}-{c['key']}"
         old = cases.get(cid)
+        if old and old.get("status") == "record":
+            # 다시 확대: 그날 늘어난 기사가 같은 사건이라는 걸 서로 다른 매체 2곳으로 확인해야 붙인다 (정보설계 v4 {사건}, 11/28)
+            day = a.get("day") or today.isoformat()
+            if len(doms((c.get("reexpand") or {}).get(day))) < 2:
+                errs.append(f"[{c['name']}] 다시 확대({md(day)}): 같은 사건이라는 매체 2곳 없음 — 붙이지 않음(기록 유지)"); continue
         dates = (old or {}).get("event", {}).get("dates") or [{"date": c["date"], "label": "시작"}]
-        if old and old.get("status") == "record": dates = dates + [{"date": today.isoformat(), "label": "다시 확대"}]
+        if old and old.get("status") == "record": dates = dates + [{"date": a.get("day") or today.isoformat(), "label": "다시 확대"}]
         cases[cid] = {"id": cid, "kind": c["kind"], "status": "record" if backfill else "live", "updated": today.isoformat(),
                       **({"backfill": True, "ended": today.isoformat(), "asof": today.isoformat()} if backfill else {}),
                       "event": {"name": c["name"], "date": c["date"], "dates": dates, "sources": c["sources"]},
