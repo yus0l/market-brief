@@ -128,7 +128,7 @@ def attention(draft_path, today=None):
 # ── SEC 엔비디아 재무 ───────────────────────────────────────
 NVDA_CIK = "0001045810"
 def sec():
-    ua = (os.environ.get("SEC_USER_AGENT") or "").strip()   # Secrets에 붙여 넣을 때 끝 줄바꿈이 들어가면 헤더 오류
+    ua = " ".join((os.environ.get("SEC_USER_AGENT") or "").split())   # Secrets 값에 줄바꿈이 섞이면 헤더 오류 → 공백 하나로
     if not ua: print("SEC_USER_AGENT 없음 — 건너뜀"); return None
     d = get(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{NVDA_CIK}.json", ua=ua)
     gaap, out = d["facts"]["us-gaap"], {}
