@@ -23,12 +23,12 @@
    ],
    "gdelt_query": "Iran (strike OR strikes OR war) (oil OR Hormuz)",
    "attention": {
-    "z": -0.98,
+    "z": -0.9,
     "base": "1년",
     "day": "2026-11-27",
     "count": 36,
-    "mean": 612.6,
-    "sd": 587.9,
+    "mean": 566.4,
+    "sd": 588.0,
     "pass": false
    },
    "reexpand": {
