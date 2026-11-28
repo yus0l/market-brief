@@ -118,7 +118,15 @@ def attention_one(key, query, store, today):
 
 def att_z(rec, today):
     """쌓인 하루 기사 수(rec["days"]) → today 공개 기준 주목도. 지난 사례 채우기도 이걸로 (GDELT 다시 안 부름)"""
-    tot = {d: sum(v.get(c, 0) for c in COUNTRIES) for d, v in rec["days"].items() if all(c in v for c in COUNTRIES)}
+    # GDELT는 기사 0개인 날을 빼고 줄 때가 있다 → 나라마다 받은 기간 안의 빈 날 = 0. 모든 나라 기간이 겹치는 날만 센다
+    rng = {}
+    for d, v in rec["days"].items():
+        for c in v: lo, hi = rng.get(c, (d, d)); rng[c] = (min(lo, d), max(hi, d))
+    if not all(c in rng for c in COUNTRIES): return {"z": None, "why": "한 나라 기사 수를 아직 못 받음"}
+    lo, hi = max(rng[c][0] for c in COUNTRIES), min(rng[c][1] for c in COUNTRIES)
+    tot, d0 = {}, dt.date.fromisoformat(lo)
+    while d0.isoformat() <= hi:
+        v = rec["days"].get(d0.isoformat(), {}); tot[d0.isoformat()] = sum(v.get(c, 0) for c in COUNTRIES); d0 += dt.timedelta(days=1)
     # 공개(08:00) 전 마지막으로 다 찬 하루 = 어제. GDELT가 하루 늦으면 그제까지 (그보다 오래되면 판단 안 함)
     y = next((d for d in ((today - dt.timedelta(days=i)).isoformat() for i in (1, 2)) if d in tot), None)
     if not y: return {"z": None, "why": "어제·그제 기사 수를 못 받음"}
