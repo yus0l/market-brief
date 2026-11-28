@@ -7,7 +7,7 @@ on:
       since: { description: "1년 값을 자를 시작일 (사건 한 달 전쯤)", required: true }
       start: { description: "날마다 돌릴 첫날", required: true }
       end:   { description: "마지막 날", required: true }
-permissions: { contents: write }
+permissions: { contents: write, actions: write }
 concurrency: { group: v4-attention }
 jobs:
   backfill:
@@ -27,3 +27,5 @@ jobs:
           git config user.name "collect-bot" && git config user.email "actions@users.noreply.github.com"
           git add data/v4 web/v4/cases.json && git commit -m "v4 backfill ${{ inputs.start }}~${{ inputs.end }}" || exit 0
           git pull --rebase -q && git push
+          gh workflow run daily.yml   # 봇 push는 배포를 안 깨워서 직접 배포
+        env: { GH_TOKEN: "${{ github.token }}" }
