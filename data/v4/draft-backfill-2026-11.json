@@ -23,12 +23,12 @@
    ],
    "gdelt_query": "(AI OR Nvidia OR chip) (stocks OR selloff) (midterm OR moratorium OR Democrats)",
    "attention": {
-    "z": -0.85,
+    "z": -0.56,
     "base": "3개월",
     "day": "2026-11-27",
-    "count": 4,
-    "mean": 23.0,
-    "sd": 22.3,
+    "count": 0,
+    "mean": 8.9,
+    "sd": 15.8,
     "pass": false
    }
   },
@@ -53,8 +53,13 @@
    ],
    "gdelt_query": "Nvidia (Huang OR CEO) (resign OR resigns OR resignation OR resigned)",
    "attention": {
-    "z": null,
-    "why": "어제·그제 기사 수를 못 받음"
+    "z": 0.36,
+    "base": "1년",
+    "day": "2026-11-27",
+    "count": 9,
+    "mean": 3.0,
+    "sd": 16.5,
+    "pass": false
    }
   },
   {
